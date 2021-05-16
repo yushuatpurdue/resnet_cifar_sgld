@@ -104,6 +104,10 @@ def main():
     train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
     ''' set optimizer '''
+    optimizer = SGLD(model.parameters(), lr=0.1, temperature=1)
+
+    ''' set loss '''
+    loss = nn.CrossEntropyLoss()
 
     ''' training loop '''
 

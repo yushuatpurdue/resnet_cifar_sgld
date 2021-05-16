@@ -1,6 +1,7 @@
 '''
 The files are created by Yushu Huang for the EMC-SGLD algorithm. YEAR 2021. 
 They aim to apply the algorithm to the training of resnet under CIFAR dataset. 
+codes reference: https://pysgmcmc.readthedocs.io/en/pytorch/_modules/pysgmcmc/optimizers/sgld.html
 
 In this file: a class -- SGLD is created as the optimizer for the network. 
 use 'from optimizers.SGLD import SGLD' to import this file. 
@@ -51,4 +52,23 @@ class SGLD(Optimizer):
                 lr = group["lr"]
                 temperature = group["temperature"]
                 gradient = parameter.grad.data
+
+                #  State initialization 
+
+                if len(state) == 0:
+                    state["iteration"] = 0
+
+                state["iteration"] += 1      # record the iteration
+
+                drift = - 0.5 * gradient * lr
+                sigma = torch.sqrt(torch.tensor(lr * temperature))
+                diffusion = torch.normal(
+                        mean=torch.zeros_like(gradient),
+                        std=torch.ones_like(gradient)
+                    ) * sigma
+
+                update = drift + diffusion
+                parameter.data.add_(update)
+
+        return(loss)
 

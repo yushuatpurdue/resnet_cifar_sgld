@@ -29,7 +29,7 @@ import resnet  # all resnet models.
 from LoadData import LoadData
 from optimizers.SGLD import SGLD
 
-'''
+
 parser = argparse.ArgumentParser()
 
 # mcmc properties:
@@ -64,7 +64,7 @@ parser.add_argument('-model', default='resnet20',
 
 # add the arguments.
 pars = parser.parse_args()
-'''
+
 
 
 '''
@@ -86,6 +86,8 @@ multichain_model = nn.ModuleList([model])
 print(multichain_model[0].__dict__)
 
 '''
+
+
 model = nn.DataParallel(resnet.resnet20(num_classes = 100))
 model.cpu()
 # print(len((torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0])[1]))
@@ -96,11 +98,12 @@ model.cpu()
 # print(list(params.values())[0][0][0])
 # print(torch.optim.SGD(model.parameters(), lr=0.1).state)
 
-
+'''
 for group in torch.optim.SGD(model.parameters(), lr=0.1).param_groups:
     # print(len(group))
     # break
     for parameters in group["params"]:
+        
         # print(parameters.__dict__)
         
         state = torch.optim.SGD(model.parameters(), lr=0.1).state[parameters]
@@ -108,3 +111,17 @@ for group in torch.optim.SGD(model.parameters(), lr=0.1).param_groups:
         print(state)
         
         break
+'''
+'''
+train_loader, test_loader = LoadData(256, 256, pars)
+
+print(len(test_loader))
+'''
+'''
+for train in enumerate(train_loader):
+    print(len(train[1][0][255]))
+    break
+'''
+
+optimizer = SGLD(model.parameters(), lr=0.1, temperature=1)
+optimizer.zero_grad()
