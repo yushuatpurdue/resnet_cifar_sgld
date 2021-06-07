@@ -23,6 +23,7 @@ from torch.utils.data import DataLoader
 import torch.utils.data as data
 import torchvision.datasets as datasets
 from torch.optim import Optimizer
+import torchvision.models as models
 
 ## import local
 import resnet  # all resnet models.
@@ -67,37 +68,46 @@ pars = parser.parse_args()
 
 
 
-'''
+
 if pars.data == 'cifar100':
     num_classes = 100
 elif pars.data == 'cifar10':
     num_classes = 10
 
 model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-print(model.__dict__)
+# print(model.__dict__)
 
 
-model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = 100))
 model.cpu()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
+multichain_model.extend([model for i in range(1, 2)])
+
+# for net in multichain_model:
+#     print(len(list(net.parameters())))
+# print(len(list(multichain_model.parameters())))          # 结论：如果不用for loop 访问每一个model，直接访问multichain_model 的parameters 的结果就是只访问了第一个model
 # multichain_model.extend([model for i in range(1, pars.nchains)])
-print(multichain_model[0].__dict__)
+# print(multichain_model.parameters)
+# print((list(multichain_model))[0])
+# print(model.parameters)
 
-'''
 
 
-model = nn.DataParallel(resnet.resnet20(num_classes = 100))
-model.cpu()
-# print(len((torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0])[1]))
+
+# print(len((SGLD(model.parameters(), lr=0.1,temperature=1).param_groups[0])[1]))           # incorrect code. 
 
 # print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]))
-# groups = torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]
-# print(len(groups))
-# print(list(params.values())[0][0][0])
+groups = SGLD(model.parameters(), lr=0.1).param_groups[0]
+print(len(list(groups.values())[0][0][0]))
+
+# print(list(groups.values())[0][0][0])
 # print(torch.optim.SGD(model.parameters(), lr=0.1).state)
 
+# print(type(torch.optim.SGD(multichain_model.parameters(), lr=0.1).param_groups[0]))
+# groups = torch.optim.SGD(multichain_model.parameters(), lr=0.1).param_groups[1]
+# print(len(list(groups.values())[0][0][0]))
+# print(groups)
 '''
 for group in torch.optim.SGD(model.parameters(), lr=0.1).param_groups:
     # print(len(group))
@@ -112,16 +122,39 @@ for group in torch.optim.SGD(model.parameters(), lr=0.1).param_groups:
         
         break
 '''
+
 '''
 train_loader, test_loader = LoadData(256, 256, pars)
 
-print(len(test_loader))
-'''
-'''
-for train in enumerate(train_loader):
-    print(len(train[1][0][255]))
-    break
-'''
+# print(len(test_loader))
 
-optimizer = SGLD(model.parameters(), lr=0.1, temperature=1)
-optimizer.zero_grad()
+
+# for train in enumerate(train_loader):
+#     print(len(train[1][0][255]))
+#     break
+
+
+optimizer = SGLD(multichain_model.parameters(), lr=0.1, temperature=0)     # 做了个实验发现temperature = 1 is like 太大了
+# optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+
+
+criterion = nn.CrossEntropyLoss()
+for i, (images, labels) in enumerate(train_loader):
+    optimizer.zero_grad()
+    output = multichain_model(images)
+    loss = criterion(output, labels)
+    print(loss.item())
+    loss.backward()
+    optimizer.step()
+
+    optimizer.zero_grad()
+    output = model(images)
+    loss = criterion(output, labels)
+    print(loss.item())
+
+    
+
+    break
+
+
+'''

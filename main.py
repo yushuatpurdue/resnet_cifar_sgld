@@ -35,6 +35,8 @@ import torchvision.datasets as datasets
 ## import local
 import resnet            ## all resnet models. 
 from LoadData import LoadData
+from optimizers.SGLD import SGLD
+
 '''
 define the main function
 '''
@@ -104,7 +106,7 @@ def main():
     train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
     ''' set optimizer '''
-    optimizer = SGLD(model.parameters(), lr=0.1, temperature=1)
+    optimizer = SGLD(multichain_model.parameters(), lr=0.1, temperature=1)
 
     ''' set loss '''
     loss = nn.CrossEntropyLoss()
