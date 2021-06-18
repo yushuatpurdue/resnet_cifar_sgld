@@ -14,16 +14,15 @@ import os
 import timeit
 import csv
 import argparse
+from torch.optim import optimizer
 from tqdm import tqdm ## better progressbar
 from math import exp
 from sys import getsizeof
 import numpy as np
 import random
-import pickle
 ## import pytorch modules
 import torch
 from torch.autograd import Variable
-import numpy as np
 import torch.nn as nn
 from torchvision import datasets, transforms
 from torchvision.datasets import ImageFolder
@@ -59,6 +58,9 @@ def main():
 
     ## neural network properties:
     parser.add_argument('-model', default='resnet20', help='which resnet model to use. In local package "resnet.py." ')
+
+    ## environmental properties: 
+    parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
 
     ## add the arguments. 
     pars = parser.parse_args()
@@ -96,6 +98,7 @@ def main():
     ## define model as an instance of resnet. 
     model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
     model.cuda()
+    # model.cpu()
 
     ## define model for each chain, and append them into a list. 
     multichain_model = nn.ModuleList([model])
@@ -105,14 +108,45 @@ def main():
     ''' set data '''
     train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
-    ''' set optimizer '''
-    optimizer = SGLD(multichain_model.parameters(), lr=0.1, temperature=1)
-
-    ''' set loss '''
-    loss = nn.CrossEntropyLoss()
-
     ''' training loop '''
 
+    # below is the experimental area, eventually needs to be wrapped in training.py. 
+
+    # no epoch issue is incorporated here. Use for loop to train by epoches in the training loop section in main. 
+
+    criterion = nn.CrossEntropyLoss()
+            
+
+    for t in range(pars.epochs):
+
+        print("epochs = ",t)      # 要注释掉
+        nnet = 1                  # 要注释掉
+
+        for net in multichain_model:
+            # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+            optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
+            
+            print("nnet = ", nnet) # 要注释掉
+
+            for i, (images, labels) in enumerate(train_loader):
+
+                # first change the data type from 'tensor' to 'Variables'. 
+                images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+                labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+
+                # then define optimizer, evaluate, calculate loss and back propagate. 
+                optimizer.zero_grad()
+                output = net(images)
+                loss = criterion(output, labels)
+                
+                print(loss.item())
+                print("data = ", i)
+
+                loss.backward()
+                optimizer.step()
+
+            nnet += 1               # 要注释掉
 
 
+main()
 

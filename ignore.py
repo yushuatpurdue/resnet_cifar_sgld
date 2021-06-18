@@ -98,8 +98,8 @@ multichain_model.extend([model for i in range(1, 2)])
 # print(len((SGLD(model.parameters(), lr=0.1,temperature=1).param_groups[0])[1]))           # incorrect code. 
 
 # print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]))
-groups = SGLD(model.parameters(), lr=0.1).param_groups[0]
-print(len(list(groups.values())[0][0][0]))
+# groups = SGLD(model.parameters(), lr=0.1).param_groups[0]
+# print(len(list(groups.values())[0][0][0]))
 
 # print(list(groups.values())[0][0][0])
 # print(torch.optim.SGD(model.parameters(), lr=0.1).state)
@@ -123,7 +123,7 @@ for group in torch.optim.SGD(model.parameters(), lr=0.1).param_groups:
         break
 '''
 
-'''
+
 train_loader, test_loader = LoadData(256, 256, pars)
 
 # print(len(test_loader))
@@ -133,15 +133,23 @@ train_loader, test_loader = LoadData(256, 256, pars)
 #     print(len(train[1][0][255]))
 #     break
 
-
-optimizer = SGLD(multichain_model.parameters(), lr=0.1, temperature=0)     # 做了个实验发现temperature = 1 is like 太大了
+'''
+optimizer = SGLD(model.parameters(), lr=0.1, temperature=0)     # 做了个实验发现temperature = 1 is like 太大了
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
-
-
 criterion = nn.CrossEntropyLoss()
+
+
 for i, (images, labels) in enumerate(train_loader):
     optimizer.zero_grad()
-    output = multichain_model(images)
+    output = model(images)
+    loss = criterion(output, labels)
+    print(loss.item())
+    loss.backward()
+    optimizer.step()
+'''
+'''
+    optimizer.zero_grad()
+    output = model(images)
     loss = criterion(output, labels)
     print(loss.item())
     loss.backward()
@@ -151,10 +159,48 @@ for i, (images, labels) in enumerate(train_loader):
     output = model(images)
     loss = criterion(output, labels)
     print(loss.item())
+    '''
 
-    
+criterion = nn.CrossEntropyLoss()
+            
+'''
+for t in range(pars.epochs):
+
+    print("epochs = ",t)      # 要注释掉
+    nnet = 1                  # 要注释掉
+
+    for net in multichain_model:
+        # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+        optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
+        
+        print("nnet = ", nnet) # 要注释掉
+
+        for i, (images, labels) in enumerate(train_loader):
+
+            # first change the data type from 'tensor' to 'Variables'. 
+            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+
+            # then define optimizer, evaluate, calculate loss and back propagate. 
+            optimizer.zero_grad()
+            output = net(images)
+            loss = criterion(output, labels)
+            
+            print(loss.item())
+            print("data = ", i)
+
+            loss.backward()
+            optimizer.step()
+
+        nnet += 1               # 要注释掉
+'''
+
+model.eval()
+# one_correct = 0
+for cnt, (images, labels) in enumerate(train_loader):
+    images, labels = Variable(images).cpu(), Variable(labels).cpu()
+    outputs = model.forward(images).data
+    print((outputs.max(1)[1] == labels.data).sum().item())
+    # print(labels.data)
 
     break
-
-
-'''
