@@ -29,6 +29,7 @@ import torchvision.models as models
 import resnet  # all resnet models.
 from LoadData import LoadData
 from optimizers.SGLD import SGLD
+from BayesEval import BayesEval
 
 
 parser = argparse.ArgumentParser()
@@ -162,14 +163,16 @@ for i, (images, labels) in enumerate(train_loader):
     '''
 
 criterion = nn.CrossEntropyLoss()
+accuracy = [BayesEval()] * pars.nchains
             
-'''
+
 for t in range(pars.epochs):
 
     print("epochs = ",t)      # 要注释掉
-    nnet = 1                  # 要注释掉
+    nnet = 0                  # 要注释掉
 
     for net in multichain_model:
+        
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
         
@@ -187,20 +190,15 @@ for t in range(pars.epochs):
             loss = criterion(output, labels)
             
             print(loss.item())
-            print("data = ", i)
+            # print("data = ", i)
 
             loss.backward()
             optimizer.step()
 
+        accuracy[nnet].eval(net, test_loader, cumulate = True)
+        print(accuracy[nnet].best_OneEpoch_acc)
         nnet += 1               # 要注释掉
-'''
 
-model.eval()
-# one_correct = 0
-for cnt, (images, labels) in enumerate(train_loader):
-    images, labels = Variable(images).cpu(), Variable(labels).cpu()
-    outputs = model.forward(images).data
-    print((outputs.max(1)[1] == labels.data).sum().item())
-    # print(labels.data)
 
-    break
+
+

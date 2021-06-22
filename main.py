@@ -7,6 +7,7 @@ They aim to apply the algorithm to the training of resnet under CIFAR dataset.
 In this file: main function for training a bayes neural network
 '''
 
+from BayesEval import BayesEval
 import math
 import copy
 import sys
@@ -35,6 +36,7 @@ import torchvision.datasets as datasets
 import resnet            ## all resnet models. 
 from LoadData import LoadData
 from optimizers.SGLD import SGLD
+from BayesEval import BayesEval
 
 '''
 define the main function
@@ -114,19 +116,22 @@ def main():
 
     # no epoch issue is incorporated here. Use for loop to train by epoches in the training loop section in main. 
 
-    criterion = nn.CrossEntropyLoss()
+    criterion = nn.CrossEntropyLoss()            # loss function for training. 
+    accuracy = [BayesEval()] * pars.nchains
             
 
     for t in range(pars.epochs):
 
         print("epochs = ",t)      # 要注释掉
-        nnet = 1                  # 要注释掉
+        nnet = 0
 
         for net in multichain_model:
+
+            ''' training nets '''
             # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
             optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
             
-            print("nnet = ", nnet) # 要注释掉
+            # print("nnet = ", nnet) # 要注释掉
 
             for i, (images, labels) in enumerate(train_loader):
 
@@ -139,12 +144,15 @@ def main():
                 output = net(images)
                 loss = criterion(output, labels)
                 
-                print(loss.item())
-                print("data = ", i)
+                # print(loss.item())       # 要注释掉
+                # print("data = ", i)       # 要注释掉
 
                 loss.backward()
                 optimizer.step()
 
+            ''' evaluating performance '''
+            accuracy[nnet].eval(net, test_loader, cumulate = True)
+            print(accuracy[nnet].best_OneEpoch_acc)
             nnet += 1               # 要注释掉
 
 
