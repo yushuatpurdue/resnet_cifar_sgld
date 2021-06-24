@@ -116,7 +116,7 @@ def main():
 
     # no epoch issue is incorporated here. Use for loop to train by epoches in the training loop section in main. 
 
-    criterion = nn.CrossEntropyLoss()            # loss function for training. 
+    criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 
     accuracy = [BayesEval()] * pars.nchains
             
 
@@ -129,7 +129,7 @@ def main():
 
             ''' training nets '''
             # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-            optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
+            optimizer = SGLD(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
             
             # print("nnet = ", nnet) # 要注释掉
 

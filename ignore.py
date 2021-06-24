@@ -187,18 +187,49 @@ for t in range(pars.epochs):
             # then define optimizer, evaluate, calculate loss and back propagate. 
             optimizer.zero_grad()
             output = net(images)
+            # print(output)
             loss = criterion(output, labels)
             
-            print(loss.item())
+            # print(loss.item())
             # print("data = ", i)
 
             loss.backward()
             optimizer.step()
 
+
+
+
         accuracy[nnet].eval(net, test_loader, cumulate = True)
         print(accuracy[nnet].best_OneEpoch_acc)
         nnet += 1               # 要注释掉
+'''
+for net in multichain_model:
+    print(net.parameters)
+       
+    # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+    optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
 
+    for i, (images, labels) in enumerate(train_loader):
 
+        # first change the data type from 'tensor' to 'Variables'. 
+        images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+        labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
 
+        # then define optimizer, evaluate, calculate loss and back propagate. 
+        optimizer.zero_grad()
+        # output = net(images)
+        output = net.forward(images).data
+        print(sum(output[0]))
+        # loss = criterion(output, labels)
+        
+        # print(loss.item())
+        # print("data = ", i)
 
+        # loss.backward()
+        # optimizer.step()
+
+        break
+    
+    break
+
+'''
