@@ -49,9 +49,9 @@ def main():
     ## mcmc properties:
     parser.add_argument('-nchains', default=1, type=int, help='Total number of chains')     ## how many chains are going to run. 
     parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
-    parser.add_argument('-T', default=0.05, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
+    parser.add_argument('-T', default=0.01, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
     parser.add_argument('-Tgap', default=0.01, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures equispaced with this gap. 
-    parser.add_argument('-lr', default=3e-6, type=float, help='Sampling learning rate')     ## learning rate for highest temperatur chain. 
+    parser.add_argument('-lr', default=2e-6, type=float, help='Sampling learning rate')     ## learning rate for highest temperatur chain. 
     parser.add_argument('-lrgap', default=0.66, type=float, help='Learning rate gap between chains')    ## learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
 
     ## dataset properties: 
@@ -152,7 +152,7 @@ def main():
 
             ''' evaluating performance '''
             accuracy[nnet].eval(net, test_loader, cumulate = True)
-            print(accuracy[nnet].best_OneEpoch_acc)
+            print(accuracy[nnet].OneEpoch_acc)
             nnet += 1               # 要注释掉
 
 
