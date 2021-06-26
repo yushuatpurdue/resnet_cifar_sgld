@@ -33,9 +33,10 @@ import torchvision.datasets as datasets
 ## import local
 
 from BayesEval import BayesEval
+from optimizers.SGLD import SGLD
 
 
-def training_SGLD(pars, model, optimizing_class, train_dataset, test_dataset, criterion):
+def training_SGLD(pars, model, train_dataset, test_dataset, criterion):
 
     nnet = 0
     accuracy = [BayesEval()] * pars.nchains
@@ -44,7 +45,7 @@ def training_SGLD(pars, model, optimizing_class, train_dataset, test_dataset, cr
 
         ''' training nets '''
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-        optimizer = optimizing_class(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
+        optimizer = SGLD(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
         
         # print("nnet = ", nnet) # 要注释掉
 

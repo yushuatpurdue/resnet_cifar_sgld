@@ -35,8 +35,8 @@ import torchvision.datasets as datasets
 ## import local
 import resnet            ## all resnet models. 
 from LoadData import LoadData
-from optimizers.SGLD import SGLD as optimizing_class
-from train import training_SGLD
+from optimizers.SGLD import SGLD
+from train.training_SGLD import training_SGLD
 
 
 '''
@@ -124,7 +124,7 @@ def main():
     for t in range(pars.epochs):
 
         print("epochs = ",t)      # 要注释掉
-        training_SGLD(pars, multichain_model, optimizing_class, train_loader, test_loader, criterion)
+        training_SGLD(pars, multichain_model, train_loader, test_loader, criterion)
         # nnet = 0
 
         # for net in multichain_model:
