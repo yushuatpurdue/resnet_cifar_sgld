@@ -35,8 +35,9 @@ import torchvision.datasets as datasets
 ## import local
 import resnet            ## all resnet models. 
 from LoadData import LoadData
-from optimizers.SGLD import SGLD
-from BayesEval import BayesEval
+from optimizers.SGLD import SGLD as optimizing_class
+from train import training_SGLD
+
 
 '''
 define the main function
@@ -117,43 +118,44 @@ def main():
     # no epoch issue is incorporated here. Use for loop to train by epoches in the training loop section in main. 
 
     criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 
-    accuracy = [BayesEval()] * pars.nchains
+    # accuracy = [BayesEval()] * pars.nchains
             
 
     for t in range(pars.epochs):
 
         print("epochs = ",t)      # 要注释掉
-        nnet = 0
+        training_SGLD(pars, multichain_model, optimizing_class, train_loader, test_loader, criterion)
+        # nnet = 0
 
-        for net in multichain_model:
+        # for net in multichain_model:
 
-            ''' training nets '''
-            # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-            optimizer = SGLD(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
+        #     ''' training nets '''
+        #     # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+        #     optimizer = SGLD(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
             
-            # print("nnet = ", nnet) # 要注释掉
+        #     # print("nnet = ", nnet) # 要注释掉
 
-            for i, (images, labels) in enumerate(train_loader):
+        #     for i, (images, labels) in enumerate(train_loader):
 
-                # first change the data type from 'tensor' to 'Variables'. 
-                images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-                labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+        #         # first change the data type from 'tensor' to 'Variables'. 
+        #         images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+        #         labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
 
-                # then define optimizer, evaluate, calculate loss and back propagate. 
-                optimizer.zero_grad()
-                output = net(images)
-                loss = criterion(output, labels)
+        #         # then define optimizer, evaluate, calculate loss and back propagate. 
+        #         optimizer.zero_grad()
+        #         output = net(images)
+        #         loss = criterion(output, labels)
                 
-                # print(loss.item())       # 要注释掉
-                # print("data = ", i)       # 要注释掉
+        #         # print(loss.item())       # 要注释掉
+        #         # print("data = ", i)       # 要注释掉
 
-                loss.backward()
-                optimizer.step()
+        #         loss.backward()
+        #         optimizer.step()
 
-            ''' evaluating performance '''
-            accuracy[nnet].eval(net, test_loader, cumulate = True)
-            print(accuracy[nnet].OneEpoch_acc)
-            nnet += 1               # 要注释掉
+        #     ''' evaluating performance '''
+        #     accuracy[nnet].eval(net, test_loader, cumulate = True)
+        #     print(accuracy[nnet].OneEpoch_acc)
+        #     nnet += 1               # 要注释掉
 
 
 main()

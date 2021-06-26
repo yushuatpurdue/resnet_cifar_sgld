@@ -1,1 +1,5 @@
 data/
+__pycache__/BayesEval.cpython-38.pyc
+__pycache__/LoadData.cpython-38.pyc
+__pycache__/resnet.cpython-38.pyc
+optimizers/__pycache__/SGLD.cpython-38.pyc

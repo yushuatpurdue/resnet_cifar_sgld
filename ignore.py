@@ -28,8 +28,10 @@ import torchvision.models as models
 ## import local
 import resnet  # all resnet models.
 from LoadData import LoadData
-from optimizers.SGLD import SGLD
+from optimizers.SGLD import SGLD as optimizing_class
 from BayesEval import BayesEval
+from train.training_SGLD import training_SGLD
+
 
 
 parser = argparse.ArgumentParser()
@@ -163,45 +165,46 @@ for i, (images, labels) in enumerate(train_loader):
     '''
 
 criterion = nn.CrossEntropyLoss()
-accuracy = [BayesEval()] * pars.nchains
+# accuracy = [BayesEval()] * pars.nchains
             
 
 for t in range(pars.epochs):
 
     print("epochs = ",t)      # 要注释掉
-    nnet = 0                  # 要注释掉
+    training_SGLD(pars, multichain_model, optimizing_class, train_loader, test_loader, criterion)
+    # nnet = 0                  # 要注释掉
 
-    for net in multichain_model:
+    # for net in multichain_model:
         
-        # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-        optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
+    #     # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+    #     optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
         
-        print("nnet = ", nnet) # 要注释掉
+    #     print("nnet = ", nnet) # 要注释掉
 
-        for i, (images, labels) in enumerate(train_loader):
+    #     for i, (images, labels) in enumerate(train_loader):
 
-            # first change the data type from 'tensor' to 'Variables'. 
-            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+    #         # first change the data type from 'tensor' to 'Variables'. 
+    #         images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+    #         labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
 
-            # then define optimizer, evaluate, calculate loss and back propagate. 
-            optimizer.zero_grad()
-            output = net(images)
-            # print(output)
-            loss = criterion(output, labels)
+    #         # then define optimizer, evaluate, calculate loss and back propagate. 
+    #         optimizer.zero_grad()
+    #         output = net(images)
+    #         # print(output)
+    #         loss = criterion(output, labels)
             
-            # print(loss.item())
-            # print("data = ", i)
+    #         # print(loss.item())
+    #         # print("data = ", i)
 
-            loss.backward()
-            optimizer.step()
-
-
+    #         loss.backward()
+    #         optimizer.step()
 
 
-        accuracy[nnet].eval(net, test_loader, cumulate = True)
-        print(accuracy[nnet].best_OneEpoch_acc)
-        nnet += 1               # 要注释掉
+
+
+    #     accuracy[nnet].eval(net, test_loader, cumulate = True)
+    #     print(accuracy[nnet].best_OneEpoch_acc)
+    #     nnet += 1               # 要注释掉
 '''
 for net in multichain_model:
     print(net.parameters)
