@@ -30,8 +30,9 @@ import resnet  # all resnet models.
 from LoadData import LoadData
 from optimizers.SGLD import SGLD as optimizing_class
 from BayesEval import BayesEval
-from train.training_SGLD import training_SGLD
-
+from train.training_parallel import training_parallel
+from optimizers.SGLD import SGLD
+from optimizers.SGHMC import SGHMC
 
 
 parser = argparse.ArgumentParser()
@@ -171,13 +172,13 @@ criterion = nn.CrossEntropyLoss()
 for t in range(pars.epochs):
 
     print("epochs = ",t)      # 要注释掉
-    training_SGLD(pars, multichain_model, optimizing_class, train_loader, test_loader, criterion)
+    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
     # nnet = 0                  # 要注释掉
 
     # for net in multichain_model:
         
     #     # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-    #     optimizer = SGLD(net.parameters(), lr=0.001, temperature=0.05)
+    #     optimizer = SGHMC(net.parameters(), lr=0.001, temperature=0.05, friction=0.05)
         
     #     print("nnet = ", nnet) # 要注释掉
 
@@ -193,7 +194,7 @@ for t in range(pars.epochs):
     #         # print(output)
     #         loss = criterion(output, labels)
             
-    #         # print(loss.item())
+    #         print(loss.item())
     #         # print("data = ", i)
 
     #         loss.backward()
@@ -202,8 +203,8 @@ for t in range(pars.epochs):
 
 
 
-    #     accuracy[nnet].eval(net, test_loader, cumulate = True)
-    #     print(accuracy[nnet].best_OneEpoch_acc)
+    #     # accuracy[nnet].eval(net, test_loader, cumulate = True)
+    #     # print(accuracy[nnet].best_OneEpoch_acc)
     #     nnet += 1               # 要注释掉
 '''
 for net in multichain_model:

@@ -70,5 +70,5 @@ class SGLD(Optimizer):
                 update = drift + diffusion
                 parameter.data.add_(update)
 
-        return(loss)
+        return loss
 
