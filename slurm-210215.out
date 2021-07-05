@@ -3,3 +3,2005 @@ The following have been reloaded with a version change:
   1) anaconda/5.1.0-py36 => anaconda/2020.11-py38
   2) cuda/10.0.130 => cuda/11.0.3
 
+Namespace(T=0.01, Tgap=0.01, batch=256, data='cifar100', epochs=1000, lr=2e-06, lrgap=0.66, model='resnet20', nchains=1, seed=190187)
+Files already downloaded and verified
+epochs =  0
+1.01
+epochs =  1
+1.02
+epochs =  2
+1.03
+epochs =  3
+1.01
+epochs =  4
+1.03
+epochs =  5
+1.02
+epochs =  6
+1.04
+epochs =  7
+1.03
+epochs =  8
+1.03
+epochs =  9
+1.04
+epochs =  10
+1.07
+epochs =  11
+1.08
+epochs =  12
+1.06
+epochs =  13
+1.07
+epochs =  14
+1.03
+epochs =  15
+1.02
+epochs =  16
+0.99
+epochs =  17
+1.01
+epochs =  18
+1.01
+epochs =  19
+0.99
+epochs =  20
+1.04
+epochs =  21
+1.06
+epochs =  22
+1.04
+epochs =  23
+1.01
+epochs =  24
+0.99
+epochs =  25
+1.05
+epochs =  26
+1.0
+epochs =  27
+0.97
+epochs =  28
+0.99
+epochs =  29
+1.02
+epochs =  30
+1.08
+epochs =  31
+0.99
+epochs =  32
+1.06
+epochs =  33
+1.11
+epochs =  34
+1.14
+epochs =  35
+1.09
+epochs =  36
+1.02
+epochs =  37
+1.01
+epochs =  38
+0.97
+epochs =  39
+0.97
+epochs =  40
+0.94
+epochs =  41
+0.95
+epochs =  42
+0.99
+epochs =  43
+1.1
+epochs =  44
+0.96
+epochs =  45
+1.01
+epochs =  46
+0.99
+epochs =  47
+1.07
+epochs =  48
+1.06
+epochs =  49
+1.02
+epochs =  50
+0.95
+epochs =  51
+1.0
+epochs =  52
+0.94
+epochs =  53
+0.92
+epochs =  54
+0.86
+epochs =  55
+0.93
+epochs =  56
+0.83
+epochs =  57
+0.85
+epochs =  58
+0.82
+epochs =  59
+0.75
+epochs =  60
+0.81
+epochs =  61
+0.88
+epochs =  62
+0.88
+epochs =  63
+0.77
+epochs =  64
+0.76
+epochs =  65
+0.79
+epochs =  66
+0.76
+epochs =  67
+0.76
+epochs =  68
+0.67
+epochs =  69
+0.67
+epochs =  70
+0.7
+epochs =  71
+0.71
+epochs =  72
+0.73
+epochs =  73
+0.72
+epochs =  74
+0.85
+epochs =  75
+0.8
+epochs =  76
+0.84
+epochs =  77
+0.82
+epochs =  78
+0.85
+epochs =  79
+0.8
+epochs =  80
+0.87
+epochs =  81
+0.87
+epochs =  82
+0.91
+epochs =  83
+0.9
+epochs =  84
+0.94
+epochs =  85
+0.95
+epochs =  86
+0.89
+epochs =  87
+0.89
+epochs =  88
+0.86
+epochs =  89
+0.82
+epochs =  90
+0.81
+epochs =  91
+0.85
+epochs =  92
+0.92
+epochs =  93
+0.82
+epochs =  94
+0.79
+epochs =  95
+0.8
+epochs =  96
+0.83
+epochs =  97
+0.91
+epochs =  98
+0.88
+epochs =  99
+0.85
+epochs =  100
+0.87
+epochs =  101
+0.92
+epochs =  102
+0.94
+epochs =  103
+0.95
+epochs =  104
+0.94
+epochs =  105
+1.01
+epochs =  106
+1.0
+epochs =  107
+1.03
+epochs =  108
+0.97
+epochs =  109
+0.97
+epochs =  110
+0.99
+epochs =  111
+0.96
+epochs =  112
+0.97
+epochs =  113
+0.91
+epochs =  114
+0.95
+epochs =  115
+0.95
+epochs =  116
+1.05
+epochs =  117
+1.08
+epochs =  118
+1.09
+epochs =  119
+1.04
+epochs =  120
+1.05
+epochs =  121
+1.09
+epochs =  122
+1.0
+epochs =  123
+1.04
+epochs =  124
+1.0
+epochs =  125
+1.05
+epochs =  126
+1.04
+epochs =  127
+1.07
+epochs =  128
+1.06
+epochs =  129
+1.11
+epochs =  130
+1.11
+epochs =  131
+1.07
+epochs =  132
+1.09
+epochs =  133
+1.03
+epochs =  134
+1.07
+epochs =  135
+0.99
+epochs =  136
+0.94
+epochs =  137
+1.07
+epochs =  138
+1.04
+epochs =  139
+1.06
+epochs =  140
+1.11
+epochs =  141
+1.08
+epochs =  142
+1.11
+epochs =  143
+1.09
+epochs =  144
+0.96
+epochs =  145
+0.9
+epochs =  146
+1.08
+epochs =  147
+0.97
+epochs =  148
+0.92
+epochs =  149
+0.94
+epochs =  150
+0.94
+epochs =  151
+0.95
+epochs =  152
+0.79
+epochs =  153
+0.79
+epochs =  154
+0.81
+epochs =  155
+0.81
+epochs =  156
+0.78
+epochs =  157
+0.81
+epochs =  158
+0.85
+epochs =  159
+0.74
+epochs =  160
+0.71
+epochs =  161
+0.76
+epochs =  162
+0.87
+epochs =  163
+0.83
+epochs =  164
+0.89
+epochs =  165
+0.91
+epochs =  166
+0.84
+epochs =  167
+0.86
+epochs =  168
+0.9
+epochs =  169
+0.79
+epochs =  170
+0.88
+epochs =  171
+0.88
+epochs =  172
+0.73
+epochs =  173
+0.82
+epochs =  174
+0.76
+epochs =  175
+0.76
+epochs =  176
+0.8
+epochs =  177
+0.79
+epochs =  178
+0.76
+epochs =  179
+0.84
+epochs =  180
+0.79
+epochs =  181
+0.79
+epochs =  182
+0.78
+epochs =  183
+0.87
+epochs =  184
+0.9
+epochs =  185
+0.83
+epochs =  186
+0.85
+epochs =  187
+0.9
+epochs =  188
+0.98
+epochs =  189
+0.92
+epochs =  190
+0.95
+epochs =  191
+0.93
+epochs =  192
+0.96
+epochs =  193
+0.96
+epochs =  194
+0.95
+epochs =  195
+0.98
+epochs =  196
+1.0
+epochs =  197
+1.01
+epochs =  198
+1.07
+epochs =  199
+1.12
+epochs =  200
+1.13
+epochs =  201
+1.0
+epochs =  202
+0.98
+epochs =  203
+1.01
+epochs =  204
+1.01
+epochs =  205
+1.01
+epochs =  206
+1.04
+epochs =  207
+1.04
+epochs =  208
+1.1
+epochs =  209
+1.06
+epochs =  210
+1.01
+epochs =  211
+1.0
+epochs =  212
+1.06
+epochs =  213
+1.02
+epochs =  214
+1.14
+epochs =  215
+1.15
+epochs =  216
+1.03
+epochs =  217
+0.99
+epochs =  218
+0.99
+epochs =  219
+0.99
+epochs =  220
+1.04
+epochs =  221
+1.05
+epochs =  222
+1.04
+epochs =  223
+1.01
+epochs =  224
+1.01
+epochs =  225
+1.02
+epochs =  226
+1.01
+epochs =  227
+1.02
+epochs =  228
+1.0
+epochs =  229
+0.98
+epochs =  230
+1.0
+epochs =  231
+1.01
+epochs =  232
+0.95
+epochs =  233
+0.99
+epochs =  234
+1.0
+epochs =  235
+0.99
+epochs =  236
+0.98
+epochs =  237
+0.99
+epochs =  238
+1.01
+epochs =  239
+1.03
+epochs =  240
+1.04
+epochs =  241
+1.02
+epochs =  242
+1.02
+epochs =  243
+0.98
+epochs =  244
+0.98
+epochs =  245
+0.94
+epochs =  246
+0.91
+epochs =  247
+0.89
+epochs =  248
+0.87
+epochs =  249
+0.91
+epochs =  250
+0.96
+epochs =  251
+0.93
+epochs =  252
+0.94
+epochs =  253
+0.97
+epochs =  254
+0.99
+epochs =  255
+1.0
+epochs =  256
+1.0
+epochs =  257
+0.96
+epochs =  258
+0.95
+epochs =  259
+0.93
+epochs =  260
+0.94
+epochs =  261
+0.93
+epochs =  262
+0.95
+epochs =  263
+1.06
+epochs =  264
+0.98
+epochs =  265
+0.95
+epochs =  266
+0.99
+epochs =  267
+1.0
+epochs =  268
+1.01
+epochs =  269
+1.03
+epochs =  270
+1.03
+epochs =  271
+1.01
+epochs =  272
+1.02
+epochs =  273
+1.03
+epochs =  274
+1.01
+epochs =  275
+0.97
+epochs =  276
+0.97
+epochs =  277
+0.96
+epochs =  278
+1.02
+epochs =  279
+0.87
+epochs =  280
+0.86
+epochs =  281
+0.87
+epochs =  282
+0.86
+epochs =  283
+0.82
+epochs =  284
+0.81
+epochs =  285
+0.77
+epochs =  286
+0.81
+epochs =  287
+0.72
+epochs =  288
+0.75
+epochs =  289
+0.78
+epochs =  290
+0.76
+epochs =  291
+0.77
+epochs =  292
+0.67
+epochs =  293
+0.68
+epochs =  294
+0.73
+epochs =  295
+0.8
+epochs =  296
+0.76
+epochs =  297
+0.7
+epochs =  298
+0.68
+epochs =  299
+0.66
+epochs =  300
+0.81
+epochs =  301
+0.88
+epochs =  302
+0.97
+epochs =  303
+1.01
+epochs =  304
+1.0
+epochs =  305
+1.02
+epochs =  306
+1.04
+epochs =  307
+1.02
+epochs =  308
+0.99
+epochs =  309
+0.99
+epochs =  310
+0.99
+epochs =  311
+0.97
+epochs =  312
+0.98
+epochs =  313
+1.0
+epochs =  314
+1.15
+epochs =  315
+1.16
+epochs =  316
+1.2
+epochs =  317
+1.16
+epochs =  318
+1.25
+epochs =  319
+1.21
+epochs =  320
+1.26
+epochs =  321
+1.25
+epochs =  322
+1.11
+epochs =  323
+1.04
+epochs =  324
+1.06
+epochs =  325
+1.04
+epochs =  326
+1.05
+epochs =  327
+1.12
+epochs =  328
+1.12
+epochs =  329
+1.13
+epochs =  330
+1.11
+epochs =  331
+1.04
+epochs =  332
+1.1
+epochs =  333
+1.07
+epochs =  334
+1.11
+epochs =  335
+1.03
+epochs =  336
+1.03
+epochs =  337
+1.04
+epochs =  338
+1.01
+epochs =  339
+1.03
+epochs =  340
+1.0
+epochs =  341
+1.0
+epochs =  342
+1.0
+epochs =  343
+1.0
+epochs =  344
+1.01
+epochs =  345
+1.03
+epochs =  346
+1.02
+epochs =  347
+1.02
+epochs =  348
+1.04
+epochs =  349
+1.02
+epochs =  350
+1.02
+epochs =  351
+1.03
+epochs =  352
+1.0
+epochs =  353
+1.01
+epochs =  354
+1.0
+epochs =  355
+1.01
+epochs =  356
+1.01
+epochs =  357
+1.0
+epochs =  358
+1.03
+epochs =  359
+1.03
+epochs =  360
+1.03
+epochs =  361
+1.15
+epochs =  362
+1.07
+epochs =  363
+1.06
+epochs =  364
+1.07
+epochs =  365
+1.07
+epochs =  366
+1.1
+epochs =  367
+1.16
+epochs =  368
+1.16
+epochs =  369
+1.12
+epochs =  370
+1.07
+epochs =  371
+1.02
+epochs =  372
+1.02
+epochs =  373
+1.02
+epochs =  374
+1.02
+epochs =  375
+1.03
+epochs =  376
+1.02
+epochs =  377
+1.03
+epochs =  378
+1.02
+epochs =  379
+1.02
+epochs =  380
+1.05
+epochs =  381
+1.1
+epochs =  382
+0.95
+epochs =  383
+0.95
+epochs =  384
+0.93
+epochs =  385
+0.96
+epochs =  386
+1.03
+epochs =  387
+0.98
+epochs =  388
+1.06
+epochs =  389
+0.98
+epochs =  390
+0.99
+epochs =  391
+0.96
+epochs =  392
+0.95
+epochs =  393
+0.78
+epochs =  394
+0.82
+epochs =  395
+1.02
+epochs =  396
+1.08
+epochs =  397
+1.09
+epochs =  398
+1.06
+epochs =  399
+1.16
+epochs =  400
+1.2
+epochs =  401
+1.17
+epochs =  402
+1.17
+epochs =  403
+1.13
+epochs =  404
+1.11
+epochs =  405
+1.04
+epochs =  406
+1.18
+epochs =  407
+1.19
+epochs =  408
+1.15
+epochs =  409
+1.09
+epochs =  410
+1.32
+epochs =  411
+1.22
+epochs =  412
+1.16
+epochs =  413
+1.18
+epochs =  414
+1.1
+epochs =  415
+1.11
+epochs =  416
+1.06
+epochs =  417
+1.1
+epochs =  418
+1.14
+epochs =  419
+1.17
+epochs =  420
+1.35
+epochs =  421
+1.15
+epochs =  422
+1.12
+epochs =  423
+1.12
+epochs =  424
+1.22
+epochs =  425
+1.27
+epochs =  426
+1.28
+epochs =  427
+1.26
+epochs =  428
+1.31
+epochs =  429
+1.33
+epochs =  430
+1.45
+epochs =  431
+1.48
+epochs =  432
+1.37
+epochs =  433
+1.32
+epochs =  434
+1.36
+epochs =  435
+1.19
+epochs =  436
+1.06
+epochs =  437
+1.24
+epochs =  438
+1.17
+epochs =  439
+1.02
+epochs =  440
+0.96
+epochs =  441
+0.94
+epochs =  442
+0.85
+epochs =  443
+0.88
+epochs =  444
+1.08
+epochs =  445
+1.12
+epochs =  446
+0.96
+epochs =  447
+0.8
+epochs =  448
+0.86
+epochs =  449
+0.87
+epochs =  450
+0.74
+epochs =  451
+0.79
+epochs =  452
+0.88
+epochs =  453
+0.83
+epochs =  454
+0.9
+epochs =  455
+1.0
+epochs =  456
+0.99
+epochs =  457
+0.93
+epochs =  458
+0.87
+epochs =  459
+0.92
+epochs =  460
+0.86
+epochs =  461
+0.87
+epochs =  462
+0.87
+epochs =  463
+0.96
+epochs =  464
+0.86
+epochs =  465
+0.86
+epochs =  466
+0.83
+epochs =  467
+0.85
+epochs =  468
+0.71
+epochs =  469
+0.75
+epochs =  470
+0.79
+epochs =  471
+0.84
+epochs =  472
+0.75
+epochs =  473
+0.83
+epochs =  474
+0.86
+epochs =  475
+0.92
+epochs =  476
+0.8
+epochs =  477
+0.81
+epochs =  478
+0.96
+epochs =  479
+0.91
+epochs =  480
+0.86
+epochs =  481
+0.91
+epochs =  482
+0.87
+epochs =  483
+0.88
+epochs =  484
+0.79
+epochs =  485
+0.75
+epochs =  486
+0.81
+epochs =  487
+0.99
+epochs =  488
+0.91
+epochs =  489
+0.91
+epochs =  490
+0.97
+epochs =  491
+1.0
+epochs =  492
+0.89
+epochs =  493
+0.89
+epochs =  494
+0.88
+epochs =  495
+0.97
+epochs =  496
+0.85
+epochs =  497
+0.92
+epochs =  498
+0.87
+epochs =  499
+0.82
+epochs =  500
+0.69
+epochs =  501
+0.81
+epochs =  502
+0.82
+epochs =  503
+0.8
+epochs =  504
+0.83
+epochs =  505
+0.73
+epochs =  506
+0.75
+epochs =  507
+0.75
+epochs =  508
+0.8
+epochs =  509
+0.72
+epochs =  510
+0.72
+epochs =  511
+0.66
+epochs =  512
+0.64
+epochs =  513
+0.75
+epochs =  514
+0.69
+epochs =  515
+0.71
+epochs =  516
+0.8
+epochs =  517
+0.73
+epochs =  518
+0.61
+epochs =  519
+0.74
+epochs =  520
+0.65
+epochs =  521
+0.79
+epochs =  522
+0.72
+epochs =  523
+0.73
+epochs =  524
+0.76
+epochs =  525
+0.87
+epochs =  526
+0.88
+epochs =  527
+0.85
+epochs =  528
+0.88
+epochs =  529
+0.9
+epochs =  530
+0.96
+epochs =  531
+0.98
+epochs =  532
+1.0
+epochs =  533
+1.01
+epochs =  534
+1.0
+epochs =  535
+1.02
+epochs =  536
+1.03
+epochs =  537
+0.94
+epochs =  538
+0.93
+epochs =  539
+0.97
+epochs =  540
+0.94
+epochs =  541
+1.01
+epochs =  542
+0.99
+epochs =  543
+0.96
+epochs =  544
+0.96
+epochs =  545
+1.02
+epochs =  546
+1.0
+epochs =  547
+1.01
+epochs =  548
+1.0
+epochs =  549
+1.02
+epochs =  550
+1.01
+epochs =  551
+1.0
+epochs =  552
+0.99
+epochs =  553
+1.04
+epochs =  554
+1.04
+epochs =  555
+1.02
+epochs =  556
+1.03
+epochs =  557
+1.02
+epochs =  558
+1.01
+epochs =  559
+1.04
+epochs =  560
+1.04
+epochs =  561
+1.03
+epochs =  562
+1.04
+epochs =  563
+1.05
+epochs =  564
+1.01
+epochs =  565
+0.97
+epochs =  566
+0.96
+epochs =  567
+0.95
+epochs =  568
+0.88
+epochs =  569
+0.91
+epochs =  570
+0.87
+epochs =  571
+0.93
+epochs =  572
+0.94
+epochs =  573
+0.97
+epochs =  574
+0.88
+epochs =  575
+0.94
+epochs =  576
+0.86
+epochs =  577
+0.88
+epochs =  578
+0.85
+epochs =  579
+0.79
+epochs =  580
+0.8
+epochs =  581
+0.81
+epochs =  582
+0.83
+epochs =  583
+0.76
+epochs =  584
+0.79
+epochs =  585
+0.79
+epochs =  586
+0.78
+epochs =  587
+0.71
+epochs =  588
+0.77
+epochs =  589
+0.81
+epochs =  590
+0.74
+epochs =  591
+0.68
+epochs =  592
+0.64
+epochs =  593
+0.73
+epochs =  594
+0.77
+epochs =  595
+0.71
+epochs =  596
+0.64
+epochs =  597
+0.59
+epochs =  598
+0.61
+epochs =  599
+0.75
+epochs =  600
+0.68
+epochs =  601
+0.78
+epochs =  602
+0.85
+epochs =  603
+0.86
+epochs =  604
+0.87
+epochs =  605
+0.82
+epochs =  606
+0.81
+epochs =  607
+0.82
+epochs =  608
+0.84
+epochs =  609
+0.82
+epochs =  610
+0.67
+epochs =  611
+0.69
+epochs =  612
+0.79
+epochs =  613
+0.78
+epochs =  614
+0.84
+epochs =  615
+0.81
+epochs =  616
+0.84
+epochs =  617
+0.88
+epochs =  618
+0.9
+epochs =  619
+0.88
+epochs =  620
+0.86
+epochs =  621
+0.83
+epochs =  622
+0.89
+epochs =  623
+0.9
+epochs =  624
+0.8
+epochs =  625
+0.79
+epochs =  626
+0.78
+epochs =  627
+0.8
+epochs =  628
+0.74
+epochs =  629
+0.66
+epochs =  630
+0.79
+epochs =  631
+0.69
+epochs =  632
+0.73
+epochs =  633
+0.79
+epochs =  634
+0.8
+epochs =  635
+0.77
+epochs =  636
+0.77
+epochs =  637
+0.73
+epochs =  638
+0.72
+epochs =  639
+0.68
+epochs =  640
+0.66
+epochs =  641
+0.72
+epochs =  642
+0.72
+epochs =  643
+0.79
+epochs =  644
+0.7
+epochs =  645
+0.53
+epochs =  646
+0.56
+epochs =  647
+0.57
+epochs =  648
+0.65
+epochs =  649
+0.61
+epochs =  650
+0.63
+epochs =  651
+0.66
+epochs =  652
+0.61
+epochs =  653
+0.69
+epochs =  654
+0.75
+epochs =  655
+0.7
+epochs =  656
+0.67
+epochs =  657
+0.71
+epochs =  658
+0.61
+epochs =  659
+0.73
+epochs =  660
+0.69
+epochs =  661
+0.66
+epochs =  662
+0.67
+epochs =  663
+0.61
+epochs =  664
+0.6
+epochs =  665
+0.76
+epochs =  666
+0.63
+epochs =  667
+0.63
+epochs =  668
+0.66
+epochs =  669
+0.75
+epochs =  670
+0.69
+epochs =  671
+0.77
+epochs =  672
+0.8
+epochs =  673
+0.74
+epochs =  674
+0.76
+epochs =  675
+0.75
+epochs =  676
+0.76
+epochs =  677
+0.82
+epochs =  678
+0.79
+epochs =  679
+0.79
+epochs =  680
+0.76
+epochs =  681
+0.87
+epochs =  682
+0.8
+epochs =  683
+0.81
+epochs =  684
+0.69
+epochs =  685
+0.66
+epochs =  686
+0.67
+epochs =  687
+0.56
+epochs =  688
+0.65
+epochs =  689
+0.58
+epochs =  690
+0.54
+epochs =  691
+0.54
+epochs =  692
+0.61
+epochs =  693
+0.56
+epochs =  694
+0.58
+epochs =  695
+0.6
+epochs =  696
+0.57
+epochs =  697
+0.57
+epochs =  698
+0.58
+epochs =  699
+0.66
+epochs =  700
+0.64
+epochs =  701
+0.68
+epochs =  702
+0.91
+epochs =  703
+0.91
+epochs =  704
+0.64
+epochs =  705
+0.79
+epochs =  706
+0.73
+epochs =  707
+0.72
+epochs =  708
+0.91
+epochs =  709
+0.82
+epochs =  710
+0.76
+epochs =  711
+0.68
+epochs =  712
+0.69
+epochs =  713
+0.63
+epochs =  714
+0.62
+epochs =  715
+0.67
+epochs =  716
+0.63
+epochs =  717
+0.78
+epochs =  718
+0.69
+epochs =  719
+0.79
+epochs =  720
+0.73
+epochs =  721
+0.79
+epochs =  722
+0.67
+epochs =  723
+0.81
+epochs =  724
+0.93
+epochs =  725
+1.02
+epochs =  726
+1.01
+epochs =  727
+0.9
+epochs =  728
+0.96
+epochs =  729
+1.0
+epochs =  730
+0.92
+epochs =  731
+0.86
+epochs =  732
+0.8
+epochs =  733
+0.75
+epochs =  734
+0.85
+epochs =  735
+0.89
+epochs =  736
+0.88
+epochs =  737
+0.97
+epochs =  738
+1.01
+epochs =  739
+0.91
+epochs =  740
+0.8
+epochs =  741
+0.8
+epochs =  742
+0.76
+epochs =  743
+0.82
+epochs =  744
+0.84
+epochs =  745
+0.83
+epochs =  746
+0.79
+epochs =  747
+0.8
+epochs =  748
+0.82
+epochs =  749
+0.96
+epochs =  750
+0.94
+epochs =  751
+0.84
+epochs =  752
+0.78
+epochs =  753
+0.93
+epochs =  754
+0.93
+epochs =  755
+0.81
+epochs =  756
+0.82
+epochs =  757
+0.84
+epochs =  758
+0.8
+epochs =  759
+0.8
+epochs =  760
+0.68
+epochs =  761
+0.7
+epochs =  762
+0.68
+epochs =  763
+0.58
+epochs =  764
+0.54
+epochs =  765
+0.66
+epochs =  766
+0.74
+epochs =  767
+0.78
+epochs =  768
+0.72
+epochs =  769
+0.79
+epochs =  770
+0.65
+epochs =  771
+0.73
+epochs =  772
+0.84
+epochs =  773
+0.8
+epochs =  774
+0.83
+epochs =  775
+0.91
+epochs =  776
+0.73
+epochs =  777
+0.8
+epochs =  778
+0.73
+epochs =  779
+0.74
+epochs =  780
+0.66
+epochs =  781
+0.68
+epochs =  782
+0.8
+epochs =  783
+0.75
+epochs =  784
+0.82
+epochs =  785
+0.76
+epochs =  786
+0.79
+epochs =  787
+0.89
+epochs =  788
+0.94
+epochs =  789
+0.98
+epochs =  790
+0.89
+epochs =  791
+0.86
+epochs =  792
+0.75
+epochs =  793
+0.78
+epochs =  794
+0.9
+epochs =  795
+0.99
+epochs =  796
+1.0
+epochs =  797
+1.03
+epochs =  798
+1.16
+epochs =  799
+1.13
+epochs =  800
+1.24
+epochs =  801
+1.22
+epochs =  802
+1.18
+epochs =  803
+1.1
+epochs =  804
+1.17
+epochs =  805
+1.12
+epochs =  806
+1.1
+epochs =  807
+1.11
+epochs =  808
+1.12
+epochs =  809
+1.08
+epochs =  810
+1.15
+epochs =  811
+1.14
+epochs =  812
+1.07
+epochs =  813
+1.07
+epochs =  814
+1.08
+epochs =  815
+1.0
+epochs =  816
+1.1
+epochs =  817
+1.02
+epochs =  818
+1.07
+epochs =  819
+1.06
+epochs =  820
+1.08
+epochs =  821
+1.02
+epochs =  822
+1.03
+epochs =  823
+1.1
+epochs =  824
+1.09
+epochs =  825
+1.18
+epochs =  826
+1.19
+epochs =  827
+1.15
+epochs =  828
+1.08
+epochs =  829
+1.01
+epochs =  830
+1.02
+epochs =  831
+0.86
+epochs =  832
+0.89
+epochs =  833
+0.84
+epochs =  834
+0.95
+epochs =  835
+0.87
+epochs =  836
+0.95
+epochs =  837
+1.03
+epochs =  838
+1.05
+epochs =  839
+1.02
+epochs =  840
+1.05
+epochs =  841
+1.06
+epochs =  842
+1.01
+epochs =  843
+1.03
+epochs =  844
+1.01
+epochs =  845
+1.04
+epochs =  846
+1.05
+epochs =  847
+1.01
+epochs =  848
+0.96
+epochs =  849
+0.98
+epochs =  850
+0.95
+epochs =  851
+1.01
+epochs =  852
+1.02
+epochs =  853
+1.01
+epochs =  854
+1.0
+epochs =  855
+0.98
+epochs =  856
+0.99
+epochs =  857
+1.0
+epochs =  858
+0.95
+epochs =  859
+0.93
+epochs =  860
+1.0
+epochs =  861
+0.94
+epochs =  862
+0.97
+epochs =  863
+0.95
+epochs =  864
+0.93
+epochs =  865
+0.94
+epochs =  866
+1.09
+epochs =  867
+1.09
+epochs =  868
+0.99
+epochs =  869
+1.07
+epochs =  870
+1.0
+epochs =  871
+1.03
+epochs =  872
+1.1
+epochs =  873
+1.07
+epochs =  874
+1.03
+epochs =  875
+1.0
+epochs =  876
+1.03
+epochs =  877
+0.99
+epochs =  878
+1.06
+epochs =  879
+1.07
+epochs =  880
+1.03
+epochs =  881
+1.17
+epochs =  882
+1.21
+epochs =  883
+1.17
+epochs =  884
+1.25
+epochs =  885
+1.28
+epochs =  886
+1.15
+epochs =  887
+1.18
+epochs =  888
+1.33
+epochs =  889
+1.23
+epochs =  890
+1.21
+epochs =  891
+1.1
+epochs =  892
+1.12
+epochs =  893
+1.12
+epochs =  894
+1.19
+epochs =  895
+1.3
+epochs =  896
+1.23
+epochs =  897
+1.16
+epochs =  898
+1.21
+epochs =  899
+1.24
+epochs =  900
+1.09
+epochs =  901
+1.13
+epochs =  902
+1.11
+epochs =  903
+1.07
+epochs =  904
+0.99
+epochs =  905
+1.06
+epochs =  906
+1.1
+epochs =  907
+1.18
+epochs =  908
+1.14
+epochs =  909
+1.36
+epochs =  910
+1.1
+epochs =  911
+1.04
+epochs =  912
+1.14
+epochs =  913
+0.97
+epochs =  914
+1.1
+epochs =  915
+1.07
+epochs =  916
+1.22
+epochs =  917
+1.05
+epochs =  918
+0.97
+epochs =  919
+1.06
+epochs =  920
+1.11
+epochs =  921
+1.0
+epochs =  922
+1.0
+epochs =  923
+0.95
+epochs =  924
+0.99
+epochs =  925
+1.02
+epochs =  926
+0.92
+epochs =  927
+0.98
+epochs =  928
+0.98
+epochs =  929
+1.05
+epochs =  930
+0.98
+epochs =  931
+1.03
+epochs =  932
+1.03
+epochs =  933
+0.96
+epochs =  934
+0.98
+epochs =  935
+0.98
+epochs =  936
+0.93
+epochs =  937
+0.97
+epochs =  938
+0.92
+epochs =  939
+0.87
+epochs =  940
+0.9
+epochs =  941
+0.92
+epochs =  942
+0.99
+epochs =  943
+0.96
+epochs =  944
+0.89
+epochs =  945
+1.12
+epochs =  946
+1.01
+epochs =  947
+0.96
+epochs =  948
+0.99
+epochs =  949
+0.93
+epochs =  950
+0.95
+epochs =  951
+0.96
+epochs =  952
+1.02
+epochs =  953
+0.97
+epochs =  954
+0.98
+epochs =  955
+1.0
+epochs =  956
+0.92
+epochs =  957
+0.99
+epochs =  958
+1.1
+epochs =  959
+1.21
+epochs =  960
+1.07
+epochs =  961
+1.05
+epochs =  962
+0.99
+epochs =  963
+1.07
+epochs =  964
+0.99
+epochs =  965
+0.94
+epochs =  966
+1.01
+epochs =  967
+0.95
+epochs =  968
+0.93
+epochs =  969
+1.05
+epochs =  970
+1.06
+epochs =  971
+1.06
+epochs =  972
+1.25
+epochs =  973
+1.21
+epochs =  974
+1.14
+epochs =  975
+1.02
+epochs =  976
+0.93
+epochs =  977
+0.98
+epochs =  978
+1.05
+epochs =  979
+0.86
+epochs =  980
+0.86
+epochs =  981
+0.95
+epochs =  982
+1.13
+epochs =  983
+1.06
+epochs =  984
+1.13
+epochs =  985
+0.95
+epochs =  986
+0.97
+epochs =  987
+1.03
+epochs =  988
+0.92
+epochs =  989
+1.0
+epochs =  990
+1.13
+epochs =  991
+0.99
+epochs =  992
+0.97
+epochs =  993
+0.97
+epochs =  994
+0.91
+epochs =  995
+1.05
+epochs =  996
+0.83
+epochs =  997
+0.98
+epochs =  998
+0.87
+epochs =  999
+0.8
