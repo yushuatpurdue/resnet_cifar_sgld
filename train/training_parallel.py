@@ -3,7 +3,8 @@
 The files are created by Yushu Huang for the EMC-SGLD algorithm. YEAR 2021. 
 They aim to apply the algorithm to the training of resnet under CIFAR dataset. 
 
-In this file: training function. 
+In this file: function for one-step SGLD training. 
+use 'from train.training_SGLD import training_SGLD' to import this file. 
 '''
 
 import math
@@ -34,9 +35,17 @@ import torchvision.datasets as datasets
 
 from BayesEval import BayesEval
 from optimizers.SGLD import SGLD
+from optimizers.SGHMC import SGHMC
 
-
-def training_SGLD(pars, model, train_dataset, test_dataset, criterion):
+def training_parallel(pars, model, train_dataset, test_dataset, criterion):
+    '''
+    Input: 
+        pars            defined in main() by argparser. 
+        model           a ModuleList of neural networks to train. 
+        train_dataset   
+        test_dataset    
+        criterion       loss function. should be nn.CrossEntropyLoss() to obtain the potential. 
+    '''
 
     nnet = 0
     accuracy = [BayesEval()] * pars.nchains
@@ -45,7 +54,7 @@ def training_SGLD(pars, model, train_dataset, test_dataset, criterion):
 
         ''' training nets '''
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-        optimizer = SGLD(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
+        optimizer = SGHMC(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
         
         # print("nnet = ", nnet) # 要注释掉
 
