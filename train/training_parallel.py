@@ -30,6 +30,7 @@ from torchvision.transforms import ToTensor
 from torch.utils.data import DataLoader
 import torch.utils.data as data
 import torchvision.datasets as datasets
+import torch.optim as optim
 
 ## import local
 
@@ -54,7 +55,7 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
 
         ''' training nets '''
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-        optimizer = SGHMC(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
+        optimizer = optim.SGD(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
         
         # print("nnet = ", nnet) # 要注释掉
 
