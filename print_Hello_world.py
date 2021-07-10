@@ -1,3 +1,4 @@
-a = range(1,2)
-for i in a:
-    print(i)
+import torch
+a = torch.zeros(4)
+a.mul_(2).add_(3,2)
+print(a)
