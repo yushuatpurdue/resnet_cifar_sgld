@@ -2,7 +2,7 @@ import torch
 from torch.optim import Optimizer
 
 
-class SGHMC(Optimizer):
+class pysgmcmcSGHMC(Optimizer):
     """ Stochastic Gradient Hamiltonian Monte-Carlo Sampler that uses a burn-in
         procedure to adapt its own hyperparameters during the initial stages
         of sampling.
@@ -17,7 +17,7 @@ class SGHMC(Optimizer):
             In Proceedings of Machine Learning Research 32 (2014).\n
             `Stochastic Gradient Hamiltonian Monte Carlo <https://arxiv.org/pdf/1402.4102.pdf>`_
     """
-    name = "SGHMC"
+    name = "pysgmcmcSGHMC"
 
     def __init__(self,
                  params,
