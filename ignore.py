@@ -33,41 +33,38 @@ from BayesEval import BayesEval
 from train.training_parallel import training_parallel
 from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
+from train.trainer import trainer
 
 
-parser = argparse.ArgumentParser()
+## define an object "parser" to add attributes to it. 
+parser = argparse.ArgumentParser()    
 
-# mcmc properties:
-# how many chains are going to run.
-parser.add_argument('-nchains', default=1, type=int,
-                    help='Total number of chains')
-# how many epochs (something like iterations) are going to run.
-parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')
-# highest temperature of chains.
-parser.add_argument('-T', default=0.05, type=float,
-                    help='Temperature for highest temperature chain')
-# the rest of the chains have temperatures equispaced with this gap.
-parser.add_argument('-Tgap', default=0.01, type=float,
-                    help='Temperature gap between chains')
-# learning rate for highest temperatur chain.
-parser.add_argument('-lr', default=3e-6, type=float,
-                    help='Sampling learning rate')
-# learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
-parser.add_argument('-lrgap', default=0.66, type=float,
-                    help='Learning rate gap between chains')
+## mcmc properties:
+parser.add_argument('-nchains', default=1, type=int, help='Total number of chains')     ## how many chains are going to run. 
+parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
+parser.add_argument('-T', default=0.1, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
+parser.add_argument('-Tgap', default=0.01, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures equispaced with this gap. 
+parser.add_argument('-lr', default=2e-6, type=float, help='Sampling learning rate')     ## learning rate for highest temperatur chain. 
+parser.add_argument('-lrgap', default=0.66, type=float, help='Learning rate gap between chains')    ## learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
+parser.add_argument('-period', default=2, type=int, help='estimate adaptive variance every [period] epochs')
+parser.add_argument('-cycle', default=1, type=int, help='Number of cycles')
+parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations for sampling (sn * burn)')
+parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing factor')
+parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
+parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
 
-# dataset properties:
-# data to be used (adds an attribute '-data', and names it as 'data'
-parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')
-# batch size for both training and testing
-parser.add_argument('-batch', default=256, type=int, help='Batch size')
+## dataset properties: 
+parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
+parser.add_argument('-batch', default=256, type=int, help='Batch size')   ## batch size for both training and testing
+parser.add_argument('-total', default=50000, type=int, help='Total data points')
 
-# neural network properties:
-# depth of the ResNet.
-parser.add_argument('-model', default='resnet20',
-                    help='which depth of resnet model to use. In local package "resnet.py." ')
+## neural network properties:
+parser.add_argument('-model', default='resnet20', help='which resnet model to use. In local package "resnet.py." ')
 
-# add the arguments.
+## environmental properties: 
+parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
+
+## add the arguments. 
 pars = parser.parse_args()
 
 
@@ -167,15 +164,18 @@ for i, (images, labels) in enumerate(train_loader):
 
 criterion = nn.CrossEntropyLoss()
 # accuracy = [BayesEval()] * pars.nchains
-            
+
+
+         
 
 for t in range(pars.epochs):
 
     print("epochs = ",t)      # 要注释掉
-    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-    # nnet = 0                  # 要注释掉
+    # training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    nnet = 0                  # 要注释掉
 
-    # for net in multichain_model:
+    for net in multichain_model:
+        trainer(net, train_loader, test_loader, pars)
         
     #     # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
     #     optimizer = SGHMC(net.parameters(), lr=0.001, temperature=0.05, friction=0.05)
@@ -206,6 +206,7 @@ for t in range(pars.epochs):
     #     # accuracy[nnet].eval(net, test_loader, cumulate = True)
     #     # print(accuracy[nnet].best_OneEpoch_acc)
     #     nnet += 1               # 要注释掉
+
 '''
 for net in multichain_model:
     print(net.parameters)
