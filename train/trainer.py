@@ -9,7 +9,6 @@ import sys
 import os
 import time
 import csv
-import dill
 import argparse
 import random
 import collections
@@ -113,21 +112,19 @@ def trainer(nets, train_loader, test_loader, pars):
 
             
         """ Anneaing """
-        if epoch < pars.burn * pars.epochs:
-            pars.bias_F *= pars.Tanneal
-        for idx in range(pars.chains):
+        for idx in range(pars.nchains):
             if pars.cycle == 1:
                 if epoch > 0.4 * pars.epochs and pars.LRanneal <= 1.:
                     samplers[idx].eta *= pars.LRanneal
-                if epoch < pars.burn * pars.sn:
+                if epoch < pars.burn * pars.epochs:
                     samplers[idx].set_T(pars.Tanneal)
                 
             if (pars.cycle == 1 and epoch >= int(pars.burn * pars.epochs)) or (pars.cycle > 1 and cur_beta >= pars.burn):
-                BMAS[idx].eval(nets, test_loader, bma=True)
+                BMAS[idx].eval(nets, test_loader, cumulate=True)
             elif (pars.cycle == 1 and epoch < int(pars.burn * pars.epochs)) or (pars.cycle > 1 and cur_beta < pars.burn):
-                BMAS[idx].eval(nets, test_loader, bma=False)
-            print('Epoch {} Chain {} Acc: {:0.2f} BMA: {:0.2f} Best Acc: {:0.2f} Best BMA: {:0.2f} T: {:.2E}  Loss: {:0.2f} Corrections: {:0.2f}'\
-                    .format(epoch, idx, BMAS[idx].cur_acc, BMAS[idx].bma_acc, BMAS[idx].best_cur_acc, BMAS[idx].best_bma_acc, \
+                BMAS[idx].eval(nets, test_loader, cumulate=False)
+            print('Epoch {} Chain {} Acc: {:0.2f} T: {:.2E}  Loss: {:0.2f} Corrections: {:0.2f}'\
+                    .format(epoch, idx, BMAS[idx].OneEpoch_acc, \
                     samplers[idx].T, np.array(loss_chains[idx]).sum(), abs(adjusted_corrections)))
         print('')
     end = time.time()
