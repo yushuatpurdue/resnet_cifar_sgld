@@ -43,32 +43,45 @@ def trainer(nets, train_loader, test_loader, pars):
     init_T, init_lr = pars.T, pars.lr
     samplers, BMAS, myVars, cooling_time, lr_set = {}, [], [], [], []
 
+    ## initial setup
+    # [
     for idx in range(pars.nchains-1, -1, -1):
         print('Chain {} Initial learning rate {:.2e} temperature {:.2e}'.format(idx, init_lr, init_T))
+        # define sample method(optimizer and optimization)
         sampler = Sampler(nets, criterion, lr=init_lr, wdecay=pars.wdecay, T=init_T, total=pars.total)
-        lr_set.insert(0, init_lr)
+        # sample method differs between chains by T and lr. 
+        lr_set.insert(0, init_lr)   # insert init_lr as the 0th element in lr_set. ie, each chain has init_lr /= pars.lrgap, and this number is to be inserted at the beginning of lr_set. 
         init_T /= pars.Tgap
         init_lr /= pars.lrgap
         samplers[idx] = sampler
 
+        # evaluation recording
         BMAS.append(BayesEval())
-        myVars.append(sys.float_info.max)
+        myVars.append(sys.float_info.max)    # 系统float 型支持的最大值
+    # counter, # of warm-up loops, correction. 
     counter, warm_up, adjusted_corrections = 1., 10, 0
     start = time.time()
 
     """ Initialization for variance reduction """
+    # loss recording, last step trained result recording(我给改成了nn.ModuleList, 邓伟用的还是个list 呢). 
     last_full_losses, last_VRnets = [0] * pars.nchains, nn.ModuleList()
-    for idx in range(pars.nchains):
-        last_VRnets.extend([nets])
+    for net in range(nets):
+        last_VRnets.extend([net])     # 先把input 给的原始net 加进来。
 
+    # ]
+
+
+    ## 算一个variance，不知道干啥使的。
+    # [
     for epoch in range(pars.epochs):
+        ## after warm up period finishes: evaluate 一下上一步update 出来的模型，然后给它的loss 算出来用于update variance. 这variance 后来也没别的用场了，就print 了一下作为结果。
         """ update adaptive variance and variance reduction every [period] epochs """
         if pars.period > 0 and epoch % pars.period == 0 and epoch > warm_up:
             cur_full_losses = [0] * pars.nchains
             for idx in range(pars.nchains):
                 stage_losses = []
                 nets.eval()
-                for i, (images, labels) in enumerate(train_loader):
+                for i, (images, labels) in enumerate(train_loader):  # 注意这可是train 的 loader
                     images = Variable(images).cuda() if CUDA_EXISTS else Variable(images)
                     labels = Variable(labels).cuda() if CUDA_EXISTS else Variable(labels)
                     nets.zero_grad()
@@ -82,13 +95,19 @@ def trainer(nets, train_loader, test_loader, pars):
                 print('Epoch {} Chain {} loss std {:.2e} variance {:.2e} smooth variance {:.2e}'.format(epoch, idx, std_epoch, 0.5 * std_epoch**2, myVars[idx]))
                 last_VRnets[idx] = nets
                 last_full_losses[idx] = cur_full_losses[idx]
-        
+        # ]
+
+
+        ## 终于要开始train了
+        # [
         for idx in range(pars.nchains):
             nets.train()
 
 
-        if pars.cycle >= 2:
+        if pars.cycle >= 2: 
+            # partition the full training into #cycle of sub parts. 
             sub_sn = pars.epochs / pars.cycle
+            # cur_beta has nothing to do with beta. it's just an intermediate parameter that increases from 0 to 1 equispaced. 
             cur_beta = (epoch % sub_sn) * 1.0 / sub_sn
             for idx in range(pars.nchains):
                 samplers[idx].set_eta(lr_set[idx] / 2 * (np.cos(np.pi * cur_beta) + 1))

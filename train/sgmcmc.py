@@ -58,5 +58,5 @@ class Sampler:
             if self.wdecay != 0:
                 grads.add_(self.wdecay, param.data)
             self.velocity[i].mul_(self.momentum).add_(-self.eta, grads).add_(proposal)
-            param.data.add_(self.velocity[i])
+            param.data.add_(self.velocity[i],self.eta)
         return loss.data.item()
