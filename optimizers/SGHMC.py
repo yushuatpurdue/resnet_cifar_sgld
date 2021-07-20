@@ -9,6 +9,7 @@ use 'from optimizers.SHMC import SGLD' to import this file.
 '''
 
 import sys
+import numpy as np
 import torch
 from torch.optim import Optimizer, optimizer
 
@@ -82,8 +83,8 @@ class SGHMC(Optimizer):
                 if beta > alpha:
                     sys.exit('Momentum is too large')
                 
-                sigma = torch.sqrt(torch.tensor(2.0 * eta * (alpha - beta)))
-                scale = sigma * torch.sqrt(torch.tensor(temperature))
+                sigma = np.sqrt(2.0 * eta * (alpha - beta))
+                scale = sigma * np.sqrt(temperature)
                 diffusion = torch.normal(
                         mean=torch.zeros_like(gradient),
                         std=torch.ones_like(gradient)
