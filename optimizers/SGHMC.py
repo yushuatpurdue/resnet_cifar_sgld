@@ -84,11 +84,16 @@ class SGHMC(Optimizer):
                     sys.exit('Momentum is too large')
                 
                 sigma = np.sqrt(2.0 * eta * (alpha - beta))
+                print("sigma = ", sigma)
                 scale = sigma * np.sqrt(temperature)
+                '''
                 diffusion = torch.normal(
                         mean=torch.zeros_like(gradient),
                         std=torch.ones_like(gradient)
                     ) * scale
+                    '''
+                diffusion = torch.cuda.FloatTensor(parameter.data.size()).normal_().mul(scale)
+
 
                 lrTimesVelocity.mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
                 parameter.data.add_(lrTimesVelocity) 
