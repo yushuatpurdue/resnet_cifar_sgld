@@ -11,7 +11,7 @@ import torch
 from torch.optim import Optimizer
 
 class SGLD(Optimizer):
-    '''Implements stochastic gradient Langevin dynamic.
+    '''Implements stochastic gradient Langevin dynamic algorithm for one step update.
 
     Args:
         params (iterable)  : iterable of parameters to optimize or dicts defining parameter groups. eg. model.parameters()
@@ -37,6 +37,7 @@ class SGLD(Optimizer):
 
 
     def step(self, closure=None):
+        ''' one step forward. '''
         loss = None
 
         if closure is not None:

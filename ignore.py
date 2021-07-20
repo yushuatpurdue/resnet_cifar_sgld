@@ -44,6 +44,7 @@ parser.add_argument('-nchains', default=1, type=int, help='Total number of chain
 parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
 parser.add_argument('-T', default=0.1, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
 parser.add_argument('-Tgap', default=0.01, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures equispaced with this gap. 
+parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
 parser.add_argument('-lr', default=2e-6, type=float, help='Sampling learning rate')     ## learning rate for highest temperatur chain. 
 parser.add_argument('-lrgap', default=0.66, type=float, help='Learning rate gap between chains')    ## learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
 parser.add_argument('-period', default=2, type=int, help='estimate adaptive variance every [period] epochs')
@@ -119,11 +120,15 @@ for group in torch.optim.SGD(model.parameters(), lr=0.1).param_groups:
         
         state = torch.optim.SGD(model.parameters(), lr=0.1).state[parameters]
         # state["iteration"] = 0
-        print(state)
+        state["momentum"] = torch.zeros_like(parameters)
+        momentum = state["momentum"]
+        momentum.add_(2.)
+        # print(momentum)
+        print(state["momentum"])
         
         break
-'''
 
+'''
 
 train_loader, test_loader = LoadData(256, 256, pars)
 
@@ -168,14 +173,15 @@ criterion = nn.CrossEntropyLoss()
 
          
 
+
 for t in range(pars.epochs):
 
     print("epochs = ",t)      # 要注释掉
-    # training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-    nnet = 0                  # 要注释掉
+    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    # nnet = 0                  # 要注释掉
 
-    for net in multichain_model:
-        trainer(net, train_loader, test_loader, pars)
+    # for net in multichain_model:
+    #     trainer(net, train_loader, test_loader, pars)
         
     #     # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
     #     optimizer = SGHMC(net.parameters(), lr=0.001, temperature=0.05, friction=0.05)

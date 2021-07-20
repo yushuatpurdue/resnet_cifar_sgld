@@ -2,12 +2,13 @@
 The files are created by Yushu Huang for the EMC-SGLD algorithm. YEAR 2021. 
 They aim to apply the algorithm to the training of resnet under CIFAR dataset. 
 codes reference: https://pysgmcmc.readthedocs.io/en/pytorch/_modules/pysgmcmc/optimizers/sghmc.html
-algorithm based on paper: Stochastic Gradient Hamilton Monte Carlo (Chen et al). 
+algorithm reference: Stochastic Gradient Hamilton Monte Carlo (Chen et al), page 6. 
 
 In this file: a class -- SGHMC is created as the optimizer for the network. 
 use 'from optimizers.SHMC import SGLD' to import this file. 
 '''
 
+import sys
 import torch
 from torch.optim import Optimizer, optimizer
 
@@ -24,20 +25,23 @@ class SGHMC(Optimizer):
     def __init__(
         self,
         params, 
-        lr = 0.1, 
+        eta = 0.1, 
+        alpha =0.9,
         temperature = 1, 
-        friction = 0.05
+        wdecay = 5e-4
         ) -> None:
-        if lr < 0.0:
-            raise ValueError("Invalid learning rate: {}".format(lr))
+        if eta < 0.0:
+            raise ValueError("Invalid learning rate: {}".format(eta))
         if temperature < 0:
             raise ValueError("Negative temperature: {}".format(temperature))
         defaults = dict(
-            lr=lr, 
+            eta=eta, 
+            alpha = alpha,
             temperature = temperature, 
-            friction = friction
+            wdecay = wdecay
         )
         super().__init__(params, defaults)
+        
 
     def step(self, closure=None):
         ''' one step forward. '''
@@ -52,29 +56,41 @@ class SGHMC(Optimizer):
                 if parameter.grad is None:       # parameter.grad will be created by loss.bakward()
                     continue
 
-                state = self.state[parameter]    # state is an empty list before running optimization. Can use this list to save the states of the optimization process. 
+                state = self.state[parameter]    # state is an empty list before running optimization. Can use this list as the updated states of the optimization. 
                 
                 #  State initialization 
 
                 if len(state) == 0:
                     state["iteration"] = 0
-                    state["momentum"] = torch.zeros_like(parameter)
+                    state["lrTimesVelocity"] = torch.zeros_like(parameter)
 
                 state["iteration"] += 1      # record the iteration
 
-                lr = group["lr"]
+                # extract the inputs from initialization by group[" "]
+                alpha = group["alpha"]
+                eta = group["eta"]
                 temperature = group["temperature"]
-                friction = group["friction"]
-                momentum = state["momentum"]
+                lrTimesVelocity = state["lrTimesVelocity"]          # modifying momentum = modifying state["momentum"]
+                wdecay = group["wdecay"]
                 gradient = parameter.grad.data
+                if wdecay != 0:
+                    gradient.add_(wdecay * parameter.data)
 
-                sigma = torch.sqrt(torch.tensor(2*friction*lr*temperature))
+
+                B_hat = 0.1
+                beta = 0.5* B_hat * eta
+                if beta > alpha:
+                    sys.exit('Momentum is too large')
+                
+                sigma = torch.sqrt(torch.tensor(2.0 * eta * (alpha - beta)))
+                scale = sigma * torch.sqrt(torch.tensor(temperature))
                 diffusion = torch.normal(
                         mean=torch.zeros_like(gradient),
                         std=torch.ones_like(gradient)
-                    ) * sigma
+                    ) * scale
 
-                momentum = momentum.mul_(1. - lr*friction) - lr * gradient + diffusion
-                parameter.data.add_(momentum*lr) 
+                lrTimesVelocity.mul_(1-alpha).add_(-gradient*eta).add_(diffusion)
+                parameter.data.add_(lrTimesVelocity) 
 
         return loss
+        

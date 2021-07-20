@@ -58,7 +58,7 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = SGHMC(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
-        optimizer = SGHMC(net.parameters(), lr=pars.lr)
+        optimizer = SGHMC(net.parameters(), eta=pars.eta, temperature=pars.T)
 
         # print("nnet = ", nnet) # 要注释掉
 
@@ -71,7 +71,7 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
             # then define optimizer, evaluate, calculate loss and back propagate. 
             optimizer.zero_grad()
             output = net(images)
-            loss = criterion(output, labels)
+            loss = criterion(output, labels) * pars.total
             
             # print(loss.item())       # 要注释掉
             # print("data = ", i)       # 要注释掉
@@ -84,5 +84,6 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
         print(accuracy[nnet].OneEpoch_acc)
         
         nnet += 1
+        
 
 
