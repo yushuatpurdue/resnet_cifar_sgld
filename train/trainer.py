@@ -104,13 +104,13 @@ def trainer(nets, train_loader, test_loader, pars):
             nets.train()
 
 
-        if pars.cycle >= 2: 
+        if pars.cycle >= 2:    # 现在没有，就是1. 全体skip。
             # partition the full training into #cycle of sub parts. 
             sub_sn = pars.epochs / pars.cycle
             # cur_beta has nothing to do with beta. it's just an intermediate parameter that increases from 0 to 1 equispaced. 
             cur_beta = (epoch % sub_sn) * 1.0 / sub_sn
             for idx in range(pars.nchains):
-                samplers[idx].set_eta(lr_set[idx] / 2 * (np.cos(np.pi * cur_beta) + 1))
+                samplers[idx].set_eta(lr_set[idx] / 2 * (np.cos(np.pi * cur_beta) + 1)) # lr changes from 0 to lr_set in a cosine smoothed fashion. 
                 if (epoch % sub_sn) * 1.0 / sub_sn == 0:
                     print('Chain {} Cooling down for optimization'.format(idx))
                     samplers[idx].set_T(1e10)
@@ -118,6 +118,7 @@ def trainer(nets, train_loader, test_loader, pars):
                     print('Chain {} Heating up for sampling'.format(idx))
                     samplers[idx].set_T(1e-10)
 
+        # 真实train 在这里
         for i, (images, labels) in enumerate(train_loader):
             images = Variable(images).cuda() if CUDA_EXISTS else Variable(images)
             labels = Variable(labels).cuda() if CUDA_EXISTS else Variable(labels)
@@ -128,9 +129,11 @@ def trainer(nets, train_loader, test_loader, pars):
                 """ variance-reduced negative log posterior """
                 
                 loss_chains.append(loss)
-
+        # ]
             
         """ Anneaing """
+        # train 完要evaluate 了。不知道为什么在这里set T 和eta。
+        #[
         for idx in range(pars.nchains):
             if pars.cycle == 1:
                 if epoch > 0.4 * pars.epochs and pars.LRanneal <= 1.:

@@ -75,7 +75,7 @@ class SGHMC(Optimizer):
                 wdecay = group["wdecay"]
                 gradient = parameter.grad.data
                 if wdecay != 0:
-                    gradient.add_(wdecay * parameter.data)
+                    gradient.add_(wdecay, parameter.data)
 
 
                 B_hat = 0.1
@@ -90,7 +90,7 @@ class SGHMC(Optimizer):
                         std=torch.ones_like(gradient)
                     ) * scale
 
-                lrTimesVelocity.mul_(1-alpha).add_(-gradient*eta).add_(diffusion)
+                lrTimesVelocity.mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
                 parameter.data.add_(lrTimesVelocity) 
 
         return loss
