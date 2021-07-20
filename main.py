@@ -131,14 +131,14 @@ def main():
     for t in range(pars.epochs):
 
         print("epochs = ",t)      # 要注释掉
-        # training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-        for t in range(pars.epochs):
+        training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+        # for t in range(pars.epochs):
 
-        # training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-            # nnet = 0                  # 要注释掉
+        # # training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+        #     # nnet = 0                  # 要注释掉
 
-            for net in multichain_model:
-                trainer(net, train_loader, test_loader, pars)
+        #     for net in multichain_model:
+        #         trainer(net, train_loader, test_loader, pars)
         
         # nnet = 0
 
