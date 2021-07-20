@@ -84,7 +84,7 @@ class SGHMC(Optimizer):
                     sys.exit('Momentum is too large')
                 
                 sigma = np.sqrt(2.0 * eta * (alpha - beta))
-                print("sigma = ", sigma)
+                # print("sigma = ", sigma)
                 scale = sigma * np.sqrt(temperature)
                 '''
                 diffusion = torch.normal(
