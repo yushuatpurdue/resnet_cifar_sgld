@@ -33,7 +33,6 @@ from BayesEval import BayesEval
 from train.training_parallel import training_parallel
 from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
-from train.trainer import trainer
 
 
 ## define an object "parser" to add attributes to it. 

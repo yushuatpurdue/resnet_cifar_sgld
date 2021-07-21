@@ -37,7 +37,6 @@ import torch.optim as optim
 from BayesEval import BayesEval
 from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
-from optimizers.SGHMC_modify import SGHMC_modify
 
 
 def training_parallel(pars, model, train_dataset, test_dataset, criterion):

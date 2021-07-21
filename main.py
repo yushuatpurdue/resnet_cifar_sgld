@@ -37,7 +37,6 @@ import resnet            ## all resnet models.
 from LoadData import LoadData
 from optimizers.SGLD import SGLD
 from train.training_parallel import training_parallel
-from train.trainer import trainer
 
 '''
 define the main function
