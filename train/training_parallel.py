@@ -52,6 +52,7 @@ def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset
 
     nnet = 0
     accuracy = [BayesEval()] * pars.nchains
+    criterion = nn.CrossEntropyLoss() 
 
     for net in model:
 
@@ -59,7 +60,7 @@ def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
         # optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature)
-        optimizer = SGHMC_modify(net, criterion = pars.criterion, momentum=0.9, lr=eta, wdecay=5e-4, T=temperature, total=50000)
+        optimizer = SGHMC_modify(net, criterion = criterion, momentum=0.9, lr=eta, wdecay=5e-4, T=temperature, total=50000)
 
         # print("nnet = ", nnet) # 要注释掉
 
