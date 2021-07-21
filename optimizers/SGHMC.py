@@ -43,13 +43,13 @@ class SGHMC(Optimizer):
             eta=eta, 
             alpha = alpha,
             temperature = temperature, 
-            lrTimesVelocity  = lrTimesVelocity,
             wdecay = wdecay
         )
+        self.lrTimesVelocity  = lrTimesVelocity
         super().__init__(params, defaults)
         for parameters in params:
             p = torch.zeros_like(parameters.data)
-            lrTimesVelocity.append(p)
+            self.lrTimesVelocity.append(p)
         
 
     def step(self, closure=None):
@@ -71,10 +71,10 @@ class SGHMC(Optimizer):
 
                 if len(state) == 0:
                     state["iteration"] = 0
-                    state["lrTimesVelocity"] = torch.zeros_like(parameter)
+                    # state["lrTimesVelocity"] = torch.zeros_like(parameter)
 
                 state["iteration"] += 1      # record the iteration
-                lrTimesVelocity = state["lrTimesVelocity"]          # modifying lrTimesVelocity after this equivalents to modifying state["lrTimesVelocity"]
+                # lrTimesVelocity = state["lrTimesVelocity"]          # modifying lrTimesVelocity after this equivalents to modifying state["lrTimesVelocity"]
 
                 # extract the inputs from initialization by group[" "]
                 alpha = group["alpha"]
@@ -82,7 +82,6 @@ class SGHMC(Optimizer):
                 temperature = group["temperature"]
                 wdecay = group["wdecay"]
                 params = group["params"]
-                lrTimesVelocity = group["lrTimesVelocity"]
 
                 # gradient = parameter.grad.data
                 # if wdecay != 0:
@@ -115,7 +114,7 @@ class SGHMC(Optimizer):
                     gradient = parameter.grad.data
                     if wdecay != 0:
                         gradient.add_(wdecay, parameter.data)
-                    lrTimesVelocity[i].mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
+                    self.lrTimesVelocity[i].mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
                     parameter.data.add_(self.velocity[i])
 
 
