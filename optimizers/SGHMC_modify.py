@@ -7,8 +7,9 @@ import numpy as np
 import torch
 import random
 from torch.autograd import Variable
+from torch.optim import Optimizer
 
-class SGHMC_modify(optimizer):
+class SGHMC_modify(Optimizer):
     def __init__(self, net, criterion, momentum=0.9, lr=0.1, wdecay=5e-4, T=0.05, total=50000):
         self.net = net
         self.eta = lr
