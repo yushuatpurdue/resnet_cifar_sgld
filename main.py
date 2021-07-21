@@ -131,7 +131,7 @@ def main():
 
 
     eta = pars.eta
-    temperature = pars.temperature
+    temperature = pars.T
     for t in range(pars.epochs):
 
         # print("epochs = ",t)      # 要注释掉
