@@ -52,7 +52,6 @@ def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset
 
     nnet = 0
     accuracy = [BayesEval()] * pars.nchains
-    criterion = nn.CrossEntropyLoss() 
 
     for net in model:
 
