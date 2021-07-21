@@ -107,8 +107,8 @@ class SGHMC(Optimizer):
                 # diffusion = torch.cuda.FloatTensor(parameter.data.size()).normal_().mul(scale)
 
 
-                lrTimesVelocity.mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
-                parameter.data.add_(lrTimesVelocity) 
+                # lrTimesVelocity.mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
+                # parameter.data.add_(lrTimesVelocity) 
 
                 for i, parameter in enumerate(params):
                     diffusion = torch.cuda.FloatTensor(parameter.data.size()).normal_().mul(scale)
