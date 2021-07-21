@@ -71,7 +71,7 @@ class SGHMC(Optimizer):
                 # first calculate gradient
                 gradient = parameter.grad.data
                 if wdecay != 0:
-                    gradient.add_(wdecay, parameter.data)
+                    gradient.add_(wdecay * parameter.data)
                 # and calculate beta (paper page 6). 
                 B_hat = 0.1
                 beta = 0.5* B_hat * eta
@@ -91,7 +91,7 @@ class SGHMC(Optimizer):
                 diffusion = torch.cuda.FloatTensor(parameter.data.size()).normal_().mul(scale)
 
                 # then update lr*velocity and add it to parameter. 
-                lrTimesVelocity.mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
+                lrTimesVelocity.mul_(1-alpha).add_(-eta * gradient).add_(diffusion)
                 parameter.data.add_(lrTimesVelocity) 
-                
+
         return loss
