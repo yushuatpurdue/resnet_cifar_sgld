@@ -10,6 +10,7 @@ use 'from optimizers.SHMC import SGLD' to import this file.
 
 import sys
 import numpy as np
+from numpy.lib.function_base import gradient
 import torch
 from torch.optim import Optimizer, optimizer
 
@@ -30,6 +31,7 @@ class SGHMC(Optimizer):
         eta = 0.1, 
         alpha =0.9,
         temperature = 1, 
+        lrTimesVelocity = [], 
         wdecay = 5e-4
         ) -> None:
         if eta < 0.0:
@@ -37,12 +39,17 @@ class SGHMC(Optimizer):
         if temperature < 0:
             raise ValueError("Negative temperature: {}".format(temperature))
         defaults = dict(
+            params = params,
             eta=eta, 
             alpha = alpha,
             temperature = temperature, 
+            lrTimesVelocity  = lrTimesVelocity,
             wdecay = wdecay
         )
         super().__init__(params, defaults)
+        for parameters in params:
+            p = torch.zeros_like(parameters.data)
+            lrTimesVelocity.append(p)
         
 
     def step(self, closure=None):
@@ -74,9 +81,12 @@ class SGHMC(Optimizer):
                 eta = group["eta"]
                 temperature = group["temperature"]
                 wdecay = group["wdecay"]
-                gradient = parameter.grad.data
-                if wdecay != 0:
-                    gradient.add_(wdecay, parameter.data)
+                params = group["params"]
+                lrTimesVelocity = group["lrTimesVelocity"]
+
+                # gradient = parameter.grad.data
+                # if wdecay != 0:
+                #     gradient.add_(wdecay, parameter.data)
 
 
                 B_hat = 0.1
@@ -94,11 +104,21 @@ class SGHMC(Optimizer):
                         std=torch.ones_like(gradient)
                     ) * scale
                     '''
-                diffusion = torch.cuda.FloatTensor(parameter.data.size()).normal_().mul(scale)
+                # diffusion = torch.cuda.FloatTensor(parameter.data.size()).normal_().mul(scale)
 
 
                 lrTimesVelocity.mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
                 parameter.data.add_(lrTimesVelocity) 
+
+                for i, parameter in enumerate(params):
+                    diffusion = torch.cuda.FloatTensor(parameter.data.size()).normal_().mul(scale)
+                    gradient = parameter.grad.data
+                    if wdecay != 0:
+                        gradient.add_(wdecay, parameter.data)
+                    lrTimesVelocity[i].mul_(1-alpha).add_(-eta, gradient).add_(diffusion)
+                    parameter.data.add_(self.velocity[i])
+
+
 
         return loss
         
