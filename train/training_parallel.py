@@ -37,6 +37,7 @@ import torch.optim as optim
 from BayesEval import BayesEval
 from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
+from optimizers.SGHMC_modify import SGHMC_modify
 
 
 def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset, criterion):
@@ -58,7 +59,7 @@ def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = SGHMC(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
-        optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature)
+        optimizer = SGHMC_modify(net.parameters(), eta=eta, temperature=temperature)
 
         # print("nnet = ", nnet) # 要注释掉
 
