@@ -50,7 +50,7 @@ def main():
     ## mcmc properties:
     parser.add_argument('-nchains', default=1, type=int, help='Total number of chains')     ## how many chains are going to run. 
     parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
-    parser.add_argument('-T', default=0.1, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
+    parser.add_argument('-T', default=0.01, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
     parser.add_argument('-Tgap', default=0.01, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures equispaced with this gap. 
     parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
     parser.add_argument('-lr', default=2e-6, type=float, help='Sampling learning rate')     ## learning rate for highest temperatur chain. 
@@ -132,14 +132,14 @@ def main():
     for t in range(pars.epochs):
 
         print("epochs = ",t)      # 要注释掉
-        # training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+        training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         # for t in range(pars.epochs):
 
         # # training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         #     # nnet = 0                  # 要注释掉
 
-        for net in multichain_model:
-            trainer(net, train_loader, test_loader, pars)
+        # for net in multichain_model:
+        #     trainer(net, train_loader, test_loader, pars)
     
         # nnet = 0
 
