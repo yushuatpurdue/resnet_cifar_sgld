@@ -56,10 +56,12 @@ def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset
     for net in model:
 
         ''' evaluating performance '''
+        print("evaluating...")
         accuracy[nnet].eval(net, test_dataset, cumulate = True)
-        print(accuracy[nnet].OneEpoch_acc)
+        print("result: ", accuracy[nnet].OneEpoch_acc)
 
         ''' training nets '''
+        print("training")
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
         optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
