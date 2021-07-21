@@ -27,7 +27,7 @@ class SGHMC(Optimizer):
         self,
         params, 
         eta = 0.1, 
-        alpha =0.9,
+        alpha =0.1,
         temperature = 1, 
         wdecay = 5e-4
         ) -> None:
