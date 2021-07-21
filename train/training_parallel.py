@@ -39,7 +39,7 @@ from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
 
 
-def training_parallel(pars, model, train_dataset, test_dataset, criterion):
+def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset, criterion):
     '''
     Input: 
         pars            defined in main() by argparser. 
@@ -58,7 +58,7 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = SGHMC(net.parameters(), lr=pars.lr, temperature=pars.T)        # no ladder here. need to modify later. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
-        optimizer = SGHMC(net.parameters(), eta=pars.eta, temperature=pars.T)
+        optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature)
 
         # print("nnet = ", nnet) # 要注释掉
 

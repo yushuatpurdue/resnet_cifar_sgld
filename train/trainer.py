@@ -67,7 +67,7 @@ def trainer(nets, train_loader, test_loader, pars):
     last_full_losses, last_VRnets = [0] * pars.nchains, nn.ModuleList()
     for idx in range(pars.nchains):
         last_VRnets.extend([nets])
-        
+
     # ]
 
 
@@ -135,11 +135,13 @@ def trainer(nets, train_loader, test_loader, pars):
         # train 完要evaluate 了。不知道为什么在这里set T 和eta。
         #[
         for idx in range(pars.nchains):
+            '''
             if pars.cycle == 1:
                 if epoch > 0.4 * pars.epochs and pars.LRanneal <= 1.:
                     samplers[idx].eta *= pars.LRanneal
                 if epoch < pars.burn * pars.epochs:
                     samplers[idx].set_T(pars.Tanneal)
+                    '''
                 
             if (pars.cycle == 1 and epoch >= int(pars.burn * pars.epochs)) or (pars.cycle > 1 and cur_beta >= pars.burn):
                 BMAS[idx].eval(nets, test_loader, cumulate=True)
