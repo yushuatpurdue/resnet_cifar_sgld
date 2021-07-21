@@ -177,7 +177,7 @@ criterion = nn.CrossEntropyLoss()
 for t in range(pars.epochs):
 
     print("epochs = ",t)      # 要注释掉
-    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    training_parallel(pars, pars.eta, pars.T, multichain_model, train_loader, test_loader, criterion)
     # nnet = 0                  # 要注释掉
 
     # for net in multichain_model:
