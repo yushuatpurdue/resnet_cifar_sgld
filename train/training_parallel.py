@@ -40,7 +40,7 @@ from optimizers.SGHMC import SGHMC
 from optimizers.SGHMC_modify import SGHMC_modify
 
 
-def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset, criterion):
+def training_parallel(pars, model, train_dataset, test_dataset, criterion):
     '''
     Input: 
         pars            defined in main() by argparser. 
@@ -51,15 +51,16 @@ def training_parallel(pars, eta, temperature, model, train_dataset, test_dataset
     '''
 
     nnet = 0
-    accuracy = [BayesEval()] * pars.nchains
+    accuracy = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
 
     for net in model:
 
         ''' training nets '''
-        net.train()
+        net.train()      # first set net to train mode. 
+
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
-        optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+        optimizer = SGHMC(net.parameters(), eta=pars.eta, temperature=pars.T, wdecay=pars.wdecay)
         # optimizer = SGHMC_modify(net, criterion = criterion, momentum=0.9, lr=eta, wdecay=5e-4, T=temperature, total=50000)
 
         # print("nnet = ", nnet) # 要注释掉

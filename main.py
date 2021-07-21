@@ -130,12 +130,10 @@ def main():
             
 
 
-    eta = pars.eta
-    temperature = pars.T
     for t in range(pars.epochs):
 
         print("epochs = ",t)      # 要注释掉
-        training_parallel(pars, eta, temperature, multichain_model, train_loader, test_loader, criterion)
+        training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         # for t in range(pars.epochs):
 
         # # training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
