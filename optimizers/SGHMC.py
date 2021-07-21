@@ -1,7 +1,7 @@
 '''
 The files are created by Yushu Huang for the EMC-SGLD algorithm. YEAR 2021. 
 They aim to apply the algorithm to the training of resnet under CIFAR dataset. 
-codes reference: https://pysgmcmc.readthedocs.io/en/pytorch/_modules/pysgmcmc/optimizers/sghmc.html
+codes reference: https://github.com/gaoliyao/Replica_Exchange_Stochastic_Gradient_MCMC.git
 algorithm reference: Stochastic Gradient Hamilton Monte Carlo (Chen et al), page 6. 
 
 In this file: a class -- SGHMC is created as the optimizer for the network. 
@@ -18,9 +18,10 @@ class SGHMC(Optimizer):
 
     Args:
         params (iterable)  : iterable of parameters to optimize or dicts defining parameter groups. eg. model.parameters()
-        lr (float)         : learning rate
+        eta (float)        : lr^2/M according to Chen et al page 6. lr = learning rate, M = mass. 
+        alpha              : lr*C/M
         temperature        : temperature
-        friction           : friction (denoted as C in SGHMC paper)
+        wdecay             : this one is not included in the original paper. It helps modify the gradient a bit. 
 
     '''
     def __init__(
@@ -51,10 +52,10 @@ class SGHMC(Optimizer):
         if closure is not None:
             loss = closure()
 
-        for group in self.param_groups:      # group is a dictionary. group.keys() are the arguments defined in __init__. It contains the parameters of the full model. 
+        for group in self.param_groups:      # group is a dictionary. group.keys() are the arguments defined in __init__. 
             # If running one model a time, then there is only one group in self.param_group, taking everything.
-            for parameter in group["params"]:      # parameter is a torch.nn.parameter.Parameter. It has two arguments: .data, which gives a tensor, and .requires_grad, default = True. 
-                if parameter.grad is None:       # parameter.grad will be created by loss.bakward()
+            for parameter in group["params"]:      # parameter is a torch.nn.parameter.Parameter. It has two arguments: .data, which gives a tensor (full parameters of the net), and .requires_grad, default = True. 
+                if parameter.grad is None:       # parameter.grad will be created by loss.bakward(). So skip the loop if no parameter.grad is found (and do loss.backward() outside the optimizer). 
                     continue
 
                 state = self.state[parameter]    # state is an empty list before running optimization. Can use this list as the updated states of the optimization. 
@@ -66,12 +67,12 @@ class SGHMC(Optimizer):
                     state["lrTimesVelocity"] = torch.zeros_like(parameter)
 
                 state["iteration"] += 1      # record the iteration
+                lrTimesVelocity = state["lrTimesVelocity"]          # modifying lrTimesVelocity after this equivalents to modifying state["lrTimesVelocity"]
 
                 # extract the inputs from initialization by group[" "]
                 alpha = group["alpha"]
                 eta = group["eta"]
                 temperature = group["temperature"]
-                lrTimesVelocity = state["lrTimesVelocity"]          # modifying momentum = modifying state["momentum"]
                 wdecay = group["wdecay"]
                 gradient = parameter.grad.data
                 if wdecay != 0:
@@ -83,6 +84,7 @@ class SGHMC(Optimizer):
                 if beta > alpha:
                     sys.exit('Momentum is too large')
                 
+                ## below is the one step SGHMC computation. 
                 sigma = np.sqrt(2.0 * eta * (alpha - beta))
                 # print("sigma = ", sigma)
                 scale = sigma * np.sqrt(temperature)
