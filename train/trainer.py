@@ -65,8 +65,8 @@ def trainer(nets, train_loader, test_loader, pars):
     """ Initialization for variance reduction """
     # loss recording, last step trained result recording(我给改成了nn.ModuleList, 邓伟用的还是个list 呢). 
     last_full_losses, last_VRnets = [0] * pars.nchains, nn.ModuleList()
-    for net in range(nets):
-        last_VRnets.extend([net])     # 先把input 给的原始net 加进来。
+    for idx in range(pars.chains):
+        last_VRnets.extend([nets[idx]])     # 先把input 给的原始net 加进来。
 
     # ]
 
