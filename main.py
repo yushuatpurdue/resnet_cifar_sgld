@@ -53,6 +53,7 @@ def main():
     parser.add_argument('-Tgap', default=0.01, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures equispaced with this gap. 
     parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
     parser.add_argument('-lr', default=2e-6, type=float, help='Sampling learning rate')     ## learning rate for highest temperatur chain. 
+    parser.add_argument('-etagap', default=0.66, type=float, help='gap between different chains etas. ')    ## learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
     parser.add_argument('-lrgap', default=0.66, type=float, help='Learning rate gap between chains')    ## learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
     parser.add_argument('-period', default=2, type=int, help='estimate adaptive variance every [period] epochs')
     parser.add_argument('-cycle', default=1, type=int, help='Number of cycles')

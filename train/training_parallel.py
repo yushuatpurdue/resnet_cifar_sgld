@@ -50,6 +50,8 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
     '''
 
     nnet = 0
+    eta = pars.eta
+    temperature = pars.T
     accuracy = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
 
     for net in model:
@@ -59,9 +61,10 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
 
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
-        optimizer = SGHMC(net.parameters(), eta=pars.eta, temperature=pars.T, wdecay=pars.wdecay)
+        optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
         # optimizer = SGHMC_modify(net, criterion = criterion, momentum=0.9, lr=eta, wdecay=5e-4, T=temperature, total=50000)
 
+        
         # print("nnet = ", nnet) # 要注释掉
 
         for i, (images, labels) in enumerate(train_dataset):
@@ -83,10 +86,16 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
 
         ''' evaluating performance '''
         accuracy[nnet].eval(net, test_dataset, cumulate = True)
-        print("result: ", accuracy[nnet].OneEpoch_acc)
+
+        ''' print results '''
+        print('Chain {} Acc: {:0.2f} T: {:.2E} eta: {:.2E}'\
+                    .format(nnet, accuracy[nnet].OneEpoch_acc, \
+                    temperature, eta))
 
         
         nnet += 1
+        eta /= pars.etagap
+        temperature /= pars.Tgap
         
 
 
