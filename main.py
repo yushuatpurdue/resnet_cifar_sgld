@@ -120,15 +120,9 @@ def main():
     train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
     ''' training loop '''
-
-    # below is the experimental area, eventually needs to be wrapped in training.py. 
-
-    # no epoch issue is incorporated here. Use for loop to train by epoches in the training loop section in main. 
-
     criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 
     # accuracy = [BayesEval()] * pars.nchains
-            
-
+        
 
     for t in range(pars.epochs):
 

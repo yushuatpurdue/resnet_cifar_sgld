@@ -85,6 +85,9 @@ model.cpu()
 multichain_model = nn.ModuleList([model])
 multichain_model.extend([model for i in range(1, 2)])
 
+# print(type(multichain_model[0]))
+# print(type(model))
+
 # for net in multichain_model:
 #     print(len(list(net.parameters())))
 # print(len(list(multichain_model.parameters())))          # 结论：如果不用for loop 访问每一个model，直接访问multichain_model 的parameters 的结果就是只访问了第一个model
@@ -98,7 +101,15 @@ multichain_model.extend([model for i in range(1, 2)])
 
 # print(len((SGLD(model.parameters(), lr=0.1,temperature=1).param_groups[0])[1]))           # incorrect code. 
 
-# print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]))
+# print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]))    # dict
+# print(SGHMC(model.parameters(), eta=pars.eta, temperature=pars.T, wdecay=pars.wdecay).param_groups[0].keys())   # dict_keys(['params', 'eta', 'alpha', 'temperature', 'wdecay'])
+# print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"]))    # list
+# print(len(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0] - torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))
+# print(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"])
+# print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))    # torch.nn.parameter.Parameter
+# print(torch.norm(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))   # tensor(2.4477, grad_fn=<CopyBackwards>), 能算，还能backward
+# print(torch.norm(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0] - torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0])) # 也能算。不过现在是0
+
 # groups = SGLD(model.parameters(), lr=0.1).param_groups[0]
 # print(len(list(groups.values())[0][0][0]))
 
@@ -115,34 +126,44 @@ for group in torch.optim.SGD(model.parameters(), lr=0.1).param_groups:
     # break
     for parameters in group["params"]:
         
-        # print(parameters.__dict__)
+        print(parameters.__dict__)
         
-        state = torch.optim.SGD(model.parameters(), lr=0.1).state[parameters]
-        # state["iteration"] = 0
-        state["momentum"] = torch.zeros_like(parameters)
-        momentum = state["momentum"]
-        momentum.add_(2.)
-        # print(momentum)
-        print(state["momentum"])
+        # state = torch.optim.SGD(model.parameters(), lr=0.1).state[parameters]
+        # # state["iteration"] = 0
+        # state["momentum"] = torch.zeros_like(parameters)
+        # momentum = state["momentum"]
+        # momentum.add_(2.)
+        # # print(momentum)
+        # print(state["momentum"])
         
         break
-
 '''
+
 
 train_loader, test_loader = LoadData(256, 256, pars)
 
-# print(len(test_loader))
+# print(len(train_loader))  # len(test_loader = 40), len(train_loader = 196)
 
 
 # for train in enumerate(train_loader):
-#     print(len(train[1][0][255]))
+#     # print(len(train))   # len(train) = 2
+#     # print(train[0])   # train[0] = 0
+#     print(len(train[1][0][255][2][31][31]))  # train[1] is a large tensor. train[1][0] is an md tensor of size 256*3*32*32  train[1][1] is a tensor of size 256. 3 should be color, 256*256 should be pixels. 
+#     # 196*256 = 50176, size of train set is 50000. 40*256  = 10240, size of test set is 10000. 
 #     break
+
+for i, (images, labels) in enumerate(train_loader):
+    print('batch length', len(images))
+    break
+
+    
+
+
 
 '''
 optimizer = SGLD(model.parameters(), lr=0.1, temperature=0)     # 做了个实验发现temperature = 1 is like 太大了
 # optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
 criterion = nn.CrossEntropyLoss()
-
 
 for i, (images, labels) in enumerate(train_loader):
     optimizer.zero_grad()
@@ -151,7 +172,9 @@ for i, (images, labels) in enumerate(train_loader):
     print(loss.item())
     loss.backward()
     optimizer.step()
+
 '''
+
 '''
     optimizer.zero_grad()
     output = model(images)
@@ -164,8 +187,8 @@ for i, (images, labels) in enumerate(train_loader):
     output = model(images)
     loss = criterion(output, labels)
     print(loss.item())
-    '''
-
+'''
+'''
 criterion = nn.CrossEntropyLoss()
 # accuracy = [BayesEval()] * pars.nchains
 
@@ -211,7 +234,7 @@ for t in range(pars.epochs):
     #     # accuracy[nnet].eval(net, test_loader, cumulate = True)
     #     # print(accuracy[nnet].best_OneEpoch_acc)
     #     nnet += 1               # 要注释掉
-
+'''
 '''
 for net in multichain_model:
     print(net.parameters)

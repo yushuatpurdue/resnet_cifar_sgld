@@ -4,7 +4,7 @@ The files are created by Yushu Huang for the EMC-SGLD algorithm. YEAR 2021.
 They aim to apply the algorithm to the training of resnet under CIFAR dataset. 
 
 In this file: function for one-step SGLD training. 
-use 'from train.training_SGLD import training_SGLD' to import this file. 
+use 'from train.training_parallel import training_parallel' to import this file. 
 '''
 
 import math
@@ -49,21 +49,20 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
         criterion       loss function. should be nn.CrossEntropyLoss() to obtain the potential. 
     '''
 
-    nnet = 0
-    eta = pars.eta
+    nnet        = 0         # counter of nets. 
+    eta         = pars.eta  # lr^2/M. lr = learning rate, M = mass. see paper Chen et al SGHMC. 
     temperature = pars.T
-    accuracy = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
+    accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
 
     for net in model:
 
-        ''' training nets '''
+        ''' training net '''
         net.train()      # first set net to train mode. 
 
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
         optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
-        # optimizer = SGHMC_modify(net, criterion = criterion, momentum=0.9, lr=eta, wdecay=5e-4, T=temperature, total=50000)
-
+        
         
         # print("nnet = ", nnet) # 要注释掉
 
@@ -73,10 +72,10 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
             images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
             labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
 
-            # then define optimizer, evaluate, calculate loss and back propagate. 
+            # then evaluate optimizer, calculate loss and back propagate. 
             optimizer.zero_grad()
             output = net(images)
-            loss = criterion(output, labels) * pars.total
+            loss   = criterion(output, labels) * pars.total
             
             # print(loss.item())       # 要注释掉
             # print("data = ", i)       # 要注释掉
@@ -92,10 +91,10 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
                     .format(nnet, accuracy[nnet].OneEpoch_acc, \
                     temperature, eta))
 
-        
-        nnet += 1
-        eta /= pars.etagap
-        temperature /= pars.Tgap
+        '''prepare for next net'''
+        nnet        += 1            # counting # of nets. 
+        eta         /= pars.etagap  # different chains occupy different eta
+        temperature /= pars.Tgap    # temperature ladder between chains
         
 
 

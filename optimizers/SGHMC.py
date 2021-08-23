@@ -47,7 +47,7 @@ class SGHMC(Optimizer):
             loss = closure()
         for group in self.param_groups:      # group is a dictionary. group.keys() are the arguments defined in __init__. 
             # If running one model a time, then there is only one group in self.param_group, taking everything.
-            for parameter in group["params"]:      # parameter is a torch.nn.parameter.Parameter. It has two arguments: .data, which gives a tensor (full parameters of ner), and .requires_grad, default = True. 
+            for parameter in group["params"]:      # parameter is a torch.nn.parameter.Parameter. It has two arguments: .data, which gives a tensor (full parameters of net), and .requires_grad, default = True. 
                 if parameter.grad is None:       # parameter.grad will be created by loss.bakward(). If not created, skip this loop and calculate grad out of optimizer. 
                     continue
 
