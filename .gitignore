@@ -1,4 +1,4 @@
-snooker_test.py
+# snooker_test.py
 data/
 __pycache__/BayesEval.cpython-38.pyc
 __pycache__/LoadData.cpython-38.pyc
