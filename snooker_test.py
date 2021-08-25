@@ -38,59 +38,35 @@ from optimizers.SGHMC import SGHMC
 ## for optimizer. 
 from numpy.lib.function_base import gradient
 
-class snooker: 
-    '''Implements snooker crossover algorithm for one step update.
-    Args:
-        modulelist         : nn.ModuleList. the population of chains. 
-        selection_t        : selection temperature. see reference.  
+
+
+def Boltzmann(selection_t, modulelist, train_loader):
     '''
+    Boltzman calculates the Boltzmann density of a model: exp(-loss(model)/selection_t), where loss is the cross entropy loss. 
 
-    def __init__(
-        self,
-        # modulelist,
-        train_loader,
-        selection_t = 0.1
-        ) -> None:
+    It takes each module in modulelist, calculate it's full loss, then calculate the Boltzmann density. 
+    '''
+    criterion = nn.CrossEntropyLoss()           # cross entropy loss generates the potential. 
+    Boltzmann_pd = [0]*len(modulelist)          # Boltzmann_pd records the Boltzmann probability density for each model. It is a list of length = nchains. 
+    loss = 0                                    # loss is a temporary record of the loss. 
+    count = 0
+    for net in modulelist:
+        for i, (images, labels) in enumerate(train_loader):
+            ''' calculate the full loss of the net. '''
 
-        if selection_t < 0:
-            raise ValueError("Negative selection temperature: {}".format(selection_t))
-        super(snooker, self).__init__()
+            # first change the data type from 'tensor' to 'Variables'. 
+            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
 
-        # self.modulelist   = modulelist
-        self.train_loader = train_loader
-        self.selection_t  = selection_t
-        # self.nchains      = len(modulelist)
+            # then evaluate optimizer, calculate loss and back propagate. 
+            output = net(images)
+            loss   += criterion(output, labels) * len(images)
 
-    def Boltzmann(self, selection_t, modulelist, train_loader):
-        '''
-        Boltzman calculates the Boltzmann density of a model: exp(-loss(model)/selection_t), where loss is the cross entropy loss. 
+        Boltzmann_pd[count] = np.exp(-loss/selection_t)
+        count += 1
+    return(Boltzmann_pd)
 
-        It takes each module in modulelist, calculate it's full loss, then calculate the Boltzmann density. 
-        '''
-        criterion = nn.CrossEntropyLoss()           # cross entropy loss generates the potential. 
-        Boltzmann_pd = [0]*len(modulelist)          # Boltzmann_pd records the Boltzmann probability density for each model. It is a list of length = nchains. 
-        loss = 0                                    # loss is a temporary record of the loss. 
-        count = 0
-        for net in modulelist:
-            for i, (images, labels) in enumerate(train_loader):
-                ''' calculate the full loss of the net. '''
-
-                # first change the data type from 'tensor' to 'Variables'. 
-                images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-                labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-
-                # then evaluate optimizer, calculate loss and back propagate. 
-                output = net(images)
-                loss   += criterion(output, labels) * len(images)
-
-            Boltzmann_pd[count] = np.exp(-loss/selection_t)
-            count += 1
-        return(Boltzmann_pd)
-
-    def step(self, modulelist):
-        boltzmann_pd = self.Boltzmann(self.selection_t, modulelist, self.train_loader)
-        return(boltzmann_pd)
-
+    
 
 ''' main '''
 ## define an object "parser" to add attributes to it. 
@@ -137,7 +113,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-model.cpu()
+# model.cpu()
+model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -146,8 +123,9 @@ multichain_model.extend([model for i in range(1, 3)])
 train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
         
 ''' test snooker'''
-Snooker_test = snooker(train_loader)
-boltzmann_pd = Snooker_test.step(multichain_model)
+# Snooker_test = snooker(train_loader)
+# boltzmann_pd = Snooker_test.step(multichain_model)
+boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
 print('output:', boltzmann_pd)
 print('output data type:', type(boltzmann_pd))
 
