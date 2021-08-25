@@ -64,6 +64,7 @@ def Boltzmann(selection_t, modulelist, train_loader):
             temp   = criterion(output, labels) * len(images)
             print("batch loss = ", temp[0])
             print("batch loss type = ", type(temp[0]))
+            break
             # loss   += temp
 
         # Boltzmann_pd[count] = np.exp(-loss/selection_t)
