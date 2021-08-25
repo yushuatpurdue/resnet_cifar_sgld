@@ -48,6 +48,7 @@ class snooker:
         loss = 0                                    # loss is a temporary record of the loss. 
         count = 0
         for net in modulelist:
+            net.train()
             for i, (images, labels) in enumerate(train_loader):
                 ''' calculate the full loss of the net. '''
 
