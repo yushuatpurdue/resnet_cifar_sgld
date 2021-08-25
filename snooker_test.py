@@ -62,12 +62,9 @@ def Boltzmann(selection_t, modulelist, train_loader):
             # then evaluate optimizer, calculate loss and back propagate. 
             output = net(images)
             temp   = criterion(output, labels) * len(images)
-            print("batch loss = ", temp[0])
-            print("batch loss type = ", type(temp[0]))
-            break
-            # loss   += temp
+            loss   += temp.item()
 
-        # Boltzmann_pd[count] = np.exp(-loss/selection_t)
+        Boltzmann_pd[count] = np.exp(-loss/selection_t)
         count += 1
     return(Boltzmann_pd)
 
@@ -118,8 +115,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-# model.cpu()
-model.cuda()
+model.cpu()
+# model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
