@@ -62,7 +62,8 @@ def Boltzmann(selection_t, modulelist, train_loader):
             # then evaluate optimizer, calculate loss and back propagate. 
             output = net(images)
             temp   = criterion(output, labels) * len(images)
-            print("batch loss = ", temp)
+            print("batch loss = ", temp[0])
+            print("batch loss type = ", type(temp[0]))
             # loss   += temp
 
         # Boltzmann_pd[count] = np.exp(-loss/selection_t)
