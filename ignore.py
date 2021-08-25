@@ -139,7 +139,7 @@ for group in torch.optim.SGD(model.parameters(), lr=0.1).param_groups:
         break
 '''
 
-
+'''
 train_loader, test_loader = LoadData(256, 256, pars)
 
 # print(len(train_loader))  # len(test_loader = 40), len(train_loader = 196)
@@ -155,7 +155,7 @@ train_loader, test_loader = LoadData(256, 256, pars)
 for i, (images, labels) in enumerate(train_loader):
     print('batch length', len(images))
     break
-
+'''
     
 
 
@@ -266,3 +266,5 @@ for net in multichain_model:
     break
 
 '''
+
+
