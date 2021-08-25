@@ -63,7 +63,6 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
         optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
         
-        
         # print("nnet = ", nnet) # 要注释掉
 
         for i, (images, labels) in enumerate(train_dataset):
