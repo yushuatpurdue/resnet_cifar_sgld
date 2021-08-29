@@ -58,8 +58,9 @@ class snooker:
 
                 # then evaluate optimizer, calculate loss and back propagate. 
                 output = net(images)
-                loss   += criterion(output, labels) * len(images)
-
+                temp   = criterion(output, labels) * len(images)
+                loss   += temp.item()
+            
             Boltzmann_pd[count] = np.exp(-loss/selection_t)
             count += 1
         return(Boltzmann_pd)
