@@ -268,3 +268,5 @@ for net in multichain_model:
 '''
 
 
+accuracy    = [BayesEval()] * 3    # a list recording the accuracy of model. 
+print(len(accuracy))
