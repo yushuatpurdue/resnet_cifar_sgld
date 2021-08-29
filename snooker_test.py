@@ -88,6 +88,7 @@ class snooker:
                 temp   = criterion(output, labels) * len(images)
                 loss   += temp.item()
             
+            print("loss for Boltzmann sampling = ", loss)
             Boltzmann_pd[count] = np.exp(-loss/selection_t)
             count += 1
         return(Boltzmann_pd)

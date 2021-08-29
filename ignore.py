@@ -39,7 +39,7 @@ from optimizers.SGHMC import SGHMC
 parser = argparse.ArgumentParser()    
 
 ## mcmc properties:
-parser.add_argument('-nchains', default=1, type=int, help='Total number of chains')     ## how many chains are going to run. 
+parser.add_argument('-nchains', default=2, type=int, help='Total number of chains')     ## how many chains are going to run. 
 parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
 parser.add_argument('-T', default=0.1, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
 parser.add_argument('-Tgap', default=0.01, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures equispaced with this gap. 
@@ -268,5 +268,5 @@ for net in multichain_model:
 '''
 
 
-accuracy    = [BayesEval()] * 3    # a list recording the accuracy of model. 
+accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
 print(len(accuracy))

@@ -86,9 +86,9 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
         accuracy[nnet].eval(net, test_dataset, cumulate = True)
 
         ''' print results '''
-        print('Chain {} Acc: {:0.2f} T: {:.2E} eta: {:.2E}'\
+        print('Chain {} Acc: {:0.2f} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
                     .format(nnet, accuracy[nnet].OneEpoch_acc, \
-                    temperature, eta))
+                    loss.item(), temperature, eta))
 
         '''prepare for next net'''
         nnet        += 1            # counting # of nets. 
