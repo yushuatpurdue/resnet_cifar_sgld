@@ -156,13 +156,13 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(50):
+for t in range(20):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         
 ''' test snooker'''
-Snooker_test = snooker(train_loader)
+Snooker_test = snooker(train_loader, selection_t = 10000)
 boltzmann_pd = Snooker_test.step(multichain_model)
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
 print('output:', boltzmann_pd)
