@@ -91,6 +91,7 @@ class snooker:
             print("loss for Boltzmann sampling = ", loss)
             Boltzmann_pd[count] = np.exp(-loss/selection_t)
             count += 1
+        Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
         return(Boltzmann_pd)
 
     def step(self, modulelist):
@@ -162,7 +163,7 @@ for t in range(20):
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         
 ''' test snooker'''
-Snooker_test = snooker(train_loader, selection_t = 10000)
+Snooker_test = snooker(train_loader, selection_t = 100000)
 boltzmann_pd = Snooker_test.step(multichain_model)
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
 print('output:', boltzmann_pd)

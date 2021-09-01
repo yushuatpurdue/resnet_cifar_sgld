@@ -268,5 +268,10 @@ for net in multichain_model:
 '''
 
 
-accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
-print(len(accuracy))
+# accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
+# print(len(accuracy))
+
+
+Boltzmann_pd = [1]*3
+Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
+print("Boltzmann_pd = ", Boltzmann_pd)
