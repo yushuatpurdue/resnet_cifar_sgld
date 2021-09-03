@@ -39,13 +39,14 @@ from optimizers.SGHMC import SGHMC
 parser = argparse.ArgumentParser()    
 
 ## mcmc properties:
-parser.add_argument('-nchains', default=2, type=int, help='Total number of chains')     ## how many chains are going to run. 
+parser.add_argument('-nchains', default=10, type=int, help='Total number of chains')     ## how many chains are going to run. 
 parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
+parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
+parser.add_argument('-crossoverRate', default=0.3, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
+parser.add_argument('-etagap', default=0.66, type=float, help='gap between different chains etas. ')    ## learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
 parser.add_argument('-T', default=0.1, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
 parser.add_argument('-Tgap', default=0.01, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures equispaced with this gap. 
 parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
-parser.add_argument('-lr', default=2e-6, type=float, help='Sampling learning rate')     ## learning rate for highest temperatur chain. 
-parser.add_argument('-lrgap', default=0.66, type=float, help='Learning rate gap between chains')    ## learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
 parser.add_argument('-period', default=2, type=int, help='estimate adaptive variance every [period] epochs')
 parser.add_argument('-cycle', default=1, type=int, help='Number of cycles')
 parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations for sampling (sn * burn)')
@@ -83,9 +84,9 @@ model.cpu()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
-multichain_model.extend([model for i in range(1, 2)])
+multichain_model.extend([model for i in range(1, pars.nchains)])
 
-# print(type(multichain_model[0]))
+# print(len(multichain_model))
 # print(type(model))
 
 # for net in multichain_model:
@@ -272,6 +273,21 @@ for net in multichain_model:
 # print(len(accuracy))
 
 
-Boltzmann_pd = [1]*3
-Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
-print("Boltzmann_pd = ", Boltzmann_pd)
+# Boltzmann_pd = [1]*3
+# Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
+# print("Boltzmann_pd = ", Boltzmann_pd)
+
+# nchainsCrossover = math.ceil(pars.crossoverRate * pars.nchains)
+# CrossoverInd = random.sample(range(pars.nchains), nchainsCrossover)
+# print("how many chains are going through crossover? ans = ", nchainsCrossover)
+# print("crossover chains' index = ", CrossoverInd)
+
+# anchor_chain = np.random.multinomial(1, [0.3,0.3,0.4])
+# print("anchor_chain = ", anchor_chain)
+# # print("index of anchor chain = ", np.nonzero(anchor_chain)[0][0])
+# print("index of anchor chain = ", int(np.nonzero(anchor_chain)[0]))
+
+output = dict()
+output["crossoverInd"] = [0,8,1]
+output["anchorInd"] = [2,3,4]
+print("type of output = ",type(output["crossoverInd"]))
