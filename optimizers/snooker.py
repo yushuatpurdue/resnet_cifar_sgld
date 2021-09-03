@@ -70,6 +70,7 @@ class snooker:
                 
                 Boltzmann_pd[j] = np.exp(-loss/selection_t)
             
+        Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
         return Boltzmann_pd
 
     def sample_chainpairs(self, pars, modulelist):
