@@ -97,6 +97,7 @@ class snooker:
                 Boltzmann_pd[j] = np.exp(-loss/selection_t)
             
         Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
+        print("Boltzmann pd = ", Boltzmann_pd)
         return Boltzmann_pd
 
     def sample_chainpairs(self, pars, modulelist):
@@ -144,7 +145,7 @@ parser.add_argument('-nchains', default=5, type=int, help='Total number of chain
 parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
 parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
 parser.add_argument('-crossoverRate', default=0.3, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
-parser.add_argument('-T', default=0.01, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
+parser.add_argument('-T', default=0.005, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
 parser.add_argument('-Tgap', default=0.5, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures = T/Tgap. 
 parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
 parser.add_argument('-etagap', default=0.66, type=float, help='gap between different chains etas. ')    ## eta of the second high temperature chain = eta/etagap for highest temperatur chain
