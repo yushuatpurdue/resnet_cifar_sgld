@@ -128,10 +128,10 @@ class snooker:
 
 
     def step(self, pars, modulelist):
-        Boltzmann_pd = self.Boltzmann(pars.selectionT, 1, modulelist, train_loader)
-        # chainpairs = sample_chainpairs(pars, modulelist)
+        # Boltzmann_pd = self.Boltzmann(pars.selectionT, 1, modulelist, train_loader)
+        chainpairs = self.sample_chainpairs(pars, modulelist)
 
-        return Boltzmann_pd 
+        return chainpairs 
 
     
 
@@ -199,10 +199,10 @@ for t in range(20):
         
 ''' test snooker'''
 Snooker_test = snooker(train_loader, selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
-boltzmann_pd = Snooker_test.step(pars, multichain_model)
+chainpairs = Snooker_test.step(pars, multichain_model)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
-print('output:', boltzmann_pd)
-print('output data type:', type(boltzmann_pd))
+print('output:', chainpairs)
+# print('output data type:', type(boltzmann_pd))
 
     
