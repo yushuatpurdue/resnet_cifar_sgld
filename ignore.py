@@ -81,8 +81,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-model.cpu()
-# model.cuda()
+# model.cpu()
+model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -124,7 +124,7 @@ multichain_model.extend([model for i in range(1, pars.nchains)])
 #     # print(parameter.grad)
 #     count+=1
 # print(count)
-'''
+
 train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
@@ -141,7 +141,7 @@ for i in range(count):
     parameter1 = list(multichain_model[1].parameters())[i]
     diff_param = parameter0 - parameter1
     print("norm of ", i, "th parameter:", torch.norm(diff_param))
-'''
+
 # print(len(list(model.parameters())))    # 65
 # for i in range(65):
 #     print(len(list(model.parameters())[i])) 
@@ -321,10 +321,10 @@ for net in multichain_model:
 # print("how many chains are going through crossover? ans = ", nchainsCrossover)
 # print("crossover chains' index = ", CrossoverInd)
 
-sample_anchor_chain = np.random.multinomial(1, [0.,         0.6846285,  0.22088984, 0.07144526, 0.0230364 ])
+# sample_anchor_chain = np.random.multinomial(1, [0.,         0.6846285,  0.22088984, 0.07144526, 0.0230364 ])
 # print("anchor_chain = ", anchor_chain)
 # # print("index of anchor chain = ", np.nonzero(anchor_chain)[0][0])
-print("index of anchor chain = ", int(np.nonzero(sample_anchor_chain)[0]))
+# print("index of anchor chain = ", int(np.nonzero(sample_anchor_chain)[0]))
 # print("index of anchor chain = ", int(anchor_chain[0]))
 
 # output = dict()
