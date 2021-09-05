@@ -5,6 +5,7 @@ import os
 import timeit
 import csv
 import argparse
+from torch.nn import parameter
 from tqdm import tqdm  # better progressbar
 from math import exp
 from sys import getsizeof
@@ -81,6 +82,7 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 
 
 model.cpu()
+# model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -112,16 +114,33 @@ multichain_model.extend([model for i in range(1, pars.nchains)])
 # print(torch.norm(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0] - torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0])) # 也能算。不过现在是0
 # print(torch.norm(model.parameters))
 # print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))
+
+# count = 0
+# for name, parameter in model.named_parameters():
+#     # print(parameter)
+#     # break
+#     print(name)
+#     print(torch.norm(parameter))
+#     # print(parameter.grad)
+#     count+=1
+# print(count)
 '''
-count = 0
-for name, parameter in model.named_parameters():
-    # print(parameter)
-    # break
-    print(name)
-    # print(torch.norm(parameter))
-    print(parameter.grad)
-    count+=1
-print(count)
+train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
+
+criterion = nn.CrossEntropyLoss()
+
+for t in range(20):
+
+    print("epochs = ",t)      # 要注释掉
+    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+
+
+count = len(list(multichain_model[0].parameters()))
+for i in range(count):
+    parameter0 = list(multichain_model[0].parameters())[i]
+    parameter1 = list(multichain_model[1].parameters())[i]
+    diff_param = parameter0 - parameter1
+    print("norm of ", i, "th parameter:", torch.norm(diff_param))
 '''
 # print(len(list(model.parameters())))    # 65
 # for i in range(65):
@@ -302,11 +321,11 @@ for net in multichain_model:
 # print("how many chains are going through crossover? ans = ", nchainsCrossover)
 # print("crossover chains' index = ", CrossoverInd)
 
-anchor_chain = np.random.multinomial(1, [0.,         0.6846285,  0.22088984, 0.07144526, 0.0230364 ])
-print("anchor_chain = ", anchor_chain)
-# print("index of anchor chain = ", np.nonzero(anchor_chain)[0][0])
-print("index of anchor chain = ", int(np.nonzero(anchor_chain)[0]))
-print("index of anchor chain = ", int(anchor_chain[0]))
+sample_anchor_chain = np.random.multinomial(1, [0.,         0.6846285,  0.22088984, 0.07144526, 0.0230364 ])
+# print("anchor_chain = ", anchor_chain)
+# # print("index of anchor chain = ", np.nonzero(anchor_chain)[0][0])
+print("index of anchor chain = ", int(np.nonzero(sample_anchor_chain)[0]))
+# print("index of anchor chain = ", int(anchor_chain[0]))
 
 # output = dict()
 # output["crossoverInd"] = [0,8,1]
