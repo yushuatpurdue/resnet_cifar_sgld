@@ -110,6 +110,26 @@ multichain_model.extend([model for i in range(1, pars.nchains)])
 # print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))    # torch.nn.parameter.Parameter
 # print(torch.norm(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))   # tensor(2.4477, grad_fn=<CopyBackwards>), 能算，还能backward
 # print(torch.norm(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0] - torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0])) # 也能算。不过现在是0
+# print(torch.norm(model.parameters))
+# print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))
+'''
+count = 0
+for name, parameter in model.named_parameters():
+    # print(parameter)
+    # break
+    print(name)
+    # print(torch.norm(parameter))
+    print(parameter.grad)
+    count+=1
+print(count)
+'''
+# print(len(list(model.parameters())))    # 65
+# for i in range(65):
+#     print(len(list(model.parameters())[i])) 
+# print(list(model.parameters())[62])
+
+# print(torch.norm(list(model.parameters())[0]))
+# print(torch.norm(list(model.parameters())[1]))
 
 # groups = SGLD(model.parameters(), lr=0.1).param_groups[0]
 # print(len(list(groups.values())[0][0][0]))
@@ -282,12 +302,13 @@ for net in multichain_model:
 # print("how many chains are going through crossover? ans = ", nchainsCrossover)
 # print("crossover chains' index = ", CrossoverInd)
 
-# anchor_chain = np.random.multinomial(1, [0.3,0.3,0.4])
-# print("anchor_chain = ", anchor_chain)
-# # print("index of anchor chain = ", np.nonzero(anchor_chain)[0][0])
-# print("index of anchor chain = ", int(np.nonzero(anchor_chain)[0]))
+anchor_chain = np.random.multinomial(1, [0.,         0.6846285,  0.22088984, 0.07144526, 0.0230364 ])
+print("anchor_chain = ", anchor_chain)
+# print("index of anchor chain = ", np.nonzero(anchor_chain)[0][0])
+print("index of anchor chain = ", int(np.nonzero(anchor_chain)[0]))
+print("index of anchor chain = ", int(anchor_chain[0]))
 
-output = dict()
-output["crossoverInd"] = [0,8,1]
-output["anchorInd"] = [2,3,4]
-print("type of output = ",type(output["crossoverInd"]))
+# output = dict()
+# output["crossoverInd"] = [0,8,1]
+# output["anchorInd"] = [2,3,4]
+# print("type of output = ",type(output["crossoverInd"]))

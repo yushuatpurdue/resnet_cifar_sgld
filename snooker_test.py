@@ -117,7 +117,7 @@ class snooker:
             crossoverInd = CrossoverInd[i]
             boltzmann_pd = self.Boltzmann(self.selection_t, crossoverInd, modulelist, self.train_loader)
             sample_anchor_chain = np.random.multinomial(1, boltzmann_pd)
-            anchor_chain = int(sample_anchor_chain[0])
+            anchor_chain = int(np.nonzero(sample_anchor_chain[0]))
             Anchor_ind[i] = anchor_chain
 
         output = dict()
