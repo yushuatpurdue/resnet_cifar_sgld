@@ -40,7 +40,7 @@ from optimizers.SGHMC import SGHMC
 parser = argparse.ArgumentParser()    
 
 ## mcmc properties:
-parser.add_argument('-nchains', default=10, type=int, help='Total number of chains')     ## how many chains are going to run. 
+parser.add_argument('-nchains', default=5, type=int, help='Total number of chains')     ## how many chains are going to run. 
 parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
 parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
 parser.add_argument('-crossoverRate', default=0.3, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
@@ -133,14 +133,22 @@ for t in range(20):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-
+# model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+# model2 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 
 count = len(list(multichain_model[0].parameters()))
 for i in range(count):
+    # parameter0 = list(model1.parameters())[i]
+    # parameter1 = list(model2.parameters())[i]
+    # diff_parameter = parameter1 - parameter2
     parameter0 = list(multichain_model[0].parameters())[i]
     parameter1 = list(multichain_model[1].parameters())[i]
-    diff_param = parameter0 - parameter1
-    print("norm of ", i, "th parameter:", torch.norm(diff_param))
+    diff_parameter = parameter0 - parameter1
+    print(parameter0[0])
+    print(parameter1[0])
+    # print(parameter1[0] - parameter2[0])
+    print("norm of ", i, "th parameter:", torch.norm(diff_parameter))
+    # print("norm of ", i, "th parameter:", torch.norm(diff_param))
 
 # print(len(list(model.parameters())))    # 65
 # for i in range(65):
