@@ -4,6 +4,7 @@ import sys
 import os
 import timeit
 import csv
+import copy
 import argparse
 from torch.nn import parameter
 from tqdm import tqdm  # better progressbar
@@ -86,7 +87,9 @@ model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
-multichain_model.extend([model for i in range(1, pars.nchains)])
+for i in range(pars.nchains):
+    model_add = copy.deepcopy(model)
+multichain_model.extend([model_add])
 
 # print(len(multichain_model))
 # print(type(model))

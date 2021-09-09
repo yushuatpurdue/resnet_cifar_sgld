@@ -58,6 +58,7 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
 
         ''' training net '''
         net.train()      # first set net to train mode. 
+        print("net", nnet, "parameter head", list(net.parameters())[0][0])
 
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=pars.lr, momentum=0.9)        # no ladder here. need to modify later. 
@@ -89,7 +90,7 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
         print('Chain {} Acc: {:0.2f} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
                     .format(nnet, accuracy[nnet].OneEpoch_acc, \
                     loss.item(), temperature, eta))
-        print("net", nnet, "parameter head", list(net.parameters())[0][0])
+        
 
         '''prepare for next net'''
         nnet        += 1            # counting # of nets. 
