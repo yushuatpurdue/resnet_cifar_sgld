@@ -136,10 +136,11 @@ for t in range(10):
     parameter0 = list(multichain_model[0].parameters())[0]
     parameter1 = list(multichain_model[1].parameters())[0]
     # diff_parameter = parameter0 - parameter1
-    print(parameter0[0])
-    print(parameter1[0])
+    print("parameter0 =", parameter0[0])
+    print("parameter1 =", parameter1[0])
 # model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # model2 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+
 '''
 count = len(list(multichain_model[0].parameters()))
 for i in range(count):
@@ -344,3 +345,6 @@ for net in multichain_model:
 # output["crossoverInd"] = [0,8,1]
 # output["anchorInd"] = [2,3,4]
 # print("type of output = ",type(output["crossoverInd"]))
+
+# print(type(torch.FloatTensor(3,3).normal_()))
+# print(list(torch.FloatTensor(3,3).normal_())[0])
