@@ -89,7 +89,7 @@ model.cuda()
 multichain_model = nn.ModuleList([model])
 for i in range(pars.nchains):
     model_add = copy.deepcopy(model)
-multichain_model.extend([model_add])
+    multichain_model.extend([model_add])
 
 # print(len(multichain_model))
 # print(type(model))
