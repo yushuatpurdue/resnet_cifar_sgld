@@ -136,31 +136,31 @@ for t in range(10):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-    parameter0 = list(multichain_model[0].parameters())[0]
-    parameter1 = list(multichain_model[4].parameters())[0]
-    # diff_parameter = parameter0 - parameter1
-    print("parameter0 =", parameter0[0])
-    print("parameter1 =", parameter1[0])
+    # parameter0 = list(multichain_model[0].parameters())[0]
+    # parameter1 = list(multichain_model[4].parameters())[0]
+    # # diff_parameter = parameter0 - parameter1
+    # print("parameter0 =", parameter0[0])
+    # print("parameter1 =", parameter1[0])
 
 
 # model0 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 
-'''
+
 count = len(list(multichain_model[0].parameters()))
 for i in range(count):
-    parameter0 = list(model0.parameters())[i]
-    parameter1 = list(model1.parameters())[i]   # 这样写它们确实会有区别
+    parameter0 = list(multichain_model[0].parameters())[i]
+    parameter1 = list(multichain_model[1].parameters())[i]   # 这样写它们确实会有区别
     diff_parameter = parameter0 - parameter1
     # parameter0 = list(multichain_model[0].parameters())[i]
     # parameter1 = list(multichain_model[1].parameters())[i]
     # diff_parameter = parameter0 - parameter1
-    print(parameter0[0])
-    print(parameter1[0])
+    # print(parameter0[0])
+    # print(parameter1[0])
     # print(parameter1[0] - parameter2[0])
     print("norm of ", i, "th parameter:", torch.norm(diff_parameter))
     # print("norm of ", i, "th parameter:", torch.norm(diff_param))
-'''
+
 
 # print(len(list(model.parameters())))    # 65
 # for i in range(65):
