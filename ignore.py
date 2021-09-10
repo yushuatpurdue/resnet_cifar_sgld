@@ -87,7 +87,7 @@ model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
-for i in range(pars.nchains):
+for i in range(pars.nchains-1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
 
