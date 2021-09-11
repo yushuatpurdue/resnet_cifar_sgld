@@ -132,7 +132,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(10):
+for t in range(100):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
@@ -155,8 +155,8 @@ for i in range(count):
     # parameter0 = list(multichain_model[0].parameters())[i]
     # parameter1 = list(multichain_model[1].parameters())[i]
     # diff_parameter = parameter0 - parameter1
-    print(i, "th parameter of model 0 = ", parameter0[0])
-    print(i, "th parameter of model 1 = ", parameter1[0])
+    # print(i, "th parameter of model 0 = ", parameter0[0])
+    # print(i, "th parameter of model 1 = ", parameter1[0])
     # print(parameter1[0] - parameter2[0])
     print("norm of diff in", i, "th parameter:", torch.norm(diff_parameter))
     # print("norm of ", i, "th parameter:", torch.norm(diff_param))
