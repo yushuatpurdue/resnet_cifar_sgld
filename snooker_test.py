@@ -162,7 +162,8 @@ class snooker:
             model_crossover = modulelist[crossover_idx[i]]
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)
-            print("direction head of chain ", i, "=", direction[0][0])
+
+            print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
 
         # return direction
 
@@ -235,8 +236,8 @@ criterion = nn.CrossEntropyLoss()
         
 ''' test snooker'''
 Snooker_test = snooker(train_loader, selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
-Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
-# direction = Snooker_test.step(pars, multichain_model)
+# Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
+direction = Snooker_test.step(pars, multichain_model)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
 # print('output', chainpairs)
