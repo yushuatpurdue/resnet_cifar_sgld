@@ -91,6 +91,8 @@ for i in range(pars.nchains-1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
 
+
+
 # print(len(multichain_model))
 # print(type(model))
 
@@ -132,12 +134,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-a = 1
-b = 0
-if type(a) == int:
-    b = 1
 
-print(b)
 
 '''
 for t in range(100):
@@ -153,10 +150,12 @@ for t in range(100):
 
 # model0 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-'''
+
 diff_parameter = []
 norm_diff = 0
 count = len(list(multichain_model[0].parameters()))
+print(type(model.parameters().item()))
+'''
 for i in range(count):
     parameter0 = list(multichain_model[0].parameters())[i]
     parameter1 = list(multichain_model[1].parameters())[i]   # 这样写它们确实会有区别
@@ -173,13 +172,15 @@ for i in range(count):
     # print("norm of ", i, "th parameter:", torch.norm(diff_param))
 # print(norm_diff.item())
 # print(diff_parameter[0][0])
-direction = np.array(diff_parameter)/norm_diff.item()
-print(direction[0][0])     # 没问题
+print(type(diff_parameter))
+# direction = np.array(diff_parameter)/norm_diff.item()
+# print(direction[0][0])     # 没问题, 但在cuda 下不行
+'''
 # print(torch.norm(diff_parameter))         # 报错
 # print(len(diff_parameter))
 # print(diff_parameter == list(multichain_model[0].parameters()))      # output = TRUE. 
 # print(torch.norm(diff_parameter[1]))      # 没错
-'''
+
 
 # print(len(list(model.parameters())))    # 65
 # for i in range(65):
