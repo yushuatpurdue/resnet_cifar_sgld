@@ -151,7 +151,12 @@ class snooker:
         chainpairs = self.sample_chainpairs(pars, modulelist)
         crossover_idx = chainpairs["crossoverchains"]
         anchor_idx = chainpairs["anchorchains"]
-        for i in len(crossover_idx):
+        if type(crossover_idx) == int:
+            length = 1
+        else:
+            length = len(crossover_idx)
+
+        for i in length:
             model_crossover = modulelist[crossover_idx[i]]
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)
@@ -212,17 +217,18 @@ model.cuda()
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
 for i in range(pars.nchains-1):
-    model_add = copy.deepcopy(model)
+    model_add = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+    model_add.cuda()
     multichain_model.extend([model_add])
 
 train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(20):
+# for t in range(20):
 
-    print("epochs = ",t)      # 要注释掉
-    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+#     print("epochs = ",t)      # 要注释掉
+#     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         
 ''' test snooker'''
 Snooker_test = snooker(train_loader, selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 

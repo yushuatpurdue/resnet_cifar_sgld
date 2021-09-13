@@ -82,8 +82,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-# model.cpu()
-model.cuda()
+model.cpu()
+# model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -132,6 +132,13 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
+a = 1
+b = 0
+if type(a) == int:
+    b = 1
+
+print(b)
+
 '''
 for t in range(100):
 
@@ -146,7 +153,7 @@ for t in range(100):
 
 # model0 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-
+'''
 diff_parameter = []
 norm_diff = 0
 count = len(list(multichain_model[0].parameters()))
@@ -172,7 +179,7 @@ print(direction[0][0])     # 没问题
 # print(len(diff_parameter))
 # print(diff_parameter == list(multichain_model[0].parameters()))      # output = TRUE. 
 # print(torch.norm(diff_parameter[1]))      # 没错
-
+'''
 
 # print(len(list(model.parameters())))    # 65
 # for i in range(65):

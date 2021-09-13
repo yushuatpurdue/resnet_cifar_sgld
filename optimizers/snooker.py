@@ -126,7 +126,12 @@ class snooker:
         chainpairs = self.sample_chainpairs(pars, modulelist)
         crossover_idx = chainpairs["crossoverchains"]
         anchor_idx = chainpairs["anchorchains"]
-        for i in len(crossover_idx):
+        if type(crossover_idx) == int:
+            length = 1
+        else:
+            length = len(crossover_idx)
+
+        for i in length:
             model_crossover = modulelist[crossover_idx[i]]
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)
