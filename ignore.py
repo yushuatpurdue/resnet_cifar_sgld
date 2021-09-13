@@ -132,6 +132,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
+'''
 for t in range(100):
 
     print("epochs = ",t)      # 要注释掉
@@ -141,25 +142,36 @@ for t in range(100):
     # # diff_parameter = parameter0 - parameter1
     # print("parameter0 =", parameter0[0])
     # print("parameter1 =", parameter1[0])
-
+'''
 
 # model0 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 
-
+diff_parameter = []
+norm_diff = 0
 count = len(list(multichain_model[0].parameters()))
 for i in range(count):
     parameter0 = list(multichain_model[0].parameters())[i]
     parameter1 = list(multichain_model[1].parameters())[i]   # 这样写它们确实会有区别
-    diff_parameter = parameter0 - parameter1
+    temp = parameter0
+    diff_parameter = diff_parameter + [temp]
+    norm_diff += torch.norm(temp)
     # parameter0 = list(multichain_model[0].parameters())[i]
     # parameter1 = list(multichain_model[1].parameters())[i]
     # diff_parameter = parameter0 - parameter1
     # print(i, "th parameter of model 0 = ", parameter0[0])
     # print(i, "th parameter of model 1 = ", parameter1[0])
     # print(parameter1[0] - parameter2[0])
-    print("norm of diff in", i, "th parameter:", torch.norm(diff_parameter))
+    # print("norm of diff in", i, "th parameter:", torch.norm(temp))
     # print("norm of ", i, "th parameter:", torch.norm(diff_param))
+# print(norm_diff.item())
+# print(diff_parameter[0][0])
+direction = np.array(diff_parameter)/norm_diff.item()
+print(direction[0][0])     # 没问题
+# print(torch.norm(diff_parameter))         # 报错
+# print(len(diff_parameter))
+# print(diff_parameter == list(multichain_model[0].parameters()))      # output = TRUE. 
+# print(torch.norm(diff_parameter[1]))      # 没错
 
 
 # print(len(list(model.parameters())))    # 65

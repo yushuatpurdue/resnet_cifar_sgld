@@ -93,11 +93,9 @@ class snooker:
                     temp   = criterion(output, labels) * len(images)
                     loss   += temp.item()
                 
-                print("loss for Boltzmann sampling = ", loss)
                 Boltzmann_pd[j] = np.exp(-loss/selection_t)
             
         Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
-        print("Boltzmann pd = ", Boltzmann_pd)
         return Boltzmann_pd
 
     def sample_chainpairs(self, pars, modulelist):
@@ -126,13 +124,39 @@ class snooker:
 
         return output
 
+    def compute_direction(self, crossoverchain, anchorchain): 
+        '''
+        this function returns e in snooker crossover algorithm step 3 given a crossover chain and corresponding anchor chain. 
 
+        crossoverchain:        crossover chain. type = nn.module
+        anchorchain_ids:       anchor chain. type = nn.module 
+        '''
+
+        diff_parameter = []
+        norm_diff = 0
+        count = len(list(crossoverchain.parameters()))
+
+        for i in range(count):
+            parameter_crossover = list(crossoverchain.parameters())[i]
+            parameter_anchor = list(anchorchain.parameters())[i]   # 这样写它们确实会有区别
+            temp = parameter_crossover - parameter_anchor
+            diff_parameter = diff_parameter + [temp]
+            norm_diff += torch.norm(temp)
+            # print("norm of diff in", i, "th parameter:", torch.norm(diff_parameter))
+        direction = np.array(diff_parameter)/norm_diff.item()
+
+        return direction
 
     def step(self, pars, modulelist):
-        # Boltzmann_pd = self.Boltzmann(pars.selectionT, 1, modulelist, train_loader)
         chainpairs = self.sample_chainpairs(pars, modulelist)
+        crossover_idx = chainpairs["crossoverchains"]
+        anchor_idx = chainpairs["anchorchains"]
+        for i in len(crossover_idx):
+            model_crossover = modulelist[crossover_idx[i]]
+            model_anchor = modulelist[anchor_idx[i]]
+            direction = self.compute_direction(model_crossover, model_anchor)
 
-        return chainpairs 
+        return direction
 
     
 
@@ -200,10 +224,10 @@ for t in range(20):
         
 ''' test snooker'''
 Snooker_test = snooker(train_loader, selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
-chainpairs = Snooker_test.step(pars, multichain_model)
+direction = Snooker_test.step(pars, multichain_model)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
-print('output:', chainpairs)
+# print('output', chainpairs)
 # print('output data type:', type(boltzmann_pd))
 
     

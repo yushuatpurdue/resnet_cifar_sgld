@@ -99,12 +99,44 @@ class snooker:
 
         return output
 
+    def compute_direction(self, crossoverchain, anchorchain): 
+        '''
+        this function returns e in snooker crossover algorithm step 3 given a crossover chain and corresponding anchor chain. 
 
+        crossoverchain:        crossover chain. type = nn.module
+        anchorchain_ids:       anchor chain. type = nn.module 
+        '''
+
+        diff_parameter = []
+        norm_diff = 0
+        count = len(list(crossoverchain.parameters()))
+
+        for i in range(count):
+            parameter_crossover = list(crossoverchain.parameters())[i]
+            parameter_anchor = list(anchorchain.parameters())[i]   # 这样写它们确实会有区别
+            temp = parameter_crossover - parameter_anchor
+            diff_parameter = diff_parameter + [temp]
+            norm_diff += torch.norm(temp)
+            # print("norm of diff in", i, "th parameter:", torch.norm(diff_parameter))
+        direction = np.array(diff_parameter)/norm_diff.item()
+
+        return direction
 
     def step(self, pars, modulelist):
         chainpairs = self.sample_chainpairs(pars, modulelist)
+        crossover_idx = chainpairs["crossoverchains"]
+        anchor_idx = chainpairs["anchorchains"]
+        for i in len(crossover_idx):
+            model_crossover = modulelist[crossover_idx[i]]
+            model_anchor = modulelist[anchor_idx[i]]
+            direction = self.compute_direction(model_crossover, model_anchor)
+            print("direction head of chain ", i, "=", direction[0][0])
 
-        return chainpairs 
+        # 这样return direction 只能return 到最后一个direction. 这是不对的。要写sample_r 然后update parameter，把它们放到for loop 里面。
+
+        # return direction
+
+
 
 
 
