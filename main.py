@@ -113,7 +113,9 @@ def main():
 
     ## define model for each chain, and append them into a list. 
     multichain_model = nn.ModuleList([model])
-    multichain_model.extend([model for i in range(1, pars.nchains)])
+    for i in range(pars.nchains-1):
+        model_add = copy.deepcopy(model)
+        multichain_model.extend([model_add])
     
 
     ''' set data '''
