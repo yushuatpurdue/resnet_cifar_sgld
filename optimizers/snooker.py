@@ -131,7 +131,7 @@ class snooker:
         else:
             length = len(crossover_idx)
 
-        for i in length:
+        for i in range(length):
             model_crossover = modulelist[crossover_idx[i]]
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)
