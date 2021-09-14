@@ -143,7 +143,7 @@ for t in range(10):
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
     parameter0 = list(multichain_model[0].parameters())[0]
     for parameters in multichain_model[0].parameters():
-        print(parameters.grad.data()[0])
+        print(parameters.grad.data[0])
     # print(parameter0[0].grad.data())          # 报错：AttributeError: 'NoneType' object has no attribute 'data'
     # parameter1 = list(multichain_model[4].parameters())[0]
     # # diff_parameter = parameter0 - parameter1
