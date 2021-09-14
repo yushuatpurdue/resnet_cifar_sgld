@@ -118,9 +118,11 @@ class snooker:
             diff_parameter = diff_parameter + [temp]
             norm_diff += torch.norm(temp)
             # print("norm of diff in", i, "th parameter:", torch.norm(diff_parameter))
-        direction = np.array(diff_parameter)/norm_diff.item()
+        for i in range(count):
+            diff_parameter[i] = diff_parameter[i]/norm_diff.item()
+        
+        return diff_parameter
 
-        return direction
 
     def step(self, pars, modulelist):
         chainpairs = self.sample_chainpairs(pars, modulelist)
@@ -135,7 +137,7 @@ class snooker:
             model_crossover = modulelist[crossover_idx[i]]
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)
-            print("direction head of chain ", i, "=", direction[0][0])
+            print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
 
         # 这样return direction 只能return 到最后一个direction. 这是不对的。要写sample_r 然后update parameter，把它们放到for loop 里面。
 

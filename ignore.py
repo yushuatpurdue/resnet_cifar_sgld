@@ -82,8 +82,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-model.cpu()
-# model.cuda()
+# model.cpu()
+model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -136,25 +136,27 @@ criterion = nn.CrossEntropyLoss()
 
 
 
-'''
-for t in range(100):
+
+for t in range(10):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-    # parameter0 = list(multichain_model[0].parameters())[0]
+    parameter0 = list(multichain_model[0].parameters())[0]
+    print(parameter0[0].grad.data())
     # parameter1 = list(multichain_model[4].parameters())[0]
     # # diff_parameter = parameter0 - parameter1
     # print("parameter0 =", parameter0[0])
     # print("parameter1 =", parameter1[0])
-'''
+
 
 # model0 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-
+'''
 diff_parameter = []
 norm_diff = 0
 count = len(list(multichain_model[0].parameters()))
-print(type(model.parameters().item()))
+print(type(model.parameters()))
+'''
 '''
 for i in range(count):
     parameter0 = list(multichain_model[0].parameters())[i]
