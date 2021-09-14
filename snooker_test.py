@@ -229,10 +229,10 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-# for t in range(20):
+for t in range(20):
 
-#     print("epochs = ",t)      # 要注释掉
-#     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    print("epochs = ",t)      # 要注释掉
+    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         
 ''' test snooker'''
 Snooker_test = snooker(train_loader, selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
