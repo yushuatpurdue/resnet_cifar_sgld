@@ -150,35 +150,38 @@ class snooker:
         return diff_parameter
 
     def step(self, pars, modulelist):
-        # chainpairs = self.sample_chainpairs(pars, modulelist)
-        # crossover_idx = chainpairs["crossoverchains"]
-        # anchor_idx = chainpairs["anchorchains"]
-        # if type(crossover_idx) == int:
-        #     length = 1
-        # else:
-        #     length = len(crossover_idx)
+        chainpairs = self.sample_chainpairs(pars, modulelist)
+        crossover_idx = chainpairs["crossoverchains"]
+        anchor_idx = chainpairs["anchorchains"]
+        if type(crossover_idx) == int:
+            length = 1
+        else:
+            length = len(crossover_idx)
 
-        # for i in range(length):
-        #     model_crossover = modulelist[crossover_idx[i]]
-        #     model_anchor = modulelist[anchor_idx[i]]
-        #     direction = self.compute_direction(model_crossover, model_anchor)
-        #     # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
+        for i in range(length):
+            model_crossover = modulelist[crossover_idx[i]]
+            model_anchor = modulelist[anchor_idx[i]]
+            direction = self.compute_direction(model_crossover, model_anchor)
+            # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
+            print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
+            print("anchor vs. anchor + r*e:")
+            r = 0.1
+            count = 0
+            for parameter in model_anchor.parameters():
+                print("count = ", count)
+                print("parameter #", count," head, before modified:", parameter.data[0])
+                parameter.data.add_(r * direction[count])
+                print("parameter #", count," head, after modified:", parameter.data[0])
+                count += 1
+            
+                
         
-        
-        model_crossover = modulelist[0]
-        model_anchor = modulelist[1]
-        direction = self.compute_direction(model_crossover, model_anchor)
+        # model_crossover = modulelist[0]
+        # model_anchor = modulelist[1]
+        # direction = self.compute_direction(model_crossover, model_anchor)
 
 
-        r = 0.1
-        count = 0
-        for parameter in model_anchor.parameters():
-            print("count = ", count)
-            print("parameter #", i," head, before modified:", parameter.data[0])
-            parameter.data.add_(r * direction[count])
-            count += 1
-        for parameter in model_anchor.parameters():
-            print("parameter #", i," head, after modified:", parameter.data[0])
+
 
         # return direction
 
