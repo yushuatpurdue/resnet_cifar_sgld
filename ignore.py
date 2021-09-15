@@ -137,13 +137,14 @@ criterion = nn.CrossEntropyLoss()
 
 
 
-for t in range(10):
+# for t in range(10):
 
-    print("epochs = ",t)      # 要注释掉
-    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-    parameter0 = list(multichain_model[0].parameters())[0]
-    for parameters in multichain_model[0].parameters():
-        print(parameters.grad.data[0])
+#     print("epochs = ",t)      # 要注释掉
+#     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+#     parameter0 = list(multichain_model[0].parameters())[0]
+for parameters in multichain_model[0].parameters():
+    # print(parameters.grad.data[0])
+    parameters.grad.data.zero_()
     # print(parameter0[0].grad.data())          # 报错：AttributeError: 'NoneType' object has no attribute 'data'
     # parameter1 = list(multichain_model[4].parameters())[0]
     # # diff_parameter = parameter0 - parameter1

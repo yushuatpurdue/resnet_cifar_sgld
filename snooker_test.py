@@ -149,7 +149,31 @@ class snooker:
         
         return diff_parameter
 
-    def step(self, pars, modulelist):
+    def sample_direction(model_anchor, direction, train_loader):
+        r = 0.1
+        count = 0
+        for parameter in model_anchor.parameters():
+            # print("count = ", count)
+            # print("parameter #", count," head, before modified:", parameter.data[0])
+            parameter.data.add_(r * direction[count])
+            parameter.grad.data.zero()
+            # print("parameter #", count," head, after modified:", parameter.data[0])
+            count += 1
+
+        for i, (images, labels) in enumerate(train_loader):
+            ''' calculate the full loss of the net. '''
+
+            # first change the data type from 'tensor' to 'Variables'. 
+            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+
+            # then evaluate optimizer, calculate loss and back propagate. 
+            output = model_anchor(images)
+            loss   = criterion(output, labels) * len(images)
+            loss.backward()    # 这样就在parameter.grad 上累加 gradient了
+
+
+    def step(self, pars, modulelist, train_loader):
         chainpairs = self.sample_chainpairs(pars, modulelist)
         crossover_idx = chainpairs["crossoverchains"]
         anchor_idx = chainpairs["anchorchains"]
@@ -163,16 +187,9 @@ class snooker:
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
-            print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
-            print("anchor vs. anchor + r*e:")
-            r = 0.1
-            count = 0
-            for parameter in model_anchor.parameters():
-                print("count = ", count)
-                print("parameter #", count," head, before modified:", parameter.data[0])
-                parameter.data.add_(r * direction[count])
-                print("parameter #", count," head, after modified:", parameter.data[0])
-                count += 1
+            # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
+            # print("anchor vs. anchor + r*e:")
+            
             
                 
         
