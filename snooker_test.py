@@ -173,8 +173,10 @@ class snooker:
         r = 0.1
         count = 0
         for parameter in model_anchor.parameters():
+            print("count = ", count)
             print("parameter #", i," head, before modified:", parameter.data[0])
             parameter.data.add_(r * direction[count])
+            count += 1
         for parameter in model_anchor.parameters():
             print("parameter #", i," head, after modified:", parameter.data[0])
 
@@ -242,7 +244,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(2):
+for t in range(1):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
