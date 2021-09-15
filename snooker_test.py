@@ -150,20 +150,33 @@ class snooker:
         return diff_parameter
 
     def step(self, pars, modulelist):
-        chainpairs = self.sample_chainpairs(pars, modulelist)
-        crossover_idx = chainpairs["crossoverchains"]
-        anchor_idx = chainpairs["anchorchains"]
-        if type(crossover_idx) == int:
-            length = 1
-        else:
-            length = len(crossover_idx)
+        # chainpairs = self.sample_chainpairs(pars, modulelist)
+        # crossover_idx = chainpairs["crossoverchains"]
+        # anchor_idx = chainpairs["anchorchains"]
+        # if type(crossover_idx) == int:
+        #     length = 1
+        # else:
+        #     length = len(crossover_idx)
 
-        for i in range(length):
-            model_crossover = modulelist[crossover_idx[i]]
-            model_anchor = modulelist[anchor_idx[i]]
-            direction = self.compute_direction(model_crossover, model_anchor)
+        # for i in range(length):
+        #     model_crossover = modulelist[crossover_idx[i]]
+        #     model_anchor = modulelist[anchor_idx[i]]
+        #     direction = self.compute_direction(model_crossover, model_anchor)
+        #     # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
+        
+        
+        model_crossover = modulelist[0]
+        model_anchor = modulelist[1]
+        direction = self.compute_direction(model_crossover, model_anchor)
 
-            print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
+
+        r = 0.1
+        count = 0
+        for parameter in model_anchor.parameters():
+            print("parameter #", i," head, before modified:", parameter.data[0])
+            parameter.data.add_(r * direction[count])
+        for parameter in model_anchor.parameters():
+            print("parameter #", i," head, after modified:", parameter.data[0])
 
         # return direction
 
@@ -229,7 +242,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(20):
+for t in range(2):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
@@ -237,7 +250,7 @@ for t in range(20):
 ''' test snooker'''
 Snooker_test = snooker(train_loader, selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
 # Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
-direction = Snooker_test.step(pars, multichain_model)
+Snooker_test.step(pars, multichain_model)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
 # print('output', chainpairs)
