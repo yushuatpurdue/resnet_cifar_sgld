@@ -82,8 +82,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-model.cpu()
-# model.cuda()
+# model.cpu()
+model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -121,11 +121,11 @@ for i in range(1):
 # print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))
 
 # count = 0
-for name, parameter in model.named_parameters():
-    size =list(parameter.size()) 
-    print(np.prod(size))     # returns sizes
-    print(parameter.sum())
-    break
+# for name, parameter in model.named_parameters():
+#     size =list(parameter.size()) 
+#     print(np.prod(size))     # returns sizes
+#     print(parameter.sum())
+#     break
 #     # break
 #     print(name)
 #     print(torch.norm(parameter))
@@ -139,7 +139,7 @@ criterion = nn.CrossEntropyLoss()
 
 
 
-'''
+
 for t in range(1):
 
     print("epochs = ",t)      # 要注释掉
@@ -154,7 +154,7 @@ for t in range(1):
     # # diff_parameter = parameter0 - parameter1
     # print("parameter0 =", parameter0[0])
     # print("parameter1 =", parameter1[0])
-'''
+
 
 # model0 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
