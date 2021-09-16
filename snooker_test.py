@@ -157,7 +157,9 @@ class snooker:
             # print("count = ", count)
             # print("parameter #", count," head, before modified:", parameter.data[0])
             parameter.data.add_(r * direction[count])
-            parameter.grad.data.zero()        # zero out the gradients. 
+            print("parameter.data.gradient:", parameter.grad.data[0])
+            break
+            # parameter.grad.data.zero()        # zero out the gradients. 
             # print("parameter #", count," head, after modified:", parameter.data[0])
             count += 1
 
