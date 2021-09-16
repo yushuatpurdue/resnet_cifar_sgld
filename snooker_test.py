@@ -5,6 +5,8 @@ algorithm reference: Jun Liu: Monte Carlo Strategies in Scientific Computing, p2
 In this file: a class -- SGHMC is created as the optimizer for the network. 
 use 'from optimizers.SHMC import SGLD' to import this file. 
 '''
+from numpy.core.numeric import cross
+from numpy.lib.twodim_base import _trilu_indices_form_dispatcher
 from BayesEval import BayesEval
 import math
 import copy
@@ -149,19 +151,18 @@ class snooker:
         
         return diff_parameter
 
-    def sample_direction(model_anchor, direction, train_loader):
-        r = 0.1
+    def sample_direction(r, model_anchor, temperature, direction, train_loader):
         count = 0
         for parameter in model_anchor.parameters():
             # print("count = ", count)
             # print("parameter #", count," head, before modified:", parameter.data[0])
             parameter.data.add_(r * direction[count])
-            parameter.grad.data.zero()
+            parameter.grad.data.zero()        # zero out the gradients. 
             # print("parameter #", count," head, after modified:", parameter.data[0])
             count += 1
 
         for i, (images, labels) in enumerate(train_loader):
-            ''' calculate the full loss of the net. '''
+            ''' calculate the full gradient. '''
 
             # first change the data type from 'tensor' to 'Variables'. 
             images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
@@ -172,20 +173,50 @@ class snooker:
             loss   = criterion(output, labels) * len(images)
             loss.backward()    # 这样就在parameter.grad 上累加 gradient了
 
+        count = 0
+        innerproduct = 0
+        dimension = 0
+        for parameter in model_anchor.parameters():
+            # print("count = ", count)
+            # print("parameter #", count," head, before modified:", parameter.data[0])
+            
+            gradient_parameter = parameter.grad.data 
+            print("count =", count, "head of parameter = ", gradient_parameter[0])
+            print("count =", count, "head of direction = ", direction[count][0])
+            temp = gradient_parameter * direction[count]
+            print("count =", count, "elementwise product of gradient and direction = ", temp)
+            innerproduct += temp.sum()
+            print("count =", count, "inner product of gradient and direction (cumulated) = ", innerproduct )
+            size = list(parameter.size())
+            print("torch.size at count ", count, "=", size )
+            dimension += np.prod(size)
+            
+
+            # print("parameter #", count," head, after modified:", parameter.data[0])
+            count += 1
+
+        gradient_r = (dimension - 1)/r - innerproduct/temperature
+        print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
+        return gradient_r
+
 
     def step(self, pars, modulelist, train_loader):
         chainpairs = self.sample_chainpairs(pars, modulelist)
         crossover_idx = chainpairs["crossoverchains"]
         anchor_idx = chainpairs["anchorchains"]
-        if type(crossover_idx) == int:
-            length = 1
-        else:
-            length = len(crossover_idx)
+        length = len(crossover_idx)
 
         for i in range(length):
             model_crossover = modulelist[crossover_idx[i]]
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)
+            temperature = pars.T / (pars.Tgap ** anchor_idx[i])
+            
+            scalers = np.arange(-2,2,0.01)
+            for j in range(length(scalers)):
+
+                gradient_r = self.sample_direction(scalers[j], model_anchor, temperature, direction, train_loader)
+                print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format(scalers[j], gradient_r, anchor_idx[i]))
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
             # print("anchor vs. anchor + r*e:")

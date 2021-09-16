@@ -82,15 +82,15 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-# model.cpu()
-model.cuda()
+model.cpu()
+# model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
-for i in range(pars.nchains-1):
+# for i in range(pars.nchains-1):
+for i in range(1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
-
 
 
 # print(len(multichain_model))
@@ -121,8 +121,11 @@ for i in range(pars.nchains-1):
 # print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))
 
 # count = 0
-# for name, parameter in model.named_parameters():
-#     # print(parameter)
+for name, parameter in model.named_parameters():
+    size =list(parameter.size()) 
+    print(np.prod(size))     # returns sizes
+    print(parameter.sum())
+    break
 #     # break
 #     print(name)
 #     print(torch.norm(parameter))
@@ -136,21 +139,22 @@ criterion = nn.CrossEntropyLoss()
 
 
 
+'''
+for t in range(1):
 
-# for t in range(10):
-
-#     print("epochs = ",t)      # 要注释掉
-#     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    print("epochs = ",t)      # 要注释掉
+    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
 #     parameter0 = list(multichain_model[0].parameters())[0]
-for parameters in multichain_model[0].parameters():
-    # print(parameters.grad.data[0])
-    parameters.grad.data.zero_()
+    for parameters in multichain_model[0].parameters():
+        parameters.grad.data.zero_()
+        # print(parameters.grad.data[0])
+
     # print(parameter0[0].grad.data())          # 报错：AttributeError: 'NoneType' object has no attribute 'data'
     # parameter1 = list(multichain_model[4].parameters())[0]
     # # diff_parameter = parameter0 - parameter1
     # print("parameter0 =", parameter0[0])
     # print("parameter1 =", parameter1[0])
-
+'''
 
 # model0 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # model1 = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
