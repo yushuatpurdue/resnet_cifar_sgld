@@ -185,7 +185,7 @@ class snooker:
             print("count =", count, "head of parameter = ", gradient_parameter[0])
             print("count =", count, "head of direction = ", direction[count][0])
             temp = gradient_parameter * direction[count]
-            print("count =", count, "elementwise product of gradient and direction = ", temp)
+            print("count =", count, "elementwise product of gradient and direction = ", temp[0])
             innerproduct += temp.sum()
             print("count =", count, "inner product of gradient and direction (cumulated) = ", innerproduct )
             size = list(parameter.size())
@@ -296,7 +296,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(1):
+for t in range(20):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
