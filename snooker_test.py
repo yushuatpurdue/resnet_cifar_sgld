@@ -182,14 +182,14 @@ class snooker:
             # print("parameter #", count," head, before modified:", parameter.data[0])
             
             gradient_parameter = parameter.grad.data 
-            print("count =", count, "head of parameter = ", gradient_parameter[0])
-            print("count =", count, "head of direction = ", direction[count][0])
+            # print("count =", count, "head of parameter = ", gradient_parameter[0])
+            # print("count =", count, "head of direction = ", direction[count][0])
             temp = gradient_parameter * direction[count]
-            print("count =", count, "elementwise product of gradient and direction = ", temp[0])
+            # print("count =", count, "elementwise product of gradient and direction = ", temp[0])
             innerproduct += temp.sum()
-            print("count =", count, "inner product of gradient and direction (cumulated) = ", innerproduct )
+            # print("count =", count, "inner product of gradient and direction (cumulated) = ", innerproduct )
             size = list(parameter.size())
-            print("torch.size at count ", count, "=", size )
+            # print("torch.size at count ", count, "=", size )
             dimension += np.prod(size)
             
 
@@ -197,7 +197,7 @@ class snooker:
             count += 1
 
         gradient_r = (dimension - 1)/r - innerproduct/temperature
-        print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
+        # print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
         return gradient_r
 
 
@@ -213,10 +213,10 @@ class snooker:
             direction = self.compute_direction(model_crossover, model_anchor)
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])
             
-            scalers = np.arange(-2,2,0.01)
+            scalers = np.arange(-10,10,0.1)
             for j in range(length(scalers)):
 
-                gradient_r = self.sample_direction(scalers[j], model_anchor, temperature, direction, train_loader)
+                gradient_r = self.sample_r(scalers[j], model_anchor, temperature, direction, train_loader)
                 print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format(scalers[j], gradient_r, anchor_idx[i]))
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
@@ -296,7 +296,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(20):
+for t in range(1):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
