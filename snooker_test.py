@@ -214,10 +214,10 @@ class snooker:
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])
             
             scalers = np.arange(-10,10,0.1)
-            for j in range(length(scalers)):
+            for j in scalers:
 
-                gradient_r = self.sample_r(scalers[j], model_anchor, temperature, direction, train_loader)
-                print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format(scalers[j], gradient_r, anchor_idx[i]))
+                gradient_r = self.sample_r(j, model_anchor, temperature, direction, train_loader)
+                print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
             # print("anchor vs. anchor + r*e:")
