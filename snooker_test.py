@@ -304,8 +304,8 @@ for t in range(1):
 ''' test snooker'''
 Snooker_test = snooker(train_loader, selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
 direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
-# Snooker_test.step(pars, multichain_model)
-gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)
+Snooker_test.step(pars, multichain_model, train_loader)
+# gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
 # print('output', chainpairs)
