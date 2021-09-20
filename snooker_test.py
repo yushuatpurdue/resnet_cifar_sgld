@@ -196,7 +196,7 @@ class snooker:
             # print("parameter #", count," head, after modified:", parameter.data[0])
             count += 1
 
-        gradient_r = (dimension - 1)/r - innerproduct/temperature         # gradient_r = nabla(-log f(r))
+        gradient_r = (dimension - 1)/r - innerproduct/temperature         # gradient_r = nabla(log f(r))
         # print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
         return gradient_r
 
@@ -221,6 +221,11 @@ class snooker:
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
             # print("anchor vs. anchor + r*e:")
+            scalers = np.arange(-30,30,0.5)
+            for j in scalers:
+
+                gradient_r = self.sample_r(j, model_anchor, temperature, direction, train_loader)
+                print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
             
             
                 
