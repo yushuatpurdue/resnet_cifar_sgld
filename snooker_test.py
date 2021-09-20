@@ -227,6 +227,11 @@ class snooker:
                 gradient_r = self.sample_r(j, model_anchor, temperature, direction, train_loader)
                 print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
             
+            scalers = np.arange(-10,10,0.5)
+            for j in scalers:
+
+                gradient_r = self.sample_r(j, model_anchor, temperature, direction, train_loader)
+                print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
             
                 
         
