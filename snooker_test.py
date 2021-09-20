@@ -213,7 +213,7 @@ class snooker:
             direction = self.compute_direction(model_crossover, model_anchor)
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])
             
-            scalers = np.arange(-30,30,0.5)
+            scalers = np.arange(-100,100,1)
             for j in scalers:
 
                 gradient_r = self.sample_r(j, model_anchor, temperature, direction, train_loader)
