@@ -196,7 +196,7 @@ class snooker:
             # print("parameter #", count," head, after modified:", parameter.data[0])
             count += 1
 
-        gradient_r = (dimension - 1)/r - innerproduct/temperature
+        gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla(-log f(r))
         # print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
         return gradient_r
 
