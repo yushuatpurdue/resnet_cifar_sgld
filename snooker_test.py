@@ -159,7 +159,7 @@ class snooker:
             # print("parameter #", count," head, before modified:", parameter.data[0])
             parameter.data.add_(r * direction[count])
             # print("parameter.data.gradient:", parameter.grad.data[0])
-            parameter.grad.data.zero_()        # zero out the gradients. 
+            # parameter.grad.data.zero_()        # zero out the gradients. 
             # print("parameter #", count," head, after modified:", parameter.data[0])
             count += 1
 
@@ -307,7 +307,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(20):
+for t in range(1):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
