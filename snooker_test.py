@@ -152,8 +152,9 @@ class snooker:
         return diff_parameter
 
     def sample_r(self, r, model_anchor, temperature, direction, train_loader):
+        model_cp = copy.deepcopy(model_anchor)
         count = 0
-        for parameter in model_anchor.parameters():
+        for parameter in model_cp.parameters():
             # print("count = ", count)
             # print("parameter #", count," head, before modified:", parameter.data[0])
             parameter.data.add_(r * direction[count])
@@ -170,14 +171,14 @@ class snooker:
             labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
 
             # then evaluate optimizer, calculate loss and back propagate. 
-            output = model_anchor(images)
+            output = model_cp(images)
             loss   = criterion(output, labels) * len(images)
             loss.backward()    # 这样就在parameter.grad 上累加 gradient了
 
         count = 0
         innerproduct = 0
         dimension = 0
-        for parameter in model_anchor.parameters():
+        for parameter in model_cp.parameters():
             # print("count = ", count)
             # print("parameter #", count," head, before modified:", parameter.data[0])
             
@@ -196,7 +197,7 @@ class snooker:
             # print("parameter #", count," head, after modified:", parameter.data[0])
             count += 1
 
-        gradient_r = (dimension - 1)/r - innerproduct/temperature         # gradient_r = nabla(log f(r))
+        gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla( -log f(r))
         # print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
         return gradient_r
 
