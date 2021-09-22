@@ -54,6 +54,7 @@ class snooker:
         self,
         # modulelist,
         train_loader,
+        criterion, 
         selection_t = 0.1
         ) -> None:
 
@@ -64,6 +65,7 @@ class snooker:
         # self.modulelist   = modulelist
         self.train_loader = train_loader
         self.selection_t  = selection_t
+        self.criterion    = criterion
         # self.nchains      = len(modulelist)
 
     def Boltzmann(self, selection_t, crossoverInd, modulelist, train_loader):
@@ -72,7 +74,6 @@ class snooker:
 
         It takes each module in modulelist, calculate it's full loss, then calculate the Boltzmann density. 
         '''
-        criterion = nn.CrossEntropyLoss()           # cross entropy loss generates the potential. 
         Boltzmann_pd = [0]*len(modulelist)          # Boltzmann_pd records the Boltzmann probability density for each model. It is a list of length = nchains. 
         loss = 0                                    # loss is a temporary record of the loss. 
 
@@ -92,7 +93,7 @@ class snooker:
 
                     # then evaluate optimizer, calculate loss and back propagate. 
                     output = net(images)
-                    temp   = criterion(output, labels) * len(images)
+                    temp   = self.criterion(output, labels) * len(images)
                     loss   += temp.item()
                 
                 Boltzmann_pd[j] = np.exp(-loss/selection_t)
@@ -101,6 +102,12 @@ class snooker:
         return Boltzmann_pd
 
     def sample_chainpairs(self, pars, modulelist):
+        '''
+        This function returns the indices of chains to go through snooker crossover, and their correspondent anchor chains. 
+        Input:
+            pars:          argument parser. 
+            modulelist:    the model population. 
+        '''
 
         if pars.nchains != len(modulelist):
             raise ValueError("length of modulelist does not match number of chains")
@@ -129,9 +136,13 @@ class snooker:
     def compute_direction(self, crossoverchain, anchorchain): 
         '''
         this function returns e in snooker crossover algorithm step 3 given a crossover chain and corresponding anchor chain. 
+        Input: 
+            crossoverchain:        crossover chain. type = nn.module
+            anchorchain:           anchor chain. type = nn.module 
 
-        crossoverchain:        crossover chain. type = nn.module
-        anchorchain_ids:       anchor chain. type = nn.module 
+        Output:
+            snooker crossover direction e.  type = list of tensor, each of the same shape as model.parameters.data
+        The output will be used in sampling r. 
         '''
 
         diff_parameter = []
@@ -151,12 +162,24 @@ class snooker:
         
         return diff_parameter
 
-    def sample_r(self, r, model_anchor, temperature, direction, train_loader):
-        model_cp = copy.deepcopy(model_anchor)
+    def scaler_gradient(self, r, model_anchor, temperature, direction, train_loader):
+        '''
+        this function returns gradient for scaler r that will be used for SGLD of r. 
+
+        Input:
+            r:                 snooker scaler. type = float. 
+            model_anchor:      anchor model. type = nn.module. 
+            temperature:       temperature of the anchor model. type = float. 
+            direction:         snooker crossover direction e. type = list of tensor, each of the same shape as model.parameters.data
+            train_loader:      augmented training data. 
+
+        Output:
+            gradient of r. type = scaler. 
+        '''
+        model_cp = copy.deepcopy(model_anchor)        # note: deepcopy preserves gradient = TRUE but doesn't copy gradients, so gradient = None after copying. 
         count = 0
         for parameter in model_cp.parameters():
-            # print("count = ", count)
-            # print("parameter #", count," head, before modified:", parameter.data[0])
+
             parameter.data.add_(r * direction[count])
             # print("parameter.data.gradient:", parameter.grad.data[0])
             # parameter.grad.data.zero_()        # zero out the gradients. 
@@ -172,7 +195,7 @@ class snooker:
 
             # then evaluate optimizer, calculate loss and back propagate. 
             output = model_cp(images)
-            loss   = criterion(output, labels) * len(images)
+            loss   = self.criterion(output, labels) * len(images)
             loss.backward()    # 这样就在parameter.grad 上累加 gradient了
 
         count = 0
@@ -217,7 +240,7 @@ class snooker:
             scalers = np.arange(-100,100,1)
             for j in scalers:
 
-                gradient_r = self.sample_r(j, model_anchor, temperature, direction, train_loader)
+                gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
                 print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
@@ -313,7 +336,7 @@ for t in range(20):
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         
 ''' test snooker'''
-Snooker_test = snooker(train_loader, selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
+Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
 direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
 Snooker_test.step(pars, multichain_model, train_loader)
 # gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)

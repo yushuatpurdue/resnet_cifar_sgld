@@ -8,6 +8,7 @@ use 'from optimizers.SHMC import SGLD' to import this file.
 
 import sys
 import math
+import copy
 import numpy as np
 from numpy.lib.function_base import gradient
 import random
@@ -27,6 +28,7 @@ class snooker:
         self,
         # modulelist,
         train_loader,
+        criterion, 
         selection_t = 0.1
         ) -> None:
 
@@ -35,6 +37,7 @@ class snooker:
         super(snooker, self).__init__()
 
         # self.modulelist   = modulelist
+        self.criterion    = criterion
         self.train_loader = train_loader
         self.selection_t  = selection_t
         # self.nchains      = len(modulelist)
@@ -45,7 +48,6 @@ class snooker:
 
         It takes each module in modulelist, calculate it's full loss, then calculate the Boltzmann density. 
         '''
-        criterion = nn.CrossEntropyLoss()           # cross entropy loss generates the potential. 
         Boltzmann_pd = [0]*len(modulelist)          # Boltzmann_pd records the Boltzmann probability density for each model. It is a list of length = nchains. 
         loss = 0                                    # loss is a temporary record of the loss. 
 
@@ -65,7 +67,7 @@ class snooker:
 
                     # then evaluate optimizer, calculate loss and back propagate. 
                     output = net(images)
-                    temp   = criterion(output, labels) * len(images)
+                    temp   = self.criterion(output, labels) * len(images)
                     loss   += temp.item()
                 
                 Boltzmann_pd[j] = np.exp(-loss/selection_t)
@@ -74,6 +76,12 @@ class snooker:
         return Boltzmann_pd
 
     def sample_chainpairs(self, pars, modulelist):
+        '''
+        This function returns the indices of chains to go through snooker crossover, and their correspondent anchor chains. 
+        Input:
+            pars:          argument parser. 
+            modulelist:    the model population. 
+        '''
 
         if pars.nchains != len(modulelist):
             raise ValueError("length of modulelist does not match number of chains")
@@ -102,9 +110,13 @@ class snooker:
     def compute_direction(self, crossoverchain, anchorchain): 
         '''
         this function returns e in snooker crossover algorithm step 3 given a crossover chain and corresponding anchor chain. 
+        Input: 
+            crossoverchain:        crossover chain. type = nn.module
+            anchorchain:           anchor chain. type = nn.module 
 
-        crossoverchain:        crossover chain. type = nn.module
-        anchorchain_ids:       anchor chain. type = nn.module 
+        Output:
+            snooker crossover direction e.  type = list of tensor, each of the same shape as model.parameters.data
+        The output will be used in sampling r. 
         '''
 
         diff_parameter = []
@@ -123,21 +135,81 @@ class snooker:
         
         return diff_parameter
 
+    def scaler_gradient(self, r, model_anchor, temperature, direction, train_loader):
+        '''
+        this function returns gradient for scaler r that will be used for SGLD of r. 
+
+        Input:
+            r:                 snooker scaler. type = float. 
+            model_anchor:      anchor model. type = nn.module. 
+            temperature:       temperature of the anchor model. type = float. 
+            direction:         snooker crossover direction e. type = list of tensor, each of the same shape as model.parameters.data
+            train_loader:      augmented training data. 
+
+        Output:
+            gradient of r. type = scaler. 
+        '''
+        model_cp = copy.deepcopy(model_anchor)        # note: deepcopy preserves gradient = TRUE but doesn't copy gradients, so gradient = None after copying. 
+        count = 0
+        for parameter in model_cp.parameters():
+
+            parameter.data.add_(r * direction[count])
+            # print("parameter.data.gradient:", parameter.grad.data[0])
+            # parameter.grad.data.zero_()        # zero out the gradients. 
+            # print("parameter #", count," head, after modified:", parameter.data[0])
+            count += 1
+
+        for i, (images, labels) in enumerate(train_loader):
+            ''' calculate the full gradient. '''
+
+            # first change the data type from 'tensor' to 'Variables'. 
+            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+
+            # then evaluate optimizer, calculate loss and back propagate. 
+            output = model_cp(images)
+            loss   = self.criterion(output, labels) * len(images)
+            loss.backward()    # 这样就在parameter.grad 上累加 gradient了
+
+        count = 0
+        innerproduct = 0
+        dimension = 0
+        for parameter in model_cp.parameters():
+            # print("count = ", count)
+            # print("parameter #", count," head, before modified:", parameter.data[0])
+            
+            gradient_parameter = parameter.grad.data 
+            # print("count =", count, "head of parameter = ", gradient_parameter[0])
+            # print("count =", count, "head of direction = ", direction[count][0])
+            temp = gradient_parameter * direction[count]
+            # print("count =", count, "elementwise product of gradient and direction = ", temp[0])
+            innerproduct += temp.sum()
+            # print("count =", count, "inner product of gradient and direction (cumulated) = ", innerproduct )
+            size = list(parameter.size())
+            # print("torch.size at count ", count, "=", size )
+            dimension += np.prod(size)
+            
+
+            # print("parameter #", count," head, after modified:", parameter.data[0])
+            count += 1
+
+        gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla( -log f(r))
+        # print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
+        return gradient_r
+
 
     def step(self, pars, modulelist):
         chainpairs = self.sample_chainpairs(pars, modulelist)
         crossover_idx = chainpairs["crossoverchains"]
         anchor_idx = chainpairs["anchorchains"]
-        if type(crossover_idx) == int:
-            length = 1
-        else:
-            length = len(crossover_idx)
+        length = len(crossover_idx)
 
         for i in range(length):
             model_crossover = modulelist[crossover_idx[i]]
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)
-            print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
+            temperature = pars.T / (pars.Tgap ** anchor_idx[i])
+            # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
 
         # 这样return direction 只能return 到最后一个direction. 这是不对的。要写sample_r 然后update parameter，把它们放到for loop 里面。
 
