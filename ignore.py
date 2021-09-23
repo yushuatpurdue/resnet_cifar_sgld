@@ -101,6 +101,8 @@ dimension = 0
 for parameter in model.parameters():
     # print("count = ", count)
     print("parameter #", count," head, before modified:", parameter.data[0])
+    count += 1
+    break
             
 
 # print(len(multichain_model))
