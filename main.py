@@ -73,7 +73,8 @@ def main():
     parser.add_argument('-model', default='resnet20', help='which resnet model to use. In local package "resnet.py." ')
 
     ## environmental properties: 
-    parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
+    # parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
+    parser.add_argument('-seed', default=42, type=int, help='Random Seed')
 
     ## add the arguments. 
     pars = parser.parse_args()
@@ -98,7 +99,8 @@ def main():
     torch.cuda.manual_seed_all(pars.seed)      # set seed for all GPUs. 
     np.random.seed(pars.seed)              # set seed for numpy. !!It returns the random numbers with exactly the same order.          
     random.seed(pars.seed)                 # set seed in general. 
-    torch.backends.cudnn.deterministic=True # make reproducible. 
+    torch.backends.cudnn.deterministic=True # make reproducible.
+
 
 
     ''' set model '''
