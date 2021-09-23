@@ -85,8 +85,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-model.cpu()
-# model.cuda()
+# model.cpu()
+model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -95,6 +95,13 @@ for i in range(1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
 
+count = 0
+innerproduct = 0
+dimension = 0
+for parameter in model.parameters():
+    # print("count = ", count)
+    print("parameter #", count," head, before modified:", parameter.data[0])
+            
 
 # print(len(multichain_model))
 # print(type(model))
@@ -387,5 +394,5 @@ for net in multichain_model:
 # print(type(torch.FloatTensor(3,3).normal_()))
 # print(list(torch.FloatTensor(3,3).normal_())[0])
 
-r = np.random.normal(scale = 10)
-print(r)
+# r = np.random.normal(scale = 10)
+# print(r)
