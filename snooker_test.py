@@ -256,14 +256,14 @@ class snooker:
             direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
             ''' SGLD to obtain r. '''
-            r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
-            for t in range(pars.iterationR):
-                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
-                if abs(r) < 0.3:
-                    lr = abs(r)
-                else:
-                    lr = pars.lrR
-                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+            # r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+            # for t in range(pars.iterationR):
+            #     gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
+            #     if abs(r) < 0.3:
+            #         lr = abs(r)
+            #     else:
+            #         lr = pars.lrR
+            #     r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
             
             scalers = np.arange(-30,30,1)
             for j in scalers:
