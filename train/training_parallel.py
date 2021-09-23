@@ -61,8 +61,8 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
         # print("net", nnet, "parameter head", list(net.parameters())[0][0])
 
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-        optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
-        # optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+        # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
+        optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
         
         # print("nnet = ", nnet) # 要注释掉
 
