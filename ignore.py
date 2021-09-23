@@ -55,6 +55,9 @@ parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations f
 parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing factor')
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
+parser.add_argument('-iterationR', default=500, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+parser.add_argument('-lrR', default=5e-6, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
+
 
 ## dataset properties: 
 parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
@@ -82,8 +85,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-# model.cpu()
-model.cuda()
+model.cpu()
+# model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -139,7 +142,7 @@ criterion = nn.CrossEntropyLoss()
 
 
 
-
+'''
 for t in range(1):
 
     print("epochs = ",t)      # 要注释掉
@@ -148,7 +151,7 @@ for t in range(1):
 for parameters in multichain_model[0].parameters():
     parameters.grad.data.zero_()
     print(parameters.grad.data[0])
-
+'''
     # print(parameter0[0].grad.data())          # 报错：AttributeError: 'NoneType' object has no attribute 'data'
     # parameter1 = list(multichain_model[4].parameters())[0]
     # # diff_parameter = parameter0 - parameter1
@@ -383,3 +386,6 @@ for net in multichain_model:
 
 # print(type(torch.FloatTensor(3,3).normal_()))
 # print(list(torch.FloatTensor(3,3).normal_())[0])
+
+r = np.random.normal(scale = 10)
+print(r)

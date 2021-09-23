@@ -139,6 +139,16 @@ class snooker:
         '''
         this function returns gradient for scaler r that will be used for SGLD of r. 
 
+        f(r) propto abs(r)^(d-1) * pi(xj + r*e) is the distribution of r. 
+        d  = dimension of xj. 
+        pi = target distribution of xj. 
+        xj = anchor model parameters here.
+        e  = direction from self.compute_direction. 
+
+        gradient(r) = -nabla(log f(r)) -- this is what we are computing in this function. 
+        in this setting, 
+        gradient(r) = -(d-1)/r + < nabla(H(xj + r*e)), e > / Temperature. 
+
         Input:
             r:                 snooker scaler. type = float. 
             model_anchor:      anchor model. type = nn.module. 
@@ -149,18 +159,15 @@ class snooker:
         Output:
             gradient of r. type = scaler. 
         '''
-        model_cp = copy.deepcopy(model_anchor)        # note: deepcopy preserves gradient = TRUE but doesn't copy gradients, so gradient = None after copying. 
+        model_cp = copy.deepcopy(model_anchor)        # deep copy anchor model to avoid material modify in anchor model's parameters when adding r*direction. 
+        # note: deepcopy preserves gradient = TRUE but doesn't copy gradients, so gradient = None after copying. 
         count = 0
-        for parameter in model_cp.parameters():
-
+        for parameter in model_cp.parameters():       # for every parameter, add to it r*direction. 
             parameter.data.add_(r * direction[count])
-            # print("parameter.data.gradient:", parameter.grad.data[0])
-            # parameter.grad.data.zero_()        # zero out the gradients. 
-            # print("parameter #", count," head, after modified:", parameter.data[0])
             count += 1
 
         for i, (images, labels) in enumerate(train_loader):
-            ''' calculate the full gradient. '''
+            ''' calculate the full gradient: nabla(H(xj + r*e)) at xj + r*e. '''
 
             # first change the data type from 'tensor' to 'Variables'. 
             images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
@@ -174,35 +181,32 @@ class snooker:
         count = 0
         innerproduct = 0
         dimension = 0
-        for parameter in model_cp.parameters():
-            # print("count = ", count)
-            # print("parameter #", count," head, before modified:", parameter.data[0])
+        for parameter in model_cp.parameters():         # compute <nabla(H(xj + r*e)), e>, and compute d. 
             
             gradient_parameter = parameter.grad.data 
-            # print("count =", count, "head of parameter = ", gradient_parameter[0])
-            # print("count =", count, "head of direction = ", direction[count][0])
             temp = gradient_parameter * direction[count]
-            # print("count =", count, "elementwise product of gradient and direction = ", temp[0])
-            innerproduct += temp.sum()
-            # print("count =", count, "inner product of gradient and direction (cumulated) = ", innerproduct )
-            size = list(parameter.size())
-            # print("torch.size at count ", count, "=", size )
-            dimension += np.prod(size)
-            
+            innerproduct += temp.sum()                  # innerproduct = <nabla(H(xj + r*e)), e>. 
 
-            # print("parameter #", count," head, after modified:", parameter.data[0])
+            size = list(parameter.size())
+            dimension += np.prod(size)                  # dimension = d. 
+            
             count += 1
 
         gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla( -log f(r))
-        # print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
         return gradient_r
 
 
+
+        
+
+
     def step(self, pars, modulelist):
-        chainpairs = self.sample_chainpairs(pars, modulelist)
-        crossover_idx = chainpairs["crossoverchains"]
-        anchor_idx = chainpairs["anchorchains"]
-        length = len(crossover_idx)
+        
+        '''obtain indices of chain pairs for snooker crossover. '''
+        chainpairs    = self.sample_chainpairs(pars, modulelist)
+        crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
+        anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
+        length        = len(crossover_idx)
 
         for i in range(length):
             model_crossover = modulelist[crossover_idx[i]]

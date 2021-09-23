@@ -166,6 +166,16 @@ class snooker:
         '''
         this function returns gradient for scaler r that will be used for SGLD of r. 
 
+        f(r) propto abs(r)^(d-1) * pi(xj + r*e) is the distribution of r. 
+        d  = dimension of xj. 
+        pi = target distribution of xj. 
+        xj = anchor model parameters here.
+        e  = direction from self.compute_direction. 
+
+        gradient(r) = -nabla(log f(r)) -- this is what we are computing in this function. 
+        in this setting, 
+        gradient(r) = -(d-1)/r + < nabla(H(xj + r*e)), e > / Temperature. 
+
         Input:
             r:                 snooker scaler. type = float. 
             model_anchor:      anchor model. type = nn.module. 
@@ -225,37 +235,46 @@ class snooker:
         return gradient_r
 
 
-    def step(self, pars, modulelist, train_loader):
-        chainpairs = self.sample_chainpairs(pars, modulelist)
-        crossover_idx = chainpairs["crossoverchains"]
-        anchor_idx = chainpairs["anchorchains"]
-        length = len(crossover_idx)
 
+
+    def step(self, pars, modulelist, train_loader):
+
+        ''' obtain indices of chain pairs for snooker crossover. '''
+        chainpairs    = self.sample_chainpairs(pars, modulelist)
+        crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
+        anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
+        length        = len(crossover_idx)
+        
+        # crossover_idx = [0,1]             # chains to go through crossover
+        # anchor_idx    = [2,3]                # their corresponding anchor chains
+        # length        = len(crossover_idx)
+
+        ''' compute the offspring of each crossover chain'''
         for i in range(length):
             model_crossover = modulelist[crossover_idx[i]]
             model_anchor = modulelist[anchor_idx[i]]
-            direction = self.compute_direction(model_crossover, model_anchor)
-            temperature = pars.T / (pars.Tgap ** anchor_idx[i])
+            direction = self.compute_direction(model_crossover, model_anchor)     # compute e
+            temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
+            ''' SGLD to obtain r. '''
+            r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+            for t in range(pars.iterationR):
+                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
+                if abs(r) < 0.3:
+                    lr = abs(r)
+                else:
+                    lr = pars.lrR
+                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
             
-            scalers = np.arange(-100,100,1)
+            scalers = np.arange(-30,30,1)
             for j in scalers:
-
-                gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
-                print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
+                if j == 0:
+                    pass
+                else:
+                    gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
+                    print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
             # print("anchor vs. anchor + r*e:")
-            scalers = np.arange(-30,30,0.5)
-            for j in scalers:
-
-                gradient_r = self.sample_r(j, model_anchor, temperature, direction, train_loader)
-                print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
-            
-            scalers = np.arange(-10,10,0.5)
-            for j in scalers:
-
-                gradient_r = self.sample_r(j, model_anchor, temperature, direction, train_loader)
-                print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
             
                 
         
@@ -289,6 +308,9 @@ parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations f
 parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing factor')
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
+parser.add_argument('-iterationR', default=500, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+parser.add_argument('-lrR', default=5e-6, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
+
 
 ## dataset properties: 
 parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
@@ -304,7 +326,11 @@ parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Ran
 ## add the arguments. 
 pars = parser.parse_args()
 
-
+torch.manual_seed(pars.seed)           # set seed for torch
+torch.cuda.manual_seed_all(pars.seed)      # set seed for all GPUs. 
+np.random.seed(pars.seed)              # set seed for numpy. !!It returns the random numbers with exactly the same order.          
+random.seed(pars.seed)                 # set seed in general. 
+torch.backends.cudnn.deterministic=True # make reproducible.
 
 
 if pars.data == 'cifar100':
@@ -337,7 +363,7 @@ for t in range(20):
         
 ''' test snooker'''
 Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
-direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
+# direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
 Snooker_test.step(pars, multichain_model, train_loader)
 # gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)
 
