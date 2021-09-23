@@ -74,6 +74,13 @@ parser.add_argument('-seed', default=42, type=int, help='Random Seed')
 ## add the arguments. 
 pars = parser.parse_args()
 
+torch.manual_seed(pars.seed)           # set seed for torch
+torch.cuda.manual_seed_all(pars.seed)      # set seed for all GPUs. 
+np.random.seed(pars.seed)              # set seed for numpy. !!It returns the random numbers with exactly the same order.          
+random.seed(pars.seed)                 # set seed in general. 
+torch.backends.cudnn.deterministic=True # make reproducible.
+
+
 
 
 
