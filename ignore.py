@@ -74,11 +74,11 @@ parser.add_argument('-seed', default=42, type=int, help='Random Seed')
 ## add the arguments. 
 pars = parser.parse_args()
 
-torch.manual_seed(pars.seed)           # set seed for torch
-torch.cuda.manual_seed_all(pars.seed)      # set seed for all GPUs. 
-np.random.seed(pars.seed)              # set seed for numpy. !!It returns the random numbers with exactly the same order.          
-random.seed(pars.seed)                 # set seed in general. 
-torch.backends.cudnn.deterministic=True # make reproducible.
+# torch.manual_seed(pars.seed)           # set seed for torch
+# torch.cuda.manual_seed_all(pars.seed)      # set seed for all GPUs. 
+# np.random.seed(pars.seed)              # set seed for numpy. !!It returns the random numbers with exactly the same order.          
+# random.seed(pars.seed)                 # set seed in general. 
+# torch.backends.cudnn.deterministic=True # make reproducible.
 
 
 
@@ -93,8 +93,8 @@ model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
 
 
-# model.cpu()
-model.cuda()
+model.cpu()
+# model.cuda()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
@@ -102,7 +102,7 @@ multichain_model = nn.ModuleList([model])
 for i in range(1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
-
+'''
 count = 0
 innerproduct = 0
 dimension = 0
@@ -112,7 +112,7 @@ for parameter in model.parameters():
     count += 1
     break
             
-
+'''
 # print(len(multichain_model))
 # print(type(model))
 
@@ -406,3 +406,5 @@ for net in multichain_model:
 
 # r = np.random.normal(scale = 10)
 # print(r)
+# result = [r]
+# print(result+[r])

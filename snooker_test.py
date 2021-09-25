@@ -256,22 +256,29 @@ class snooker:
             direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
             ''' SGLD to obtain r. '''
-            # r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
-            # for t in range(pars.iterationR):
-            #     gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
-            #     if abs(r) < 0.3:
-            #         lr = abs(r)
-            #     else:
-            #         lr = pars.lrR
-            #     r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+            r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+            result = [r]
+            for t in range(pars.iterationR):
+                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
+                if abs(r) < 0.3:
+                    lr = abs(r)
+                else:
+                    lr = pars.lrR
+                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+                print("r at ",t, "th iteration is", r)
+                result = result + [r]
+
+
             
-            scalers = np.arange(-30,30,1)
+            scalers = np.arange(-40,40,1)
             for j in scalers:
                 if j == 0:
                     pass
                 else:
                     gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
                     print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
+        
+        return result
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
             # print("anchor vs. anchor + r*e:")
@@ -356,15 +363,16 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
-for t in range(5):
+for t in range(1):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         
 ''' test snooker'''
-# Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
+Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
 # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
-# Snooker_test.step(pars, multichain_model, train_loader)
+r_chain = Snooker_test.step(pars, multichain_model, train_loader)
+print("SGLD chain of r: ", r_chain)
 # gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
