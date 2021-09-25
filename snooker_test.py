@@ -349,8 +349,7 @@ model.cuda()
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
 for i in range(pars.nchains-1):
-    model_add = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-    model_add.cuda()
+    model_add = model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
 
 train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
