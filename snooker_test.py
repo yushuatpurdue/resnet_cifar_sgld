@@ -316,7 +316,7 @@ parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing f
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
 parser.add_argument('-iterationR', default=500, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
-parser.add_argument('-lrR', default=5e-6, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
+parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
 
 
 ## dataset properties: 
@@ -329,7 +329,7 @@ parser.add_argument('-model', default='resnet20', help='which resnet model to us
 
 ## environmental properties: 
 # parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
-parser.add_argument('-seed', default=42, type=int, help='Random Seed')
+parser.add_argument('-seed', default=50, type=int, help='Random Seed')
 
 ## add the arguments. 
 pars = parser.parse_args()
