@@ -153,7 +153,7 @@ class snooker:
         for i in range(count):
             parameter_crossover = list(crossoverchain.parameters())[i]
             parameter_anchor = list(anchorchain.parameters())[i]   # 这样写它们确实会有区别
-            temp = parameter_crossover - parameter_anchor
+            temp = parameter_anchor - parameter_crossover 
             diff_parameter = diff_parameter + [temp]
             norm_diff += torch.norm(temp)
             # print("norm of diff in", i, "th parameter:", torch.norm(diff_parameter))
@@ -272,13 +272,13 @@ class snooker:
 
 
             
-            # scalers = np.arange(-40,40,1)
-            # for j in scalers:
-            #     if j == 0:
-            #         pass
-            #     else:
-            #         gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
-            #         print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
+            scalers = np.arange(-40,40,1)
+            for j in scalers:
+                if j == 0:
+                    pass
+                else:
+                    gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
+                    print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
         
         return result
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
