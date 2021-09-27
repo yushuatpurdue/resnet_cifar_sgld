@@ -21,7 +21,7 @@ from math import exp
 from sys import getsizeof
 import numpy as np
 import random
-import matplotlib.pyplot as plt
+import time
 ## import pytorch modules
 import torch
 from torch.autograd import Variable
@@ -365,16 +365,23 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
 
+start = time.time()
 for t in range(20):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
         
+end = time.time()
+print("time for 20 SGHMC = ", end - start)
 ''' test snooker'''
 Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
 # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
+
+start = time.time()
 r_chain = Snooker_test.step(pars, multichain_model, train_loader)
 print("SGLD chain of r: ", r_chain)
+end = time.time()
+print("time for 1 step snooker to produce r =", end - start, "including printing")
 
 # gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)
 
