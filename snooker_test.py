@@ -21,6 +21,7 @@ from math import exp
 from sys import getsizeof
 import numpy as np
 import random
+import matplotlib.pyplot as plt
 ## import pytorch modules
 import torch
 from torch.autograd import Variable
@@ -259,24 +260,25 @@ class snooker:
             r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
             result = [r]
             for t in range(pars.iterationR):
+                print("r at start of",t, "th iteration is", r)
                 gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
                 if abs(r) < 0.3:
                     lr = abs(r)
                 else:
                     lr = pars.lrR
                 r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
-                print("r at ",t, "th iteration is", r)
-                result = result + [r]
+                
+                result = result + [r.item()]
 
 
             
-            scalers = np.arange(-40,40,1)
-            for j in scalers:
-                if j == 0:
-                    pass
-                else:
-                    gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
-                    print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
+            # scalers = np.arange(-40,40,1)
+            # for j in scalers:
+            #     if j == 0:
+            #         pass
+            #     else:
+            #         gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
+            #         print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
         
         return result
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
@@ -315,7 +317,7 @@ parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations f
 parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing factor')
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
-parser.add_argument('-iterationR', default=500, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+parser.add_argument('-iterationR', default=120, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
 parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
 
 
@@ -373,6 +375,7 @@ Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selectio
 # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
 r_chain = Snooker_test.step(pars, multichain_model, train_loader)
 print("SGLD chain of r: ", r_chain)
+
 # gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)

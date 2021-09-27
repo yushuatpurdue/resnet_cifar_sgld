@@ -69,14 +69,14 @@ parser.add_argument('-model', default='resnet20', help='which resnet model to us
 
 ## environmental properties: 
 # parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
-parser.add_argument('-seed', default=42, type=int, help='Random Seed')
+parser.add_argument('-seed', default=50, type=int, help='Random Seed')
 
 ## add the arguments. 
 pars = parser.parse_args()
 
 # torch.manual_seed(pars.seed)           # set seed for torch
 # torch.cuda.manual_seed_all(pars.seed)      # set seed for all GPUs. 
-# np.random.seed(pars.seed)              # set seed for numpy. !!It returns the random numbers with exactly the same order.          
+np.random.seed(pars.seed)              # set seed for numpy. !!It returns the random numbers with exactly the same order.          
 # random.seed(pars.seed)                 # set seed in general. 
 # torch.backends.cudnn.deterministic=True # make reproducible.
 
@@ -404,7 +404,9 @@ for net in multichain_model:
 # print(type(torch.FloatTensor(3,3).normal_()))
 # print(list(torch.FloatTensor(3,3).normal_())[0])
 
-# r = np.random.normal(scale = 10)
-# print(r)
+r = np.random.normal(scale = 10)
+print(r)
+r = np.random.normal(scale = 10)
+print(r)
 # result = [r]
 # print(result+[r])
