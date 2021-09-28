@@ -387,10 +387,17 @@ Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selectio
 
 start = time.time()
 r_chain = Snooker_test.step(pars, multichain_model, train_loader)
-print("SGLD chain of r: ", r_chain)
+# print("SGLD chain of r: ", r_chain)
 end = time.time()
 print("time for 1 step snooker to produce r =", end - start, "including printing")
 
+accuracy = [BayesEval()] * pars.nchains
+for i in range(pars.nchains-1):
+    accuracy[i].eval(multichain_model[i], test_loader, cumulate = True)
+
+    ''' print results '''
+    print('Chain {} Acc: {:0.2f}'\
+                .format(i, accuracy[i].OneEpoch_acc))
 # gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)
