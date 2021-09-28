@@ -270,15 +270,20 @@ class snooker:
                 
                 result = result + [r.item()]
 
+            count = 0
+            for parameter in model_crossover.parameters():
+                parameter = r * direction[count]
+                count += 1
+
 
             
-            scalers = np.arange(-40,40,1)
-            for j in scalers:
-                if j == 0:
-                    pass
-                else:
-                    gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
-                    print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
+            # scalers = np.arange(-40,40,1)
+            # for j in scalers:
+            #     if j == 0:
+            #         pass
+            #     else:
+            #         gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
+            #         print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
         
         return result
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
@@ -317,7 +322,7 @@ parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations f
 parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing factor')
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
-parser.add_argument('-iterationR', default=120, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+parser.add_argument('-iterationR', default=30, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
 parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
 
 

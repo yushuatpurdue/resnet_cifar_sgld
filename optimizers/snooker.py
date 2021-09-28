@@ -58,7 +58,7 @@ class snooker:
             if j == crossoverInd: 
                 Boltzmann_pd[j] = 0
             else:
-                for i, (images, labels) in enumerate(train_loader):
+                for i, (images, labels) in enumerate(train_loader):         # compute H(crossover)
                     ''' calculate the full loss of the net. '''
 
                     # first change the data type from 'tensor' to 'Variables'. 
@@ -70,7 +70,7 @@ class snooker:
                     temp   = self.criterion(output, labels) * len(images)
                     loss   += temp.item()
                 
-                Boltzmann_pd[j] = np.exp(-loss/selection_t)
+                Boltzmann_pd[j] = np.exp(-loss/selection_t)                   # exp(-H(crossover)/selection_t)
             
         Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
         return Boltzmann_pd
@@ -89,16 +89,12 @@ class snooker:
         CrossoverInd = random.sample(range(pars.nchains), nchainsCrossover)       # sample the index of those crossover chains
 
         Anchor_ind = [pars.nchains] * nchainsCrossover
-
-        ## note: modify Boltzmann function so that the modulelist is always the full modulelist while the crossover chain has p=0 to be sampled. 
-        ## (probably no need to modify Boltzmann. simply do it in step function using another for loop. )
-        ## this gives a way for sampling in the full modulelist while avoiding sampling the crossover chain. 
         
         for i in range(nchainsCrossover):
             crossoverInd = CrossoverInd[i]
             boltzmann_pd = self.Boltzmann(self.selection_t, crossoverInd, modulelist, self.train_loader)
-            sample_anchor_chain = np.random.multinomial(1, boltzmann_pd)
-            anchor_chain = int(np.nonzero(sample_anchor_chain)[0])
+            sample_anchor_chain = np.random.multinomial(1, boltzmann_pd)                 # sample anchor chain with Boltzmann weight
+            anchor_chain = int(np.nonzero(sample_anchor_chain)[0])                       # get index of anchor chain. 
             Anchor_ind[i] = anchor_chain
 
         output = dict()
@@ -126,7 +122,7 @@ class snooker:
         for i in range(count):
             parameter_crossover = list(crossoverchain.parameters())[i]
             parameter_anchor = list(anchorchain.parameters())[i]   # 这样写它们确实会有区别
-            temp = parameter_crossover - parameter_anchor
+            temp = parameter_anchor - parameter_crossover
             diff_parameter = diff_parameter + [temp]
             norm_diff += torch.norm(temp)
             # print("norm of diff in", i, "th parameter:", torch.norm(diff_parameter))
@@ -201,7 +197,7 @@ class snooker:
 
 
     def step(self, pars, modulelist):
-        
+
         '''obtain indices of chain pairs for snooker crossover. '''
         chainpairs    = self.sample_chainpairs(pars, modulelist)
         crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover

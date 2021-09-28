@@ -61,8 +61,8 @@ def main():
     parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing factor')
     parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
     parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
-    parser.add_argument('-iterationR', default=500, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
-    parser.add_argument('-lrR', default=5e-6, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
+    parser.add_argument('-iterationR', default=30, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+    parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
 
     ## dataset properties: 
     parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
