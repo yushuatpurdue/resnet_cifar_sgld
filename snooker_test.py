@@ -273,9 +273,9 @@ class snooker:
 
             count = 0
             for parameter in model_crossover.parameters():
-                print("before crossover, parameter #", count, "head =", parameter.data[0])
+                # print("before crossover, parameter #", count, "head =", parameter.data[0])
                 parameter = r * direction[count]
-                print("after crossover, parameter #", count, "head =", parameter.data[0])
+                # print("after crossover, parameter #", count, "head =", parameter.data[0])
                 count += 1
 
 
@@ -392,7 +392,7 @@ end = time.time()
 print("time for 1 step snooker to produce r =", end - start, "including printing")
 
 accuracy = [BayesEval()] * pars.nchains
-for i in range(pars.nchains-1):
+for i in range(pars.nchains):
     accuracy[i].eval(multichain_model[i], test_loader, cumulate = True)
 
     ''' print results '''
