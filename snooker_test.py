@@ -253,6 +253,7 @@ class snooker:
         ''' compute the offspring of each crossover chain'''
         for i in range(length):
             model_crossover = modulelist[crossover_idx[i]]
+            print("crossover chain = #", crossover_idx[i])
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
@@ -260,7 +261,7 @@ class snooker:
             r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
             result = [r]
             for t in range(pars.iterationR):
-                print("r at start of",t, "th iteration is", r)
+                # print("r at start of",t, "th iteration is", r)
                 gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
                 if abs(r) < 0.3:
                     lr = abs(r)
@@ -272,7 +273,9 @@ class snooker:
 
             count = 0
             for parameter in model_crossover.parameters():
+                print("before crossover, parameter #", count, "head =", parameter.data[0])
                 parameter = r * direction[count]
+                print("after crossover, parameter #", count, "head =", parameter.data[0])
                 count += 1
 
 
@@ -322,7 +325,7 @@ parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations f
 parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing factor')
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
-parser.add_argument('-iterationR', default=120, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+parser.add_argument('-iterationR', default=30, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
 parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
 
 
