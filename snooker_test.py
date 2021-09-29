@@ -378,21 +378,29 @@ for i in range(pars.nchains-1):
 train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
+accuracy = [BayesEval()] * pars.nchains
 
+''' run SGHMC '''
 start = time.time()
 for t in range(15):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    ''' print accuracy '''
+    for i in range(pars.nchains):
+        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+        print('Chain {} Acc: {:0.2f}'\
+                .format(i, accuracy[i].OneEpoch_acc))
         
 end = time.time()
 print("time for 20 SGHMC = ", end - start)
 
+'''print parameter head'''
 for i in range(pars.nchains):
     for parameter in multichain_model[i].parameters():
         print("parameter head of chain",i,":", parameter.data[0])
         break
-''' test snooker'''
+''' snooker'''
 Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
 # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
 
@@ -400,20 +408,24 @@ start = time.time()
 r_chain = Snooker_test.step(pars, multichain_model, train_loader)
 # print("SGLD chain of r: ", r_chain)
 end = time.time()
-print("time for 1 step snooker to produce r :", end - start)
+print("time for 1 step snooker :", end - start)
 
-for i in range(pars.nchains):
-    for parameter in multichain_model[i].parameters():
-        print("parameter head of chain",i,":", parameter.data[0])
-        break
-
-accuracy = [BayesEval()] * pars.nchains
+'''print accuracy'''
 for i in range(pars.nchains):
     accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
 
     ''' print results '''
     print('Chain {} Acc: {:0.2f}'\
                 .format(i, accuracy[i].OneEpoch_acc))
+
+'''print parameter head'''
+for i in range(pars.nchains):
+    for parameter in multichain_model[i].parameters():
+        print("parameter head of chain",i,":", parameter.data[0])
+        break
+
+
+
 # gradient_r = Snooker_test.sample_r(0.1, multichain_model[0], pars.T, direction, train_loader)
 
 # boltzmann_pd = Boltzmann(0.1, multichain_model, train_loader)

@@ -52,7 +52,7 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
     nnet        = 0         # counter of nets. 
     eta         = pars.eta  # lr^2/M. lr = learning rate, M = mass. see paper Chen et al SGHMC. 
     temperature = pars.T
-    accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
+    # accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
 
     for net in model:
 
@@ -84,11 +84,11 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
             optimizer.step()
 
         ''' evaluating performance '''
-        accuracy[nnet].eval(net, test_dataset, cumulate = False)
+        # accuracy[nnet].eval(net, test_dataset, cumulate = False)
 
         ''' print results '''
-        print('Chain {} Acc: {:0.2f} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
-                    .format(nnet, accuracy[nnet].OneEpoch_acc, \
+        print('Chain {} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
+                    .format(nnet, \
                     loss.item(), temperature, eta))
         
 
