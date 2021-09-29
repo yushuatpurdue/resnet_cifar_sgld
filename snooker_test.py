@@ -380,7 +380,7 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 criterion = nn.CrossEntropyLoss()
 
 start = time.time()
-for t in range(20):
+for t in range(15):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
