@@ -84,7 +84,7 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
             optimizer.step()
 
         ''' evaluating performance '''
-        accuracy[nnet].eval(net, test_dataset, cumulate = True)
+        accuracy[nnet].eval(net, test_dataset, cumulate = False)
 
         ''' print results '''
         print('Chain {} Acc: {:0.2f} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\

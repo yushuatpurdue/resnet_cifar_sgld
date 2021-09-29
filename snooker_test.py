@@ -409,7 +409,7 @@ for i in range(pars.nchains):
 
 accuracy = [BayesEval()] * pars.nchains
 for i in range(pars.nchains):
-    accuracy[i].eval(multichain_model[i], test_loader, cumulate = True)
+    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
 
     ''' print results '''
     print('Chain {} Acc: {:0.2f}'\
