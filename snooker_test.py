@@ -366,7 +366,7 @@ model.cuda()
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
 for i in range(pars.nchains-1):
-    model_add = model_add = copy.deepcopy(model)
+    model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
 
 train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
@@ -400,7 +400,7 @@ for i in range(pars.nchains):
     for parameter in multichain_model[i].parameters():
         print("parameter head of chain",i,":", parameter.data[0])
         break
-    
+
 accuracy = [BayesEval()] * pars.nchains
 for i in range(pars.nchains):
     accuracy[i].eval(multichain_model[i], test_loader, cumulate = True)
