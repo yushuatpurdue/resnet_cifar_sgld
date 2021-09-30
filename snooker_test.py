@@ -241,23 +241,23 @@ class snooker:
     def step(self, pars, modulelist, train_loader):
 
         ''' obtain indices of chain pairs for snooker crossover. '''
-        chainpairs    = self.sample_chainpairs(pars, modulelist)
-        crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
-        anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
-        length        = len(crossover_idx)
-        
-        # crossover_idx = [0,1]             # chains to go through crossover
-        # anchor_idx    = [2,3]                # their corresponding anchor chains
+        # chainpairs    = self.sample_chainpairs(pars, modulelist)
+        # crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
+        # anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
         # length        = len(crossover_idx)
+        
+        # # crossover_idx = [0,1]             # chains to go through crossover
+        # # anchor_idx    = [2,3]                # their corresponding anchor chains
+        # # length        = len(crossover_idx)
 
         ''' compute the offspring of each crossover chain'''
-        for i in range(length):
-            model_crossover = modulelist[crossover_idx[i]]
-            print("crossover chain = #", crossover_idx[i])
-            model_anchor = modulelist[anchor_idx[i]]
+        # for i in range(length):
+        #     model_crossover = modulelist[crossover_idx[i]]
+        #     print("crossover chain = #", crossover_idx[i])
+        #     model_anchor = modulelist[anchor_idx[i]]
             # direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             # temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
-            ''' SGLD to obtain r. '''
+            # ''' SGLD to obtain r. '''
             # r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
             # result = [r]
             # for t in range(pars.iterationR):
