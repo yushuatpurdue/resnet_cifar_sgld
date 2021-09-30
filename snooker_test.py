@@ -258,18 +258,18 @@ class snooker:
             direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
             ''' SGLD to obtain r. '''
-            r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
-            result = [r]
-            for t in range(pars.iterationR):
-                # print("r at start of",t, "th iteration is", r)
-                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
-                if abs(r) < 0.3:
-                    lr = abs(r)
-                else:
-                    lr = pars.lrR
-                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+            # r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+            # result = [r]
+            # for t in range(pars.iterationR):
+            #     # print("r at start of",t, "th iteration is", r)
+            #     gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
+            #     if abs(r) < 0.3:
+            #         lr = abs(r)
+            #     else:
+            #         lr = pars.lrR
+            #     r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
                 
-                result = result + [r.item()]
+            #     result = result + [r.item()]
 
             # count = 0
             # for parameter in model_crossover.parameters():
