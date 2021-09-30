@@ -271,7 +271,7 @@ class snooker:
                 
                 result = result + [r.item()]
 
-            count = 0
+            # count = 0
             # for parameter in model_crossover.parameters():
             #     print("before crossover, parameter 0 head =", parameter.data[0])
             #     break
@@ -295,7 +295,7 @@ class snooker:
             #         gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
             #         print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
         
-        return result
+        # return result
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
             # print("anchor vs. anchor + r*e:")
