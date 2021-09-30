@@ -399,8 +399,8 @@ for t in range(15):
 #     print('Chain {} Acc: {:0.2f}'\
 #             .format(i, accuracy[i].OneEpoch_acc))
         
-chain0afterSGHMC = copy.deepcopy(multichain_model[0])
-parameter_chain0afterSGHMC = list(chain0afterSGHMC.parameters())
+# chain0afterSGHMC = copy.deepcopy(multichain_model[0])
+# parameter_chain0afterSGHMC = list(chain0afterSGHMC.parameters())
 
 end = time.time()
 print("time for 15 SGHMC = ", end - start)
@@ -420,13 +420,26 @@ r_chain = Snooker_test.step(pars, multichain_model, train_loader)
 end = time.time()
 print("time for 1 step snooker :", end - start)
 
-chain0aftersnooker = copy.deepcopy(multichain_model[0])
-parameter_chain0aftersnooker = list(chain0aftersnooker.parameters())
 
-print("see if parameters of chain 0 is the same before and after snooker. If the same then output = tensor(1):")
-for i in range(len(parameter_chain0aftersnooker)):
-    ifequal = parameter_chain0aftersnooker[i] == parameter_chain0afterSGHMC[i]
-    print(torch.prod(ifequal))
+''' add a phase of SGHMC '''
+start = time.time()
+for t in range(3):
+
+    print("epochs = ",t+16)      # 要注释掉
+    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    ''' print accuracy '''
+    for i in range(pars.nchains):
+        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+        print('Chain {} Acc: {:0.2f}'\
+                .format(i, accuracy[i].OneEpoch_acc))
+
+# chain0aftersnooker = copy.deepcopy(multichain_model[0])
+# parameter_chain0aftersnooker = list(chain0aftersnooker.parameters())
+
+# print("see if parameters of chain 0 is the same before and after snooker. If the same then output = tensor(1):")
+# for i in range(len(parameter_chain0aftersnooker)):
+#     ifequal = parameter_chain0aftersnooker[i] == parameter_chain0afterSGHMC[i]
+#     print(torch.prod(ifequal))
 
 
 '''print accuracy'''
