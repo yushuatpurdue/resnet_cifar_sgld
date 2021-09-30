@@ -46,6 +46,9 @@ class BayesEval:
         self.best_Cumulated_acc = 0           # historically best cumulative accuracy
 
     def eval(self, net, data_loader, weight=1, cumulate=False):
+        for parameter in net.parameters():
+            print("in evaluation, parameter 0 head =", parameter.data[0])
+            break
         net.eval()               # set net to evaluating mode. 
         one_correct, cumulate_correct = 0, 0      # count how many of the pixels are labeled correctly. 
         for cnt, (images, labels) in enumerate(data_loader):
