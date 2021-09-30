@@ -255,8 +255,8 @@ class snooker:
             model_crossover = modulelist[crossover_idx[i]]
             print("crossover chain = #", crossover_idx[i])
             model_anchor = modulelist[anchor_idx[i]]
-            direction = self.compute_direction(model_crossover, model_anchor)     # compute e
-            temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
+            # direction = self.compute_direction(model_crossover, model_anchor)     # compute e
+            # temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
             ''' SGLD to obtain r. '''
             # r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
             # result = [r]
