@@ -102,6 +102,10 @@ multichain_model = nn.ModuleList([model])
 for i in range(1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
+
+for i in range(len(list(multichain_model[0].parameters()))):
+    ifequal = list(multichain_model[0].parameters())[i] == list(multichain_model[1].parameters())[i]
+    print(torch.prod(ifequal))
 '''
 count = 0
 innerproduct = 0
@@ -404,9 +408,9 @@ for net in multichain_model:
 # print(type(torch.FloatTensor(3,3).normal_()))
 # print(list(torch.FloatTensor(3,3).normal_())[0])
 
-r = np.random.normal(scale = 10)
-print(r)
-r = np.random.normal(scale = 10)
-print(r)
+# r = np.random.normal(scale = 10)
+# print(r)
+# r = np.random.normal(scale = 10)
+# print(r)
 # result = [r]
 # print(result+[r])

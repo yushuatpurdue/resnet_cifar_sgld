@@ -392,21 +392,24 @@ for t in range(15):
         accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
         print('Chain {} Acc: {:0.2f}'\
                 .format(i, accuracy[i].OneEpoch_acc))
-''' print accuracy '''
-print("print again acc for the last epoch of SGHMC")
-for i in range(pars.nchains):
-    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-    print('Chain {} Acc: {:0.2f}'\
-            .format(i, accuracy[i].OneEpoch_acc))
+# ''' print last accuracy again '''
+# print("print again acc for the last epoch of SGHMC")
+# for i in range(pars.nchains):
+#     accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+#     print('Chain {} Acc: {:0.2f}'\
+#             .format(i, accuracy[i].OneEpoch_acc))
         
+chain0afterSGHMC = copy.deepcopy(multichain_model[0])
+parameter_chain0afterSGHMC = list(chain0afterSGHMC.parameters())
+
 end = time.time()
 print("time for 15 SGHMC = ", end - start)
 
-'''print parameter head'''
-for i in range(pars.nchains):
-    for parameter in multichain_model[i].parameters():
-        print("after 15 iteration of SGHMC, parameter head of chain",i,":", parameter.data[0])
-        break
+# '''print parameter head'''
+# for i in range(pars.nchains):
+#     for parameter in multichain_model[i].parameters():
+#         print("after 15 iteration of SGHMC, parameter head of chain",i,":", parameter.data[0])
+#         break
 ''' snooker'''
 Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
 # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
@@ -417,12 +420,19 @@ r_chain = Snooker_test.step(pars, multichain_model, train_loader)
 end = time.time()
 print("time for 1 step snooker :", end - start)
 
+chain0aftersnooker = copy.deepcopy(multichain_model[0])
+parameter_chain0aftersnooker = list(chain0aftersnooker.parameters())
+
+print("see if parameters of chain 0 is the same before and after snooker. If the same then output = tensor(1):")
+for i in range(len(parameter_chain0aftersnooker)):
+    ifequal = parameter_chain0aftersnooker[i] == parameter_chain0afterSGHMC[i]
+    print(torch.prod(ifequal))
+
+
 '''print accuracy'''
 for i in range(pars.nchains):
     print("evaluating model #", i)
     accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-
-    ''' print results '''
     print('Chain {} Acc: {:0.2f}'\
                 .format(i, accuracy[i].OneEpoch_acc))
 
