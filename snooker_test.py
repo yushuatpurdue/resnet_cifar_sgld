@@ -80,7 +80,7 @@ class snooker:
 
         for j in range(len(modulelist)):
             net = modulelist[j]
-            net.train()
+            # net.train()
 
             if j == crossoverInd: 
                 Boltzmann_pd[j] = 0
@@ -244,14 +244,14 @@ class snooker:
     def step(self, pars, modulelist, train_loader):
 
         ''' obtain indices of chain pairs for snooker crossover. '''
-        # chainpairs    = self.sample_chainpairs(pars, modulelist)
-        # crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
-        # anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
-        # length        = len(crossover_idx)
-        
-        crossover_idx = [2,3]             # chains to go through crossover
-        anchor_idx    = [0,1]                # their corresponding anchor chains
+        chainpairs    = self.sample_chainpairs(pars, modulelist)
+        crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
+        anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
         length        = len(crossover_idx)
+        
+        # crossover_idx = [2,3]             # chains to go through crossover
+        # anchor_idx    = [0,1]                # their corresponding anchor chains
+        # length        = len(crossover_idx)
 
         ''' compute the offspring of each crossover chain'''
         for i in range(length):
@@ -414,6 +414,8 @@ print("time for 15 SGHMC = ", end - start)
 #         print("after 15 iteration of SGHMC, parameter head of chain",i,":", parameter.data[0])
 #         break
 ''' snooker'''
+for model in multichain_model:
+    model.train()
 Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
 # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
 
