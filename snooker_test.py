@@ -275,11 +275,11 @@ class snooker:
             # for parameter in model_crossover.parameters():
             #     print("before crossover, parameter 0 head =", parameter.data[0])
             #     break
-            for parameter in model_crossover.parameters():
-                # print("before crossover, parameter #", count, "head =", parameter.data[0])
-                parameter.data.add_(r * direction[count])
-                # print("after crossover, parameter #", count, "head =", parameter.data[0])
-                count += 1
+            # for parameter in model_crossover.parameters():
+            #     # print("before crossover, parameter #", count, "head =", parameter.data[0])
+            #     parameter.data.add_(r * direction[count])
+            #     # print("after crossover, parameter #", count, "head =", parameter.data[0])
+            #     count += 1
             # for parameter in model_crossover.parameters():
             #     print("after crossover, parameter 0 head =", parameter.data[0])
             #     break
@@ -432,6 +432,7 @@ print("time for 1 step snooker :", end - start)
 
 
 '''print accuracy'''
+print("snooker step:")
 for i in range(pars.nchains):
     print("evaluating model #", i)
     accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
