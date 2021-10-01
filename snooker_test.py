@@ -148,11 +148,14 @@ class snooker:
 
         diff_parameter = []
         norm_diff = 0
-        count = len(list(crossoverchain.parameters()))
+
+        copy_crossover = copy.deepcopy(crossoverchain)
+        copy_anchor    = copy.deepcopy(anchorchain)
+        count = len(list(copy_crossover.parameters()))
 
         for i in range(count):
-            parameter_crossover = list(crossoverchain.parameters())[i]
-            parameter_anchor = list(anchorchain.parameters())[i]   # 这样写它们确实会有区别
+            parameter_crossover = list(copy_crossover.parameters())[i]
+            parameter_anchor = list(copy_anchor.parameters())[i]   # 这样写它们确实会有区别
             temp = parameter_anchor - parameter_crossover 
             diff_parameter = diff_parameter + [temp]
             norm_diff += torch.norm(temp)
@@ -241,45 +244,45 @@ class snooker:
     def step(self, pars, modulelist, train_loader):
 
         ''' obtain indices of chain pairs for snooker crossover. '''
-        # chainpairs    = self.sample_chainpairs(pars, modulelist)
-        # crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
-        # anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
-        # length        = len(crossover_idx)
+        chainpairs    = self.sample_chainpairs(pars, modulelist)
+        crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
+        anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
+        length        = len(crossover_idx)
         
         # crossover_idx = [0,1]             # chains to go through crossover
         # anchor_idx    = [2,3]                # their corresponding anchor chains
         # length        = len(crossover_idx)
 
         ''' compute the offspring of each crossover chain'''
-        # for i in range(length):
-        #     model_crossover = modulelist[crossover_idx[i]]
-        #     print("crossover chain = #", crossover_idx[i])
-            # model_anchor = modulelist[anchor_idx[i]]
-            # direction = self.compute_direction(model_crossover, model_anchor)     # compute e
-            # temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
-            # ''' SGLD to obtain r. '''
-            # r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+        for i in range(length):
+            model_crossover = modulelist[crossover_idx[i]]
+            print("crossover chain = #", crossover_idx[i])
+            model_anchor = modulelist[anchor_idx[i]]
+            direction = self.compute_direction(model_crossover, model_anchor)     # compute e
+            temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
+            ''' SGLD to obtain r. '''
+            r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
             # result = [r]
-            # for t in range(pars.iterationR):
-            #     # print("r at start of",t, "th iteration is", r)
-            #     gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
-            #     if abs(r) < 0.3:
-            #         lr = abs(r)
-            #     else:
-            #         lr = pars.lrR
-            #     r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+            for t in range(pars.iterationR):
+                # print("r at start of",t, "th iteration is", r)
+                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
+                if abs(r) < 0.3:
+                    lr = abs(r)
+                else:
+                    lr = pars.lrR
+                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
                 
             #     result = result + [r.item()]
 
-            # count = 0
+            count = 0
             # for parameter in model_crossover.parameters():
             #     print("before crossover, parameter 0 head =", parameter.data[0])
             #     break
-            # for parameter in model_crossover.parameters():
-            #     # print("before crossover, parameter #", count, "head =", parameter.data[0])
-            #     parameter.data.add_(r * direction[count])
-            #     # print("after crossover, parameter #", count, "head =", parameter.data[0])
-            #     count += 1
+            for parameter in model_crossover.parameters():
+                # print("before crossover, parameter #", count, "head =", parameter.data[0])
+                parameter.data.add_(r * direction[count])
+                # print("after crossover, parameter #", count, "head =", parameter.data[0])
+                count += 1
             # for parameter in model_crossover.parameters():
             #     print("after crossover, parameter 0 head =", parameter.data[0])
             #     break
