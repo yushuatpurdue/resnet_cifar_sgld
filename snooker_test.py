@@ -254,10 +254,10 @@ class snooker:
         # length        = len(crossover_idx)
 
         ''' compute the offspring of each crossover chain'''
-        for i in range(length):
-            model_crossover = modulelist[crossover_idx[i]]
-            print("crossover chain = #", crossover_idx[i])
-            model_anchor = modulelist[anchor_idx[i]]
+        # for i in range(length):
+        #     model_crossover = modulelist[crossover_idx[i]]
+        #     print("crossover chain = #", crossover_idx[i])
+        #     model_anchor = modulelist[anchor_idx[i]]
             # direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             # temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
             # ''' SGLD to obtain r. '''
