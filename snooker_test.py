@@ -244,10 +244,10 @@ class snooker:
     def step(self, pars, modulelist, train_loader):
 
         ''' obtain indices of chain pairs for snooker crossover. '''
-        chainpairs    = self.sample_chainpairs(pars, modulelist)
-        crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
-        anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
-        length        = len(crossover_idx)
+        # chainpairs    = self.sample_chainpairs(pars, modulelist)
+        # crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
+        # anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
+        # length        = len(crossover_idx)
         
         # crossover_idx = [0,1]             # chains to go through crossover
         # anchor_idx    = [2,3]                # their corresponding anchor chains
