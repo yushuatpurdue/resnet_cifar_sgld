@@ -249,43 +249,43 @@ class snooker:
         # anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
         # length        = len(crossover_idx)
         
-        # crossover_idx = [0,1]             # chains to go through crossover
-        # anchor_idx    = [2,3]                # their corresponding anchor chains
-        # length        = len(crossover_idx)
+        crossover_idx = [2,3]             # chains to go through crossover
+        anchor_idx    = [0,1]                # their corresponding anchor chains
+        length        = len(crossover_idx)
 
         ''' compute the offspring of each crossover chain'''
-        # for i in range(length):
-        #     model_crossover = modulelist[crossover_idx[i]]
-        #     print("crossover chain = #", crossover_idx[i])
-        #     model_anchor = modulelist[anchor_idx[i]]
-            # direction = self.compute_direction(model_crossover, model_anchor)     # compute e
-            # temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
-            # ''' SGLD to obtain r. '''
-            # r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
-            # # result = [r]
-            # for t in range(pars.iterationR):
-            #     # print("r at start of",t, "th iteration is", r)
-            #     gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
-            #     if abs(r) < 0.3:
-            #         lr = abs(r)
-            #     else:
-            #         lr = pars.lrR
-            #     r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+        for i in range(length):
+            model_crossover = modulelist[crossover_idx[i]]
+            print("crossover chain = #", crossover_idx[i])
+            model_anchor = modulelist[anchor_idx[i]]
+            direction = self.compute_direction(model_crossover, model_anchor)     # compute e
+            temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
+            ''' SGLD to obtain r. '''
+            r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+            # result = [r]
+            for t in range(pars.iterationR):
+                # print("r at start of",t, "th iteration is", r)
+                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
+                if abs(r) < 0.3:
+                    lr = abs(r)
+                else:
+                    lr = pars.lrR
+                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
                 
-            # #     result = result + [r.item()]
+            #     result = result + [r.item()]
 
-            # count = 0
-            # # for parameter in model_crossover.parameters():
-            # #     print("before crossover, parameter 0 head =", parameter.data[0])
-            # #     break
+            count = 0
             # for parameter in model_crossover.parameters():
-            #     # print("before crossover, parameter #", count, "head =", parameter.data[0])
-            #     parameter.data.add_(r * direction[count])
-            #     # print("after crossover, parameter #", count, "head =", parameter.data[0])
-            #     count += 1
-            # # for parameter in model_crossover.parameters():
-            # #     print("after crossover, parameter 0 head =", parameter.data[0])
-            # #     break
+            #     print("before crossover, parameter 0 head =", parameter.data[0])
+            #     break
+            for parameter in model_crossover.parameters():
+                # print("before crossover, parameter #", count, "head =", parameter.data[0])
+                parameter.data.add_(r * direction[count])
+                # print("after crossover, parameter #", count, "head =", parameter.data[0])
+                count += 1
+            # for parameter in model_crossover.parameters():
+            #     print("after crossover, parameter 0 head =", parameter.data[0])
+            #     break
             
 
 
