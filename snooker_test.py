@@ -149,13 +149,13 @@ class snooker:
         diff_parameter = []
         norm_diff = 0
 
-        copy_crossover = copy.deepcopy(crossoverchain)
-        copy_anchor    = copy.deepcopy(anchorchain)
-        count = len(list(copy_crossover.parameters()))
+        # copy_crossover = copy.deepcopy(crossoverchain)
+        # copy_anchor    = copy.deepcopy(anchorchain)
+        count = len(list(crossoverchain.parameters()))
 
         for i in range(count):
-            parameter_crossover = list(copy_crossover.parameters())[i]
-            parameter_anchor = list(copy_anchor.parameters())[i]   # 这样写它们确实会有区别
+            parameter_crossover = list(crossoverchain.parameters())[i]
+            parameter_anchor = list(anchorchain.parameters())[i]   # 这样写它们确实会有区别
             temp = parameter_anchor - parameter_crossover 
             diff_parameter = diff_parameter + [temp]
             norm_diff += torch.norm(temp)
@@ -244,7 +244,8 @@ class snooker:
     def step(self, pars, modulelist, train_loader):
 
         ''' obtain indices of chain pairs for snooker crossover. '''
-        chainpairs    = self.sample_chainpairs(pars, modulelist)
+        modulelist_copy = copy.deepcopy(modulelist)
+        chainpairs    = self.sample_chainpairs(pars, modulelist_copy)
         crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
         anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
         length        = len(crossover_idx)
