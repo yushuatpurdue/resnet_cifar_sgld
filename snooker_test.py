@@ -131,6 +131,7 @@ class snooker:
         output = dict()
         output["crossoverchains"] = CrossoverInd
         output["anchorchains"] = Anchor_ind
+        print (output)
 
         return output
 
@@ -257,7 +258,8 @@ class snooker:
         ''' compute the offspring of each crossover chain'''
         for i in range(length):
             model_crossover = modulelist[crossover_idx[i]]
-            print("crossover chain = #", crossover_idx[i])
+            # prin
+            # t("crossover chain = #", crossover_idx[i])
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
@@ -272,6 +274,7 @@ class snooker:
                 else:
                     lr = pars.lrR
                 r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+                print("crossover scaler = ", r)
                 
             #     result = result + [r.item()]
 
@@ -284,9 +287,9 @@ class snooker:
                 parameter.data.add_(r * direction[count])
                 # print("after crossover, parameter #", count, "head =", parameter.data[0])
                 count += 1
-            # for parameter in model_crossover.parameters():
-            #     print("after crossover, parameter 0 head =", parameter.data[0])
-            #     break
+            for parameter in model_crossover.parameters():
+                print("after crossover, parameter 0 head =", parameter.data[0])
+                break
             
 
 
@@ -415,7 +418,7 @@ print("time for 15 SGHMC = ", end - start)
 #         print("after 15 iteration of SGHMC, parameter head of chain",i,":", parameter.data[0])
 #         break
 
-for t in range(30):
+for t in range(2):
     print("epochs = ",t+15)
 
     ''' snooker'''
@@ -475,12 +478,12 @@ for t in range(30):
 
 ''' add a phase of SGHMC '''
 
-for t in range(3):
+# for t in range(3):
 
-    print("epochs = ",t+16)      # 要注释掉
-    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-    ''' print accuracy '''
-    for i in range(pars.nchains):
-        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-        print('Chain {} Acc: {:0.2f}'\
-                .format(i, accuracy[i].OneEpoch_acc))
+#     print("epochs = ",t+16)      # 要注释掉
+#     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+#     ''' print accuracy '''
+#     for i in range(pars.nchains):
+#         accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+#         print('Chain {} Acc: {:0.2f}'\
+#                 .format(i, accuracy[i].OneEpoch_acc))
