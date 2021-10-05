@@ -269,7 +269,7 @@ class snooker:
             for t in range(pars.iterationR):
                 # print("r at start of",t, "th iteration is", r)
                 gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
-                if abs(r) < 0.3:
+                if abs(r) < pars.lrR:
                     lr = abs(r)
                 else:
                     lr = pars.lrR
