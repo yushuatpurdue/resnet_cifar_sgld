@@ -131,7 +131,7 @@ class snooker:
         output = dict()
         output["crossoverchains"] = CrossoverInd
         output["anchorchains"] = Anchor_ind
-        print (output)
+        # print (output)
 
         return output
 
@@ -274,7 +274,7 @@ class snooker:
                 else:
                     lr = pars.lrR
                 r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
-                print("crossover scaler = ", r)
+                # print("crossover scaler = ", r)
                 
             #     result = result + [r.item()]
 
@@ -287,9 +287,9 @@ class snooker:
                 parameter.data.add_(r * direction[count])
                 # print("after crossover, parameter #", count, "head =", parameter.data[0])
                 count += 1
-            for parameter in model_crossover.parameters():
-                print("after crossover, parameter 0 head =", parameter.data[0])
-                break
+            # for parameter in model_crossover.parameters():
+            #     print("after crossover, parameter 0 head =", parameter.data[0])
+            #     break
             
 
 
@@ -418,7 +418,7 @@ print("time for 15 SGHMC = ", end - start)
 #         print("after 15 iteration of SGHMC, parameter head of chain",i,":", parameter.data[0])
 #         break
 
-for t in range(2):
+for t in range(30):
     print("epochs = ",t+15)
 
     ''' snooker'''
