@@ -386,7 +386,9 @@ for i in range(pars.nchains-1):
 train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
-accuracy = [BayesEval()] * pars.nchains
+accuracy = [BayesEval()]
+for i in range(pars.nchains - 1):
+    accuracy = accuracy + [BayesEval()]
 
 ''' run SGHMC '''
 start = time.time()

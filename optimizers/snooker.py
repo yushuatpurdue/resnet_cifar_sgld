@@ -196,10 +196,11 @@ class snooker:
         
 
 
-    def step(self, pars, modulelist):
+    def step(self, pars, modulelist, train_loader):
 
         '''obtain indices of chain pairs for snooker crossover. '''
-        chainpairs    = self.sample_chainpairs(pars, modulelist)
+        modulelist_copy = copy.deepcopy(modulelist)
+        chainpairs    = self.sample_chainpairs(pars, modulelist_copy)
         crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
         anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
         length        = len(crossover_idx)
@@ -211,9 +212,23 @@ class snooker:
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
 
-        # 这样return direction 只能return 到最后一个direction. 这是不对的。要写sample_r 然后update parameter，把它们放到for loop 里面。
+            ''' SGLD to obtain r. '''
+            r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+            for t in range(pars.iterationR):
+                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
+                if abs(r) < pars.lrR:
+                    lr = abs(r)
+                else:
+                    lr = pars.lrR
+                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+                
+            count = 0
+            
+            for parameter in model_crossover.parameters():
+                parameter.data.add_(r * direction[count])
+                count += 1
 
-        # return direction
+        return crossover_idx
 
 
 
