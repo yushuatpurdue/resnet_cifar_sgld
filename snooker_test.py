@@ -421,25 +421,25 @@ print("time for 15 SGHMC = ", end - start)
 for t in range(30):
     print("epochs = ",t+15)
 
-    # ''' snooker'''
-    # for model in multichain_model:
-    #     model.train()
-    # Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
-    # # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
+    ''' snooker'''
+    for model in multichain_model:
+        model.train()
+    Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
+    # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
 
-    # start = time.time()
-    # r_chain = Snooker_test.step(pars, multichain_model, train_loader)
-    # # print("SGLD chain of r: ", r_chain)
-    # end = time.time()
-    # print("time for 1 step snooker :", end - start)
+    start = time.time()
+    r_chain = Snooker_test.step(pars, multichain_model, train_loader)
+    # print("SGLD chain of r: ", r_chain)
+    end = time.time()
+    print("time for 1 step snooker :", end - start)
 
-    # '''print accuracy'''
-    # print("snooker step:")
-    # for i in range(pars.nchains):
-    #     print("evaluating model #", i)
-    #     accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-    #     print('Chain {} Acc: {:0.2f}'\
-    #                 .format(i, accuracy[i].OneEpoch_acc))
+    '''print accuracy'''
+    print("snooker step:")
+    for i in range(pars.nchains):
+        print("evaluating model #", i)
+        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+        print('Chain {} Acc: {:0.2f}'\
+                    .format(i, accuracy[i].OneEpoch_acc))
 
     ''' SGHMC '''
     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
