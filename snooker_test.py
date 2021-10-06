@@ -7,7 +7,6 @@ use 'from optimizers.SHMC import SGLD' to import this file.
 '''
 from numpy.core.numeric import cross
 from numpy.lib.twodim_base import _trilu_indices_form_dispatcher
-from BayesEval import BayesEval
 import math
 import copy
 import sys
@@ -34,13 +33,12 @@ import torch.utils.data as data
 import torchvision.datasets as datasets
 
 ## import local
+from BayesEval import BayesEval
 import resnet            ## all resnet models. 
 from LoadData import LoadData
 from optimizers.SGHMC import SGHMC
 from train.training_parallel import training_parallel
 
-## for optimizer. 
-from numpy.lib.function_base import gradient
 
 
 

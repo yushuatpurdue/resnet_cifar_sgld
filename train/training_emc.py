@@ -34,5 +34,7 @@ import torch.optim as optim
 ## import local
 
 from BayesEval import BayesEval
-from optimizers.SGLD import SGLD
+import resnet            ## all resnet models. 
+from LoadData import LoadData
 from optimizers.SGHMC import SGHMC
+from train.training_parallel import training_parallel
