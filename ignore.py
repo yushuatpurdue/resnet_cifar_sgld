@@ -103,9 +103,11 @@ for i in range(1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
 
-for i in range(len(list(multichain_model[0].parameters()))):
-    ifequal = list(multichain_model[0].parameters())[i] == list(multichain_model[1].parameters())[i]
-    print(torch.prod(ifequal))
+print(len(multichain_model))
+
+# for i in range(len(list(multichain_model[0].parameters()))):
+#     ifequal = list(multichain_model[0].parameters())[i] == list(multichain_model[1].parameters())[i]
+#     print(torch.prod(ifequal))
 '''
 count = 0
 innerproduct = 0
@@ -414,3 +416,9 @@ for net in multichain_model:
 # print(r)
 # result = [r]
 # print(result+[r])
+
+SGHMC_idx = list(range(pars.nchains))
+for i in [1,3]:
+    SGHMC_idx.remove(i)
+
+print(SGHMC_idx)

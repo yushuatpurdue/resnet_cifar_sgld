@@ -39,7 +39,7 @@ from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
 
 
-def training_parallel(pars, model, train_dataset, test_dataset, criterion):
+def training_parallel(pars, model, training_idx, train_dataset, test_dataset, criterion):
     '''
     Input: 
         pars            defined in main() by argparser. 
@@ -54,8 +54,9 @@ def training_parallel(pars, model, train_dataset, test_dataset, criterion):
     temperature = pars.T
     # accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
 
-    for net in model:
+    for i in training_idx:
 
+        net = model[i]
         ''' training net '''
         net.train()      # first set net to train mode. 
         # print("net", nnet, "parameter head", list(net.parameters())[0][0])

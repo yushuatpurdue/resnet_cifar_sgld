@@ -302,7 +302,7 @@ class snooker:
             #         gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
             #         print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
         
-        # return result
+        return crossover_idx
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
             # print("anchor vs. anchor + r*e:")
@@ -393,7 +393,7 @@ start = time.time()
 for t in range(15):
 
     print("epochs = ",t)      # 要注释掉
-    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, test_loader, criterion)
     ''' print accuracy '''
     for i in range(pars.nchains):
         accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
@@ -428,10 +428,14 @@ for t in range(30):
     # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
 
     start = time.time()
-    r_chain = Snooker_test.step(pars, multichain_model, train_loader)
+    crossover_idx = Snooker_test.step(pars, multichain_model, train_loader)
     # print("SGLD chain of r: ", r_chain)
     end = time.time()
     print("time for 1 step snooker :", end - start)
+
+    SGHMC_idx = list(range(pars.nchains))
+    for i in crossover_idx:
+        SGHMC_idx.remove(i)
 
     '''print accuracy'''
     print("snooker step:")
@@ -442,12 +446,12 @@ for t in range(30):
                     .format(i, accuracy[i].OneEpoch_acc))
 
     ''' SGHMC '''
-    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+    training_parallel(pars, multichain_model, SGHMC_idx, train_loader, test_loader, criterion)
     ''' print accuracy '''
     for i in range(pars.nchains):
-        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+        accuracy[i].eval(multichain_model[i], test_loader, cumulate = True)
         print('Chain {} Acc: {:0.2f}'\
-                .format(i, accuracy[i].OneEpoch_acc))
+                .format(i, accuracy[i].best_OneEpoch_acc))
 
 
 
