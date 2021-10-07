@@ -71,7 +71,7 @@ def traing_emc(pars, modulelist, train_dataset, criterion):
             Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # nnormalized Boltzmann pd for every model. 
         
         Snooker_test = snooker(train_dataset, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
-        crossover_idx = Snooker_test.step(pars, modulelist, train_dataset)
+        crossover_idx = Snooker_test.step(pars, modulelist, Boltzmann_pd, train_dataset)
 
         ''' index of chains to go through SGHMC '''
         SGHMC_idx = list(range(pars.nchains))

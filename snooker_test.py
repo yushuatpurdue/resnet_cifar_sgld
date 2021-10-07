@@ -68,7 +68,7 @@ class snooker:
         # self.nchains      = len(modulelist)
 
 
-    def sample_chainpairs(self, pars, Boltzmann_pd, modulelist):
+    def sample_chainpairs(self, pars, Boltzmann_pd):
         '''
         This function returns the indices of chains to go through snooker crossover, and their correspondent anchor chains. 
         Input:
@@ -77,8 +77,6 @@ class snooker:
             modulelist:    the model population. 
         '''
 
-        if pars.nchains != len(modulelist):
-            raise ValueError("length of modulelist does not match number of chains")
         nchainsCrossover = math.ceil(pars.crossoverRate * pars.nchains)           # how many chains are going through crossover
         CrossoverInd = random.sample(range(pars.nchains), nchainsCrossover)       # sample the index of those crossover chains
 
@@ -211,11 +209,10 @@ class snooker:
 
 
 
-    def step(self, pars, modulelist, train_loader):
+    def step(self, pars, modulelist, Boltzmann_pd, train_loader):
 
         ''' obtain indices of chain pairs for snooker crossover. '''
-        modulelist_copy = copy.deepcopy(modulelist)
-        chainpairs    = self.sample_chainpairs(pars, modulelist_copy)
+        chainpairs    = self.sample_chainpairs(pars, Boltzmann_pd)
         crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
         anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
         length        = len(crossover_idx)
@@ -359,7 +356,7 @@ accuracy = [BayesEval()]
 for i in range(pars.nchains - 1):
     accuracy = accuracy + [BayesEval()]
 
-
+''''''
 for model in multichain_model:
     model.train()
 
@@ -379,10 +376,10 @@ for i, (images, labels) in enumerate(train_loader):
         temp   = criterion(output, labels) * pars.total
         loss   += [temp]
         Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)
-        print(len(loss))
+        # print(len(loss))
 
     Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
-    chainpairs = Snooker_test.sample_chainpairs(pars, Boltzmann_pd, multichain_model)
+    crossover_idx = Snooker_test.step(pars, multichain_model, Boltzmann_pd, train_loader)
 
 # ''' run SGHMC '''
 # start = time.time()
