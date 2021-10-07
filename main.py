@@ -145,7 +145,7 @@ def main():
         
         ''' print accuracy '''
         for i in range(pars.nchains):
-            accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+            accuracy[i].eval(multichain_model[i], test_loader, cumulate = True)
             print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
                     .format(i, accuracy[i].OneEpoch_acc, accuracy[i].OneEpoch_acc))
 
