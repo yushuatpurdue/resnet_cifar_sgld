@@ -137,7 +137,8 @@ def main():
             pars.eta *= pars.etaaneal
 
         print("epochs = ",t)      # 要注释掉
-        training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+        SGHMC_idx = list(range(pars.nchains))
+        training_parallel(pars, multichain_model, SGHMC_idx, train_loader, test_loader, criterion)
         
 
 
