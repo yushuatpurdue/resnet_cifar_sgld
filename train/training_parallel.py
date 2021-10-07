@@ -54,14 +54,14 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
     # temperature = pars.T
     # accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
 
-    for i in training_idx:
+    for idx in training_idx:
 
         net = model[i]
         ''' training net '''
         net.train()      # first set net to train mode. 
         # print("net", nnet, "parameter head", list(net.parameters())[0][0])
-        eta         = pars.eta / (pars.etagap ** i)  # different chains occupy different eta
-        temperature = pars.T / (pars.Tgap ** i)    # different chains occupy different temperature
+        eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
+        temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
         
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
@@ -92,7 +92,7 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
 
         ''' print results '''
         print('Chain {} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
-                    .format(i, \
+                    .format(idx, \
                     loss.item(), temperature, eta))
         
         
