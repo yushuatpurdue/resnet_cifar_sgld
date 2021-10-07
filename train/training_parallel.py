@@ -56,7 +56,7 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
 
     for idx in training_idx:
 
-        net = model[i]
+        net = model[idx]
         ''' training net '''
         net.train()      # first set net to train mode. 
         # print("net", nnet, "parameter head", list(net.parameters())[0][0])
