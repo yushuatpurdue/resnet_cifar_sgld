@@ -90,9 +90,9 @@ class snooker:
         
         for i in range(nchainsCrossover):
             crossoverInd = CrossoverInd[i]
-            boltzmann_weight = copy.deepcopy(Boltzmann_pd)                # make a copy of unnormalized boltzmann pd. 
-            boltzmann_weight[crossoverInd] = 0                            # put the crossover entry's weight down to 0. 
-            boltzmann_weight = boltzmann_weight/np.sum(crossoverInd)      # normalize the weight. 
+            boltzmann_weight = copy.deepcopy(Boltzmann_pd)                    # make a copy of unnormalized boltzmann pd. 
+            boltzmann_weight[crossoverInd] = 0                                # put the crossover entry's weight down to 0. 
+            boltzmann_weight = boltzmann_weight/np.sum(boltzmann_weight)      # normalize the weight. 
             sample_anchor_chain = np.random.multinomial(1, boltzmann_weight)
             anchor_chain = int(np.nonzero(sample_anchor_chain)[0])
             Anchor_ind[i] = anchor_chain
