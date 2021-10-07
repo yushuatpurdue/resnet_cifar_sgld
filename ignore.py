@@ -98,12 +98,12 @@ model.cpu()
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
-# for i in range(pars.nchains-1):
-for i in range(1):
+for i in range(pars.nchains-1):
+# for i in range(1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
 
-print(len(multichain_model))
+# print(len(multichain_model))
 
 # for i in range(len(list(multichain_model[0].parameters()))):
 #     ifequal = list(multichain_model[0].parameters())[i] == list(multichain_model[1].parameters())[i]
@@ -417,8 +417,29 @@ for net in multichain_model:
 # result = [r]
 # print(result+[r])
 
-SGHMC_idx = list(range(pars.nchains))
-for i in [1,3]:
-    SGHMC_idx.remove(i)
+# SGHMC_idx = list(range(pars.nchains))
+# for i in [1,3]:
+#     SGHMC_idx.remove(i)
 
-print(SGHMC_idx)
+# print(SGHMC_idx)
+
+''''''
+for model in multichain_model:
+    model.train()
+
+Boltzmann_pd = [0]*len(multichain_model)
+loss         = []
+
+for i, (images, labels) in enumerate(train_loader):
+
+    # first change the data type from 'tensor' to 'Variables'. 
+    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+    for j in range(len(multichain_model)):
+        model = multichain_model[j]
+        # then evaluate optimizer, calculate loss and back propagate. 
+        output = model(images)
+        loss   += [criterion(output, labels) * pars.total]
+
+    print(loss)
+    break

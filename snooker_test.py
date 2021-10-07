@@ -67,44 +67,13 @@ class snooker:
         self.criterion    = criterion
         # self.nchains      = len(modulelist)
 
-    def Boltzmann(self, selection_t, crossoverInd, modulelist, train_loader):
-        '''
-        Boltzman calculates the Boltzmann density of a model: exp(-loss(model)/selection_t), where loss is the cross entropy loss. 
 
-        It takes each module in modulelist, calculate it's full loss, then calculate the Boltzmann density. 
-        '''
-        Boltzmann_pd = [0]*len(modulelist)          # Boltzmann_pd records the Boltzmann probability density for each model. It is a list of length = nchains. 
-        loss = 0                                    # loss is a temporary record of the loss. 
-
-        for j in range(len(modulelist)):
-            net = modulelist[j]
-            # net.train()
-
-            if j == crossoverInd: 
-                Boltzmann_pd[j] = 0
-            else:
-                for i, (images, labels) in enumerate(train_loader):
-                    ''' calculate the full loss of the net. '''
-
-                    # first change the data type from 'tensor' to 'Variables'. 
-                    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-                    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-
-                    # then evaluate optimizer, calculate loss and back propagate. 
-                    output = net(images)
-                    temp   = self.criterion(output, labels) * len(images)
-                    loss   += temp.item()
-                
-                Boltzmann_pd[j] = np.exp(-loss/selection_t)
-            
-        Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
-        return Boltzmann_pd
-
-    def sample_chainpairs(self, pars, modulelist):
+    def sample_chainpairs(self, pars, Boltzmann_pd, modulelist):
         '''
         This function returns the indices of chains to go through snooker crossover, and their correspondent anchor chains. 
         Input:
             pars:          argument parser. 
+            Boltzmann_pd:  unnormalized boltzmann pd.
             modulelist:    the model population. 
         '''
 
@@ -121,15 +90,17 @@ class snooker:
         
         for i in range(nchainsCrossover):
             crossoverInd = CrossoverInd[i]
-            boltzmann_pd = self.Boltzmann(self.selection_t, crossoverInd, modulelist, self.train_loader)
-            sample_anchor_chain = np.random.multinomial(1, boltzmann_pd)
+            boltzmann_weight = copy.deepcopy(Boltzmann_pd)                # make a copy of unnormalized boltzmann pd. 
+            boltzmann_weight[crossoverInd] = 0                            # put the crossover entry's weight down to 0. 
+            boltzmann_weight = boltzmann_weight/np.sum(crossoverInd)      # normalize the weight. 
+            sample_anchor_chain = np.random.multinomial(1, boltzmann_weight)
             anchor_chain = int(np.nonzero(sample_anchor_chain)[0])
             Anchor_ind[i] = anchor_chain
 
         output = dict()
         output["crossoverchains"] = CrossoverInd
         output["anchorchains"] = Anchor_ind
-        # print (output)
+        print (output)
 
         return output
 
@@ -388,70 +359,93 @@ accuracy = [BayesEval()]
 for i in range(pars.nchains - 1):
     accuracy = accuracy + [BayesEval()]
 
-''' run SGHMC '''
-start = time.time()
-for t in range(15):
 
-    print("epochs = ",t)      # 要注释掉
-    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
-    ''' print accuracy '''
-    for i in range(pars.nchains):
-        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-        print('Chain {} Acc: {:0.2f}'\
-                .format(i, accuracy[i].OneEpoch_acc))
-# ''' print last accuracy again '''
-# print("print again acc for the last epoch of SGHMC")
-# for i in range(pars.nchains):
-#     accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-#     print('Chain {} Acc: {:0.2f}'\
-#             .format(i, accuracy[i].OneEpoch_acc))
+for model in multichain_model:
+    model.train()
+
+Boltzmann_pd = [0]*len(multichain_model)                # unnormalized Boltzmann pd for sampling anchor chain
+loss         = []                                 # record loss for every model. 
+
+for i, (images, labels) in enumerate(train_loader):
+
+    # first change the data type from 'tensor' to 'Variables'. 
+    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+    for j in range(len(multichain_model)):
+        model = multichain_model[j]
+        # then evaluate optimizer, calculate loss and back propagate. 
+        output = model(images)
+        temp   = criterion(output, labels) * pars.total
+        loss   += [temp]
+        Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)
+
+    Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
+    chainpairs = Snooker_test.sample_chainpairs(pars, Boltzmann_pd, multichain_model)
+
+# ''' run SGHMC '''
+# start = time.time()
+# for t in range(15):
+
+#     print("epochs = ",t)      # 要注释掉
+#     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+#     ''' print accuracy '''
+#     for i in range(pars.nchains):
+#         accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+#         print('Chain {} Acc: {:0.2f}'\
+#                 .format(i, accuracy[i].OneEpoch_acc))
+# # ''' print last accuracy again '''
+# # print("print again acc for the last epoch of SGHMC")
+# # for i in range(pars.nchains):
+# #     accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+# #     print('Chain {} Acc: {:0.2f}'\
+# #             .format(i, accuracy[i].OneEpoch_acc))
         
-# chain0afterSGHMC = copy.deepcopy(multichain_model[0])
-# parameter_chain0afterSGHMC = list(chain0afterSGHMC.parameters())
+# # chain0afterSGHMC = copy.deepcopy(multichain_model[0])
+# # parameter_chain0afterSGHMC = list(chain0afterSGHMC.parameters())
 
-end = time.time()
-print("time for 15 SGHMC = ", end - start)
+# end = time.time()
+# print("time for 15 SGHMC = ", end - start)
 
-# '''print parameter head'''
-# for i in range(pars.nchains):
-#     for parameter in multichain_model[i].parameters():
-#         print("after 15 iteration of SGHMC, parameter head of chain",i,":", parameter.data[0])
-#         break
+# # '''print parameter head'''
+# # for i in range(pars.nchains):
+# #     for parameter in multichain_model[i].parameters():
+# #         print("after 15 iteration of SGHMC, parameter head of chain",i,":", parameter.data[0])
+# #         break
 
-for t in range(50):
-    print("epochs = ",t+15)
+# for t in range(50):
+#     print("epochs = ",t+15)
 
-    ''' snooker'''
-    for model in multichain_model:
-        model.train()
-    Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
-    # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
+#     ''' snooker'''
+#     for model in multichain_model:
+#         model.train()
+#     Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
+#     # direction = Snooker_test.compute_direction(multichain_model[0],multichain_model[1])
 
-    start = time.time()
-    crossover_idx = Snooker_test.step(pars, multichain_model, train_loader)
-    # print("SGLD chain of r: ", r_chain)
-    end = time.time()
-    print("time for 1 step snooker :", end - start)
+#     start = time.time()
+#     crossover_idx = Snooker_test.step(pars, multichain_model, train_loader)
+#     # print("SGLD chain of r: ", r_chain)
+#     end = time.time()
+#     print("time for 1 step snooker :", end - start)
 
-    SGHMC_idx = list(range(pars.nchains))
-    for i in crossover_idx:
-        SGHMC_idx.remove(i)
+#     SGHMC_idx = list(range(pars.nchains))
+#     for i in crossover_idx:
+#         SGHMC_idx.remove(i)
 
-    '''print accuracy'''
-    print("snooker step:")
-    for i in range(pars.nchains):
-        print("evaluating model #", i)
-        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-        print('Chain {} Acc: {:0.2f}'\
-                    .format(i, accuracy[i].OneEpoch_acc))
+#     '''print accuracy'''
+#     print("snooker step:")
+#     for i in range(pars.nchains):
+#         print("evaluating model #", i)
+#         accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+#         print('Chain {} Acc: {:0.2f}'\
+#                     .format(i, accuracy[i].OneEpoch_acc))
 
-    ''' SGHMC '''
-    training_parallel(pars, multichain_model, SGHMC_idx, train_loader, test_loader, criterion)
-    ''' print accuracy '''
-    for i in range(pars.nchains):
-        accuracy[i].eval(multichain_model[i], test_loader, cumulate = True)
-        print('Chain {} Acc: {:0.2f}'\
-                .format(i, accuracy[i].best_OneEpoch_acc))
+#     ''' SGHMC '''
+#     training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+#     ''' print accuracy '''
+#     for i in range(pars.nchains):
+#         accuracy[i].eval(multichain_model[i], test_loader, cumulate = True)
+#         print('Chain {} Acc: {:0.2f}'\
+#                 .format(i, accuracy[i].best_OneEpoch_acc))
 
 
 
@@ -485,7 +479,7 @@ for t in range(50):
 # for t in range(3):
 
 #     print("epochs = ",t+16)      # 要注释掉
-#     training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
+#     training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
 #     ''' print accuracy '''
 #     for i in range(pars.nchains):
 #         accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
