@@ -360,25 +360,26 @@ for i in range(pars.nchains - 1):
     accuracy = accuracy + [BayesEval()]
 
 
-# for model in multichain_model:
-#     model.train()
+for model in multichain_model:
+    model.train()
 
 Boltzmann_pd = [0]*len(multichain_model)                # unnormalized Boltzmann pd for sampling anchor chain
-loss         = []                                 # record loss for every model. 
+
 
 for i, (images, labels) in enumerate(train_loader):
 
     # first change the data type from 'tensor' to 'Variables'. 
     images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
     labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+    loss   = []                                 # record loss for every model. 
     for j in range(len(multichain_model)):
         model = multichain_model[j]
-        model.train()
         # then evaluate optimizer, calculate loss and back propagate. 
         output = model(images)
         temp   = criterion(output, labels) * pars.total
         loss   += [temp]
         Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)
+        print(len(loss))
 
     Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
     chainpairs = Snooker_test.sample_chainpairs(pars, Boltzmann_pd, multichain_model)
