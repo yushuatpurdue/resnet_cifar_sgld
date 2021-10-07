@@ -37,4 +37,30 @@ from BayesEval import BayesEval
 import resnet            ## all resnet models. 
 from LoadData import LoadData
 from optimizers.SGHMC import SGHMC
+from optimizers.snooker import snooker
 from train.training_parallel import training_parallel
+
+def traing_emc(pars, modulelist, train_dataset, criterion):
+    '''
+    Input: 
+        pars            defined in main() by argparser. 
+        modulelist      a ModuleList of neural networks to train. 
+        train_dataset      
+        criterion       loss function. should be nn.CrossEntropyLoss() to obtain the potential. 
+    '''
+
+    ''' snooker'''
+    for model in modulelist:
+        model.train()
+    Snooker_test = snooker(train_dataset, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
+    crossover_idx = Snooker_test.step(pars, modulelist, train_dataset)
+
+    ''' index of chains to go through SGHMC '''
+    SGHMC_idx = list(range(pars.nchains))
+    for i in crossover_idx:
+        SGHMC_idx.remove(i)
+
+
+    ''' SGHMC '''
+    training_parallel(pars, modulelist, SGHMC_idx, train_dataset, criterion)
+    

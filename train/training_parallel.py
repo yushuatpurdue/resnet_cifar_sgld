@@ -39,7 +39,7 @@ from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
 
 
-def training_parallel(pars, model, training_idx, train_dataset, test_dataset, criterion):
+def training_parallel(pars, model, training_idx, train_dataset, criterion):
     '''
     Input: 
         pars            defined in main() by argparser. 
@@ -92,12 +92,9 @@ def training_parallel(pars, model, training_idx, train_dataset, test_dataset, cr
 
         ''' print results '''
         print('Chain {} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
-                    .format(nnet, \
+                    .format(i, \
                     loss.item(), temperature, eta))
         
-
-        '''prepare for next net'''
-        nnet        += 1            # counting # of nets. 
         
         
         

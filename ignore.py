@@ -52,7 +52,7 @@ parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling lea
 parser.add_argument('-period', default=2, type=int, help='estimate adaptive variance every [period] epochs')
 parser.add_argument('-cycle', default=1, type=int, help='Number of cycles')
 parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations for sampling (sn * burn)')
-parser.add_argument('-LRanneal', default=0.984, type=float, help='lr annealing factor')
+parser.add_argument('-etaanneal', default=0.984, type=float, help='lr annealing factor')
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
 parser.add_argument('-iterationR', default=30, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
