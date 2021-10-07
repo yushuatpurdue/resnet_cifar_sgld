@@ -418,7 +418,7 @@ print("time for 15 SGHMC = ", end - start)
 #         print("after 15 iteration of SGHMC, parameter head of chain",i,":", parameter.data[0])
 #         break
 
-for t in range(30):
+for t in range(50):
     print("epochs = ",t+15)
 
     ''' snooker'''
