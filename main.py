@@ -128,7 +128,10 @@ def main():
     ''' training loop '''
     criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 
     # accuracy = [BayesEval()] * pars.nchains
-        
+    
+    accuracy = [BayesEval()]
+    for i in range(pars.nchains - 1):
+        accuracy = accuracy + [BayesEval()]
 
     for t in range(pars.epochs):
         if t < pars.burn * pars.epochs:
@@ -140,6 +143,11 @@ def main():
         SGHMC_idx = list(range(pars.nchains))
         training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
         
+        ''' print accuracy '''
+        for i in range(pars.nchains):
+            accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+            print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                    .format(i, accuracy[i].OneEpoch_acc, accuracy[i].OneEpoch_acc))
 
 
 main()
