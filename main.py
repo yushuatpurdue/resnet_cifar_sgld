@@ -137,7 +137,7 @@ def main():
         if t < pars.burn * pars.epochs:
             pars.T /= pars.Tanneal
         if t > 0.4 * pars.epochs:
-            pars.eta *= pars.etaaneal
+            pars.eta *= pars.etaanneal
 
         print("epochs = ",t)      # 要注释掉
         SGHMC_idx = list(range(pars.nchains))
