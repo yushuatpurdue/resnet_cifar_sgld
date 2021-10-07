@@ -138,7 +138,7 @@ def main():
 
         print("epochs = ",t)      # 要注释掉
         SGHMC_idx = list(range(pars.nchains))
-        training_parallel(pars, multichain_model, SGHMC_idx, train_loader, test_loader, criterion)
+        training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
         
 
 
