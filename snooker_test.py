@@ -360,8 +360,8 @@ for i in range(pars.nchains - 1):
     accuracy = accuracy + [BayesEval()]
 
 
-for model in multichain_model:
-    model.train()
+# for model in multichain_model:
+#     model.train()
 
 Boltzmann_pd = [0]*len(multichain_model)                # unnormalized Boltzmann pd for sampling anchor chain
 loss         = []                                 # record loss for every model. 
@@ -373,6 +373,7 @@ for i, (images, labels) in enumerate(train_loader):
     labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
     for j in range(len(multichain_model)):
         model = multichain_model[j]
+        model.train()
         # then evaluate optimizer, calculate loss and back propagate. 
         output = model(images)
         temp   = criterion(output, labels) * pars.total
