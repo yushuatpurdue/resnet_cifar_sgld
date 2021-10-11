@@ -386,11 +386,8 @@ elif pars.data == 'cifar10':
 
 model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
-
-
 # model.cpu()
 model.cuda()
-
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList([model])
 for i in range(pars.nchains-1):
@@ -400,11 +397,25 @@ for i in range(pars.nchains-1):
 train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
 criterion = nn.CrossEntropyLoss()
+
 accuracy = [BayesEval()]
 for i in range(pars.nchains - 1):
     accuracy = accuracy + [BayesEval()]
 
 ''''''
+''' pretrain: run SGHMC '''
+for t in range(15):
+
+    print("epochs = ",t)      # 要注释掉
+    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+    ''' print accuracy '''
+    for i in range(pars.nchains):
+        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+        print('Chain {} Acc: {:0.2f}'\
+                .format(i, accuracy[i].OneEpoch_acc))
+
+''' one step snooker'''
+
 for model in multichain_model:
     model.train()
 
