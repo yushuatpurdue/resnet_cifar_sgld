@@ -134,6 +134,41 @@ class snooker:
         
         return diff_parameter
 
+    def r_SGLD(self, pars, r, model_anchor_modified, temperature, direction):
+        '''Step function for sampling r. Given the parameters gradient and direction, return one step updated r. '''
+        count = 0
+        innerproduct = 0
+        dimension = 0
+        for parameter in model_anchor_modified.parameters():
+            # print("count = ", count)
+            # print("parameter #", count," head, before modified:", parameter.data[0])
+            
+            gradient_parameter = parameter.grad.data 
+            # print("count =", count, "head of parameter = ", gradient_parameter[0])
+            # print("count =", count, "head of direction = ", direction[count][0])
+            temp = gradient_parameter * direction[count]
+            # print("count =", count, "elementwise product of gradient and direction = ", temp[0])
+            innerproduct += temp.sum()
+            # print("count =", count, "inner product of gradient and direction (cumulated) = ", innerproduct )
+            size = list(parameter.size())
+            # print("torch.size at count ", count, "=", size )
+            dimension += np.prod(size)
+            
+
+            # print("parameter #", count," head, after modified:", parameter.data[0])
+            count += 1
+
+        gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla( -log f(r))
+        # print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
+        if abs(r) < pars.lrR:
+            lr = abs(r)
+        else:
+            lr = pars.lrR
+        r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+
+        return r
+
+
     def scaler_gradient(self, r, model_anchor, temperature, direction, train_loader):
         '''
         this function returns gradient for scaler r that will be used for SGLD of r. 
@@ -229,21 +264,34 @@ class snooker:
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
+
             ''' SGLD to obtain r. '''
             r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
             # result = [r]
             for t in range(pars.iterationR):
-                # print("r at start of",t, "th iteration is", r)
-                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
-                if abs(r) < pars.lrR:
-                    lr = abs(r)
-                else:
-                    lr = pars.lrR
-                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
-                # print("crossover scaler = ", r)
-                
-            #     result = result + [r.item()]
+                print("iteration # ", t, "for sampling r. ")
+                for j, (images, labels) in enumerate(train_loader):
 
+                    model_cp = copy.deepcopy(model_anchor)
+                    count = 0
+                    for parameter in model_cp.parameters():
+                        parameter.data.add_(r * direction[count])
+                        # print("parameter.data.gradient:", parameter.grad.data[0])
+                        # parameter.grad.data.zero_()        # zero out the gradients. 
+                        # print("parameter #", count," head, after modified:", parameter.data[0])
+                        count += 1
+
+                    # first change the data type from 'tensor' to 'Variables'. 
+                    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+                    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+
+                    # then evaluate optimizer, calculate loss and back propagate. 
+                    output = model_cp(images)
+                    loss   = self.criterion(output, labels) * pars.total
+                    loss.backward()    # 这样就在parameter.grad 上累加 gradient了
+                    r = self.r_SGLD(pars, r, model_cp, temperature, direction)
+                    print("r at batch ", j, "=", r)
+            ''' update parameter of crossover model using direction and r. '''
             count = 0
             # for parameter in model_crossover.parameters():
             #     print("before crossover, parameter 0 head =", parameter.data[0])
@@ -380,6 +428,7 @@ for i, (images, labels) in enumerate(train_loader):
 
     Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
     crossover_idx = Snooker_test.step(pars, multichain_model, Boltzmann_pd, train_loader)
+    print("crossover idx =", crossover_idx)
 
 # ''' run SGHMC '''
 # start = time.time()
