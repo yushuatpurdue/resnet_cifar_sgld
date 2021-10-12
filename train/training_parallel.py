@@ -3,8 +3,8 @@
 The files are created by Yushu Huang for the EMC-SGLD algorithm. YEAR 2021. 
 They aim to apply the algorithm to the training of resnet under CIFAR dataset. 
 
-In this file: function for one-step SGLD training. 
-use 'from train.training_parallel import training_parallel' to import this file. 
+In this file: function for one-step parallel training. 
+use 'from train.training_parallel import training_parallel' to import function in this file. 
 '''
 
 import math
@@ -44,8 +44,8 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
     Input: 
         pars            defined in main() by argparser. 
         model           a ModuleList of neural networks to train. 
-        train_dataset   
-        test_dataset    
+        training_idx    idx of the chains to go through this function (to fit it into snooker). 
+        train_dataset     
         criterion       loss function. should be nn.CrossEntropyLoss() to obtain the potential. 
     '''
 

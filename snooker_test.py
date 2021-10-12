@@ -209,6 +209,7 @@ class snooker:
             # first change the data type from 'tensor' to 'Variables'. 
             images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
             labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+            
 
             # then evaluate optimizer, calculate loss and back propagate. 
             output = model_cp(images)
@@ -284,7 +285,7 @@ class snooker:
                     # first change the data type from 'tensor' to 'Variables'. 
                     images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
                     labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-
+                    model_cp.zero_grad()
                     # then evaluate optimizer, calculate loss and back propagate. 
                     output = model_cp(images)
                     loss   = self.criterion(output, labels) * pars.total
@@ -355,7 +356,7 @@ parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature anne
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
 parser.add_argument('-iterationR', default=5, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
 parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
-
+parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
 
 ## dataset properties: 
 parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
@@ -430,6 +431,7 @@ for i, (images, labels) in enumerate(train_loader):
     loss   = []                                 # record loss for every model. 
     for j in range(len(multichain_model)):
         model = multichain_model[j]
+        model.zero_grad()
         # then evaluate optimizer, calculate loss and back propagate. 
         output = model(images)
         temp   = criterion(output, labels) * pars.total

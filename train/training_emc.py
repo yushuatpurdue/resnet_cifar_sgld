@@ -40,7 +40,7 @@ from optimizers.SGHMC import SGHMC
 from optimizers.snooker import snooker
 from train.training_parallel import training_parallel
 
-def traing_emc(pars, modulelist, train_dataset, criterion):
+def training_emc(pars, modulelist, train_dataset, criterion):
     '''
     one epoch emc optimizing
     Input: 
@@ -55,15 +55,17 @@ def traing_emc(pars, modulelist, train_dataset, criterion):
         model.train()
 
     Boltzmann_pd = [0]*len(modulelist)                # unnormalized Boltzmann pd for sampling anchor chain
-    loss         = []                                 # record loss for every model. 
+
 
     for i, (images, labels) in enumerate(train_dataset):
 
         # first change the data type from 'tensor' to 'Variables'. 
         images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
         labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+        loss         = []                                 # record loss for all model. 
         for j in range(len(modulelist)):
             model = modulelist[j]
+            model.zero_grad()
             # then evaluate optimizer, calculate loss and back propagate. 
             output = model(images)
             temp   = criterion(output, labels) * pars.total
@@ -182,4 +184,4 @@ train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 ''' training loop '''
 criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 
 # accuracy = [BayesEval()] * pars.nchains
-traing_emc(pars, multichain_model, train_loader, criterion)
+training_emc(pars, multichain_model, train_loader, criterion)

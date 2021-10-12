@@ -3,7 +3,7 @@ The files are created by Yushu Huang for the EMC-SGLD algorithm. YEAR 2021.
 They aim to apply the algorithm to the training of resnet under CIFAR dataset. 
 algorithm reference: Jun Liu: Monte Carlo Strategies in Scientific Computing, p232. 
 In this file: a class -- SGHMC is created as the optimizer for the network. 
-use 'from optimizers.SHMC import SGLD' to import this file. 
+use 'from optimizers.snooker import snooker' to import class in this file. 
 '''
 
 import sys
