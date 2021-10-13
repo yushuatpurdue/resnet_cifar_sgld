@@ -405,7 +405,7 @@ for i in range(pars.nchains - 1):
 
 ''''''
 ''' pretrain: run SGHMC '''
-for t in range(15):
+for t in range(2):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
@@ -429,14 +429,14 @@ for i, (images, labels) in enumerate(train_loader):
     # first change the data type from 'tensor' to 'Variables'. 
     images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
     labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-    loss   = []                                 # record loss for every model. 
+    Loss   = []                                 # record loss for every model. 
     for j in range(len(multichain_model)):
         model = multichain_model[j]
         model.zero_grad()
         # then evaluate optimizer, calculate loss and back propagate. 
         output = model(images)
         temp   = criterion(output, labels) * pars.total
-        loss   += [temp]
+        Loss   += [temp]
         Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)
         # print(len(loss))
 
@@ -455,6 +455,7 @@ for i, (images, labels) in enumerate(train_loader):
         eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
         temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
         model = multichain_model[idx]
+        loss = Loss[idx]
     
     # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
     # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
