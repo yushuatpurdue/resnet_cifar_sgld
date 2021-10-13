@@ -42,59 +42,26 @@ class snooker:
         self.selection_t  = selection_t
         # self.nchains      = len(modulelist)
 
-    def Boltzmann(self, selection_t, crossoverInd, modulelist, train_loader):
-        '''
-        Boltzman calculates the Boltzmann density of a model: exp(-loss(model)/selection_t), where loss is the cross entropy loss. 
-
-        It takes each module in modulelist, calculate it's full loss, then calculate the Boltzmann density. 
-        '''
-        Boltzmann_pd = [0]*len(modulelist)          # Boltzmann_pd records the Boltzmann probability density for each model. It is a list of length = nchains. 
-        loss = 0                                    # loss is a temporary record of the loss. 
-
-        for j in range(len(modulelist)):
-            net = modulelist[j]
-            net.train()
-
-            if j == crossoverInd: 
-                Boltzmann_pd[j] = 0
-            else:
-                for i, (images, labels) in enumerate(train_loader):         # compute H(crossover)
-                    ''' calculate the full loss of the net. '''
-
-                    # first change the data type from 'tensor' to 'Variables'. 
-                    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-                    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-
-                    # then evaluate optimizer, calculate loss and back propagate. 
-                    output = net(images)
-                    temp   = self.criterion(output, labels) * len(images)
-                    loss   += temp.item()
-                
-                Boltzmann_pd[j] = np.exp(-loss/selection_t)                   # exp(-H(crossover)/selection_t)
-            
-        Boltzmann_pd = Boltzmann_pd/np.sum(Boltzmann_pd)
-        return Boltzmann_pd
-
-    def sample_chainpairs(self, pars, modulelist):
+    def sample_chainpairs(self, pars, Boltzmann_pd):
         '''
         This function returns the indices of chains to go through snooker crossover, and their correspondent anchor chains. 
         Input:
             pars:          argument parser. 
+            Boltzmann_pd:  unnormalized boltzmann pd.
             modulelist:    the model population. 
         '''
 
-        if pars.nchains != len(modulelist):
-            raise ValueError("length of modulelist does not match number of chains")
         nchainsCrossover = math.ceil(pars.crossoverRate * pars.nchains)           # how many chains are going through crossover
         CrossoverInd = random.sample(range(pars.nchains), nchainsCrossover)       # sample the index of those crossover chains
 
         Anchor_ind = [pars.nchains] * nchainsCrossover
-        
         for i in range(nchainsCrossover):
             crossoverInd = CrossoverInd[i]
-            boltzmann_pd = self.Boltzmann(self.selection_t, crossoverInd, modulelist, self.train_loader)
-            sample_anchor_chain = np.random.multinomial(1, boltzmann_pd)                 # sample anchor chain with Boltzmann weight
-            anchor_chain = int(np.nonzero(sample_anchor_chain)[0])                       # get index of anchor chain. 
+            boltzmann_weight = copy.deepcopy(Boltzmann_pd)                    # make a copy of unnormalized boltzmann pd. 
+            boltzmann_weight[crossoverInd] = 0                                # put the crossover entry's weight down to 0. 
+            boltzmann_weight = boltzmann_weight/np.sum(boltzmann_weight)      # normalize the weight. 
+            sample_anchor_chain = np.random.multinomial(1, boltzmann_weight)
+            anchor_chain = int(np.nonzero(sample_anchor_chain)[0])
             Anchor_ind[i] = anchor_chain
 
         output = dict()
@@ -125,16 +92,16 @@ class snooker:
             temp = parameter_anchor - parameter_crossover
             diff_parameter = diff_parameter + [temp]
             norm_diff += torch.norm(temp)
-            # print("norm of diff in", i, "th parameter:", torch.norm(diff_parameter))
         for i in range(count):
             diff_parameter[i] = diff_parameter[i]/norm_diff.item()
         
         return diff_parameter
 
-    def scaler_gradient(self, r, model_anchor, temperature, direction, train_loader):
+    def r_SGLD(self, pars, r, model_anchor_modified, temperature, direction):
         '''
-        this function returns gradient for scaler r that will be used for SGLD of r. 
-
+        Step function for sampling r. Given the parameters gradient and direction, return one step updated r. 
+        
+        Computing gradient of r:
         f(r) propto abs(r)^(d-1) * pi(xj + r*e) is the distribution of r. 
         d  = dimension of xj. 
         pi = target distribution of xj. 
@@ -146,61 +113,48 @@ class snooker:
         gradient(r) = -(d-1)/r + < nabla(H(xj + r*e)), e > / Temperature. 
 
         Input:
-            r:                 snooker scaler. type = float. 
-            model_anchor:      anchor model. type = nn.module. 
+            pars
+            r:                          snooker scaler. type = float. 
+            model_anchor_modified:      pi(xj + r*e). type = nn.module. 
             temperature:       temperature of the anchor model. type = float. 
             direction:         snooker crossover direction e. type = list of tensor, each of the same shape as model.parameters.data
-            train_loader:      augmented training data. 
 
         Output:
-            gradient of r. type = scaler. 
+            one step update of r. 
         '''
-        model_cp = copy.deepcopy(model_anchor)        # deep copy anchor model to avoid material modify in anchor model's parameters when adding r*direction. 
-        # note: deepcopy preserves gradient = TRUE but doesn't copy gradients, so gradient = None after copying. 
-        count = 0
-        for parameter in model_cp.parameters():       # for every parameter, add to it r*direction. 
-            parameter.data.add_(r * direction[count])
-            count += 1
 
-        for i, (images, labels) in enumerate(train_loader):
-            ''' calculate the full gradient: nabla(H(xj + r*e)) at xj + r*e. '''
-
-            # first change the data type from 'tensor' to 'Variables'. 
-            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-
-            # then evaluate optimizer, calculate loss and back propagate. 
-            output = model_cp(images)
-            loss   = self.criterion(output, labels) * len(images)
-            loss.backward()    # 这样就在parameter.grad 上累加 gradient了
-
+        ''' compute the gradient. '''
         count = 0
         innerproduct = 0
         dimension = 0
-        for parameter in model_cp.parameters():         # compute <nabla(H(xj + r*e)), e>, and compute d. 
-            
+        for parameter in model_anchor_modified.parameters():
             gradient_parameter = parameter.grad.data 
             temp = gradient_parameter * direction[count]
-            innerproduct += temp.sum()                  # innerproduct = <nabla(H(xj + r*e)), e>. 
-
+            innerproduct += temp.sum()
             size = list(parameter.size())
-            dimension += np.prod(size)                  # dimension = d. 
+            dimension += np.prod(size)
             
             count += 1
 
         gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla( -log f(r))
-        return gradient_r
+
+        ''' adaptively decrease learning rate if needed. '''
+        if abs(r) < pars.lrR:
+            lr = abs(r)
+        else:
+            lr = pars.lrR
+
+        ''' update r. '''
+        r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+
+        return r
 
 
 
-        
-
-
-    def step(self, pars, modulelist, train_loader):
+    def step(self, pars, modulelist, Boltzmann_pd, train_loader):
 
         '''obtain indices of chain pairs for snooker crossover. '''
-        modulelist_copy = copy.deepcopy(modulelist)
-        chainpairs    = self.sample_chainpairs(pars, modulelist_copy)
+        chainpairs    = self.sample_chainpairs(pars, Boltzmann_pd)
         crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
         anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
         length        = len(crossover_idx)
@@ -214,18 +168,37 @@ class snooker:
 
             ''' SGLD to obtain r. '''
             r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
-            for t in range(pars.iterationR):
-                gradient_r = self.scaler_gradient(r, model_anchor, temperature, direction, train_loader)
-                if abs(r) < pars.lrR:
-                    lr = abs(r)
-                else:
-                    lr = pars.lrR
-                r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
-                
+            for t in range(pars.iterationR):                 # epoch
+                # print("iteration # ", t, "for sampling r. ")
+                for j, (images, labels) in enumerate(train_loader):      # batch
+                    
+                    ''' modify parameter: pi(xj + r*e) '''
+                    model_cp = copy.deepcopy(model_anchor)
+                    count = 0
+                    for parameter in model_cp.parameters():
+                        parameter.data.add_(r * direction[count])
+                        count += 1
+
+                    ''' batch update r.  '''
+                    # first change the data type from 'tensor' to 'Variables'. 
+                    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+                    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+                    model_cp.zero_grad()
+                    # then evaluate optimizer, calculate loss and back propagate. 
+                    output = model_cp(images)
+                    loss   = self.criterion(output, labels) * pars.total
+                    loss.backward()    # 这样就在parameter.grad 上累加 gradient了
+                    r = self.r_SGLD(pars, r, model_cp, temperature, direction)
+                    print("r at batch ", j, "=", r)
+            ''' update parameter of crossover model using direction and r. '''
             count = 0
-            
+            # for parameter in model_crossover.parameters():
+            #     print("before crossover, parameter 0 head =", parameter.data[0])
+            #     break
             for parameter in model_crossover.parameters():
+                # print("before crossover, parameter #", count, "head =", parameter.data[0])
                 parameter.data.add_(r * direction[count])
+                # print("after crossover, parameter #", count, "head =", parameter.data[0])
                 count += 1
 
         return crossover_idx

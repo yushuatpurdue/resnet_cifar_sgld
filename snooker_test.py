@@ -260,8 +260,7 @@ class snooker:
         ''' compute the offspring of each crossover chain'''
         for i in range(length):
             model_crossover = modulelist[crossover_idx[i]]
-            # prin
-            # t("crossover chain = #", crossover_idx[i])
+            # print("crossover chain = #", crossover_idx[i])
             model_anchor = modulelist[anchor_idx[i]]
             direction = self.compute_direction(model_crossover, model_anchor)     # compute e
             temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
@@ -270,7 +269,7 @@ class snooker:
             r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
             # result = [r]
             for t in range(pars.iterationR):
-                print("iteration # ", t, "for sampling r. ")
+                # print("iteration # ", t, "for sampling r. ")
                 for j, (images, labels) in enumerate(train_loader):
 
                     model_cp = copy.deepcopy(model_anchor)
@@ -291,8 +290,9 @@ class snooker:
                     loss   = self.criterion(output, labels) * pars.total
                     loss.backward()    # 这样就在parameter.grad 上累加 gradient了
                     r = self.r_SGLD(pars, r, model_cp, temperature, direction)
-                    print("r at batch ", j, "=", r)
+                    # print("r at batch ", j, "=", r)
             ''' update parameter of crossover model using direction and r. '''
+            print("crossover chain = #", crossover_idx[i], "r = ", r)
             count = 0
             # for parameter in model_crossover.parameters():
             #     print("before crossover, parameter 0 head =", parameter.data[0])
@@ -355,7 +355,7 @@ parser.add_argument('-etaanneal', default=0.984, type=float, help='lr annealing 
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
 parser.add_argument('-iterationR', default=5, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
-parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
+parser.add_argument('-lrR', default=1e-4, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
 parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
 
 ## dataset properties: 
@@ -415,7 +415,8 @@ for t in range(15):
         print('Chain {} Acc: {:0.2f}'\
                 .format(i, accuracy[i].OneEpoch_acc))
 
-''' one step snooker'''
+''' one step snooker '''
+''' part of chains go through one step snooker'''
 
 for model in multichain_model:
     model.train()
@@ -442,6 +443,32 @@ for i, (images, labels) in enumerate(train_loader):
     Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
     crossover_idx = Snooker_test.step(pars, multichain_model, Boltzmann_pd, train_loader)
     print("crossover idx =", crossover_idx)
+
+    ''' index of chains to go through SGHMC '''
+    SGHMC_idx = list(range(pars.nchains))
+    for i in crossover_idx:
+        SGHMC_idx.remove(i)
+
+
+    ''' the other part go through SGHMC '''
+    for idx in SGHMC_idx:
+        eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
+        temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
+        model = multichain_model[idx]
+    
+    # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+    # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
+
+        optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+''' print accuracy '''
+for i in range(pars.nchains):
+    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+    print('Chain {} Acc: {:0.2f}'\
+            .format(i, accuracy[i].OneEpoch_acc))
 
 # ''' run SGHMC '''
 # start = time.time()
