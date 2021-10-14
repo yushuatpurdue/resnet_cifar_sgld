@@ -52,27 +52,30 @@ def training_re(pars, model, train_dataset, criterion):
         raise ValueError("cannot apply replica exchange: # chains != 2. ")
 
     ''' one step optimization. '''
-    for idx in range(pars.nchains):
-        Loss = []        # record loss for all chains. 
-        net = model[idx]
-        ''' training net '''
-        net.train()      # first set net to train mode. 
-        # print("net", nnet, "parameter head", list(net.parameters())[0][0])
-        eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
-        temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
-        
-        # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-        # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
-
-        optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+    
         
         # print("nnet = ", nnet) # 要注释掉
 
-        for i, (images, labels) in enumerate(train_dataset):
+    for i, (images, labels) in enumerate(train_dataset):
 
-            # first change the data type from 'tensor' to 'Variables'. 
-            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+        # first change the data type from 'tensor' to 'Variables'. 
+        images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+        labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+        Loss = []        # record loss for all chains. 
+
+        for idx in range(pars.nchains):
+            
+            net = model[idx]
+            ''' training net '''
+            net.train()      # first set net to train mode. 
+            # print("net", nnet, "parameter head", list(net.parameters())[0][0])
+            eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
+            temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
+            
+            # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+            # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
+
+            optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
 
             # then evaluate optimizer, calculate loss and back propagate. 
             optimizer.zero_grad()
@@ -93,7 +96,10 @@ def training_re(pars, model, train_dataset, criterion):
         diff_loglikelihood = np.diff(Loss)                           # -logp1 - (-logp2)
         log_swap_rate = diff_inv_temperature*(diff_loglikelihood-diff_inv_temperature/pars.bias_F)
 
-        # if np.log(np.random.uniform(0, 1)) < log_swap_rate:
+        if np.log(np.random.uniform(0, 1)) < log_swap_rate:
+            net_temp = copy.deepcopy(model[0])
+            model[0] = copy.deepcopy(model[1])
+            model[1] = copy.deepcopy(net_temp)
 
 
 
