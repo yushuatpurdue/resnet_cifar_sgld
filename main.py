@@ -37,6 +37,7 @@ import resnet            ## all resnet models.
 from LoadData import LoadData
 from optimizers.SGLD import SGLD
 from train.training_parallel import training_parallel
+from train.training_re import training_re
 
 '''
 define the main function
@@ -47,7 +48,7 @@ def main():
     parser = argparse.ArgumentParser()    
 
     ## mcmc properties:
-    parser.add_argument('-nchains', default=10, type=int, help='Total number of chains')     ## how many chains are going to run. 
+    parser.add_argument('-nchains', default=2, type=int, help='Total number of chains')     ## how many chains are going to run. 
     parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
     parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
     parser.add_argument('-crossoverRate', default=0.3, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
@@ -142,7 +143,9 @@ def main():
 
         print("epochs = ",t)      # 要注释掉
         SGHMC_idx = list(range(pars.nchains))
-        training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+        # training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+        training_re(pars, multichain_model, train_loader, criterion)
+
         
         ''' print accuracy '''
         for i in range(pars.nchains):
