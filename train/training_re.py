@@ -97,7 +97,7 @@ def training_re(pars, model, train_dataset, criterion):
         temperature1 = pars.T
         temperature2 = pars.T/pars.Tgap
         diff_inv_temperature = 1/temperature1 - 1/temperature2         # 1/t1 - 1/t2
-        diff_loglikelihood = np.diff(Loss)                           # -logp1 - (-logp2)
+        diff_loglikelihood = Loss[0].item() - Loss[1].item()                           # -logp1 - (-logp2)
         log_swap_rate = diff_inv_temperature*(diff_loglikelihood-diff_inv_temperature/pars.bias_F)
 
         if np.log(np.random.uniform(0, 1)) < log_swap_rate:
