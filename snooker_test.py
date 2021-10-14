@@ -405,7 +405,7 @@ for i in range(pars.nchains - 1):
 
 ''''''
 ''' pretrain: run SGHMC '''
-for t in range(2):
+for t in range(15):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
