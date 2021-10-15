@@ -247,76 +247,80 @@ class snooker:
 
     def step(self, pars, modulelist, Boltzmann_pd, train_loader):
 
-        ''' obtain indices of chain pairs for snooker crossover. '''
-        chainpairs    = self.sample_chainpairs(pars, Boltzmann_pd)
-        crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
-        anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
-        length        = len(crossover_idx)
-        
-        # crossover_idx = [2,3]             # chains to go through crossover
-        # anchor_idx    = [0,1]                # their corresponding anchor chains
-        # length        = len(crossover_idx)
+        if pars.crossoverRate == 0:
+            crossover_idx = []
+        else:
 
-        ''' compute the offspring of each crossover chain'''
-        for i in range(length):
-            model_crossover = modulelist[crossover_idx[i]]
-            # print("crossover chain = #", crossover_idx[i])
-            model_anchor = modulelist[anchor_idx[i]]
-            direction = self.compute_direction(model_crossover, model_anchor)     # compute e
-            temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
-
-            ''' SGLD to obtain r. '''
-            r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
-            # result = [r]
-            for t in range(pars.iterationR):
-                # print("iteration # ", t, "for sampling r. ")
-                for j, (images, labels) in enumerate(train_loader):
-
-                    model_cp = copy.deepcopy(model_anchor)
-                    count = 0
-                    for parameter in model_cp.parameters():
-                        parameter.data.add_(r * direction[count])
-                        # print("parameter.data.gradient:", parameter.grad.data[0])
-                        # parameter.grad.data.zero_()        # zero out the gradients. 
-                        # print("parameter #", count," head, after modified:", parameter.data[0])
-                        count += 1
-
-                    # first change the data type from 'tensor' to 'Variables'. 
-                    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-                    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-                    model_cp.zero_grad()
-                    # then evaluate optimizer, calculate loss and back propagate. 
-                    output = model_cp(images)
-                    loss   = self.criterion(output, labels) * pars.total
-                    loss.backward()    # 这样就在parameter.grad 上累加 gradient了
-                    r = self.r_SGLD(pars, r, model_cp, temperature, direction)
-                    # print("r at batch ", j, "=", r)
-            ''' update parameter of crossover model using direction and r. '''
-            print("crossover chain = #", crossover_idx[i], "r = ", r)
-            count = 0
-            # for parameter in model_crossover.parameters():
-            #     print("before crossover, parameter 0 head =", parameter.data[0])
-            #     break
-            for parameter in model_crossover.parameters():
-                # print("before crossover, parameter #", count, "head =", parameter.data[0])
-                parameter.data.add_(r * direction[count])
-                # print("after crossover, parameter #", count, "head =", parameter.data[0])
-                count += 1
-            # for parameter in model_crossover.parameters():
-            #     print("after crossover, parameter 0 head =", parameter.data[0])
-            #     break
+            ''' obtain indices of chain pairs for snooker crossover. '''
+            chainpairs    = self.sample_chainpairs(pars, Boltzmann_pd)
+            crossover_idx = chainpairs["crossoverchains"]              # chains to go through crossover
+            anchor_idx    = chainpairs["anchorchains"]                 # their corresponding anchor chains
+            length        = len(crossover_idx)
             
+            # crossover_idx = [2,3]             # chains to go through crossover
+            # anchor_idx    = [0,1]                # their corresponding anchor chains
+            # length        = len(crossover_idx)
+
+            ''' compute the offspring of each crossover chain'''
+            for i in range(length):
+                model_crossover = modulelist[crossover_idx[i]]
+                # print("crossover chain = #", crossover_idx[i])
+                model_anchor = modulelist[anchor_idx[i]]
+                direction = self.compute_direction(model_crossover, model_anchor)     # compute e
+                temperature = pars.T / (pars.Tgap ** anchor_idx[i])                   # record temperature
+
+                ''' SGLD to obtain r. '''
+                r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+                # result = [r]
+                for t in range(pars.iterationR):
+                    # print("iteration # ", t, "for sampling r. ")
+                    for j, (images, labels) in enumerate(train_loader):
+
+                        model_cp = copy.deepcopy(model_anchor)
+                        count = 0
+                        for parameter in model_cp.parameters():
+                            parameter.data.add_(r * direction[count])
+                            # print("parameter.data.gradient:", parameter.grad.data[0])
+                            # parameter.grad.data.zero_()        # zero out the gradients. 
+                            # print("parameter #", count," head, after modified:", parameter.data[0])
+                            count += 1
+
+                        # first change the data type from 'tensor' to 'Variables'. 
+                        images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+                        labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+                        model_cp.zero_grad()
+                        # then evaluate optimizer, calculate loss and back propagate. 
+                        output = model_cp(images)
+                        loss   = self.criterion(output, labels) * pars.total
+                        loss.backward()    # 这样就在parameter.grad 上累加 gradient了
+                        r = self.r_SGLD(pars, r, model_cp, temperature, direction)
+                        # print("r at batch ", j, "=", r)
+                ''' update parameter of crossover model using direction and r. '''
+                print("crossover chain = #", crossover_idx[i], "r = ", r)
+                count = 0
+                # for parameter in model_crossover.parameters():
+                #     print("before crossover, parameter 0 head =", parameter.data[0])
+                #     break
+                for parameter in model_crossover.parameters():
+                    # print("before crossover, parameter #", count, "head =", parameter.data[0])
+                    parameter.data.add_(r * direction[count])
+                    # print("after crossover, parameter #", count, "head =", parameter.data[0])
+                    count += 1
+                # for parameter in model_crossover.parameters():
+                #     print("after crossover, parameter 0 head =", parameter.data[0])
+                #     break
+                
 
 
+                
+                # scalers = np.arange(-40,40,1)
+                # for j in scalers:
+                #     if j == 0:
+                #         pass
+                #     else:
+                #         gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
+                #         print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
             
-            # scalers = np.arange(-40,40,1)
-            # for j in scalers:
-            #     if j == 0:
-            #         pass
-            #     else:
-            #         gradient_r = self.scaler_gradient(j, model_anchor, temperature, direction, train_loader)
-            #         print("scaler r = {} it's gradient {:0.4f} anchor chain {} " .format( j, gradient_r, anchor_idx[i]))
-        
         return crossover_idx
             # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
             # print("snooker between chain", crossover_idx[i], "as crossover and", anchor_idx[i], "as anchor. ")
@@ -425,6 +429,9 @@ Boltzmann_pd = [0]*len(multichain_model)                # unnormalized Boltzmann
 
 
 for i, (images, labels) in enumerate(train_loader):
+
+    if i % 2 == 0:
+        pars.crossoverRate = 0
 
     # first change the data type from 'tensor' to 'Variables'. 
     images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
