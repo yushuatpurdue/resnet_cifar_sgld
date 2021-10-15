@@ -409,7 +409,7 @@ for i in range(pars.nchains - 1):
 
 ''''''
 ''' pretrain: run SGHMC '''
-for t in range(15):
+for t in range(2):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
@@ -427,11 +427,13 @@ for model in multichain_model:
 
 Boltzmann_pd = [0]*len(multichain_model)                # unnormalized Boltzmann pd for sampling anchor chain
 
-
+crossoverRate = copy.deepcopy(pars.crossoverRate)
 for i, (images, labels) in enumerate(train_loader):
 
     if i % 2 == 0:
         pars.crossoverRate = 0
+    else:
+        pars.crossoverRate = crossoverRate
 
     # first change the data type from 'tensor' to 'Variables'. 
     images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
