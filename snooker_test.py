@@ -98,7 +98,7 @@ class snooker:
         output = dict()
         output["crossoverchains"] = CrossoverInd
         output["anchorchains"] = Anchor_ind
-        print (output)
+        # print (output)
 
         return output
 
@@ -167,81 +167,6 @@ class snooker:
         r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
 
         return r
-
-
-    def scaler_gradient(self, r, model_anchor, temperature, direction, train_loader):
-        '''
-        this function returns gradient for scaler r that will be used for SGLD of r. 
-
-        f(r) propto abs(r)^(d-1) * pi(xj + r*e) is the distribution of r. 
-        d  = dimension of xj. 
-        pi = target distribution of xj. 
-        xj = anchor model parameters here.
-        e  = direction from self.compute_direction. 
-
-        gradient(r) = -nabla(log f(r)) -- this is what we are computing in this function. 
-        in this setting, 
-        gradient(r) = -(d-1)/r + < nabla(H(xj + r*e)), e > / Temperature. 
-
-        Input:
-            r:                 snooker scaler. type = float. 
-            model_anchor:      anchor model. type = nn.module. 
-            temperature:       temperature of the anchor model. type = float. 
-            direction:         snooker crossover direction e. type = list of tensor, each of the same shape as model.parameters.data
-            train_loader:      augmented training data. 
-
-        Output:
-            gradient of r. type = scaler. 
-        '''
-        model_cp = copy.deepcopy(model_anchor)        # note: deepcopy preserves gradient = TRUE but doesn't copy gradients, so gradient = None after copying. 
-        count = 0
-        for parameter in model_cp.parameters():
-
-            parameter.data.add_(r * direction[count])
-            # print("parameter.data.gradient:", parameter.grad.data[0])
-            # parameter.grad.data.zero_()        # zero out the gradients. 
-            # print("parameter #", count," head, after modified:", parameter.data[0])
-            count += 1
-
-        for i, (images, labels) in enumerate(train_loader):
-            ''' calculate the full gradient. '''
-
-            # first change the data type from 'tensor' to 'Variables'. 
-            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-            
-
-            # then evaluate optimizer, calculate loss and back propagate. 
-            output = model_cp(images)
-            loss   = self.criterion(output, labels) * len(images)
-            loss.backward()    # 这样就在parameter.grad 上累加 gradient了
-
-        count = 0
-        innerproduct = 0
-        dimension = 0
-        for parameter in model_cp.parameters():
-            # print("count = ", count)
-            # print("parameter #", count," head, before modified:", parameter.data[0])
-            
-            gradient_parameter = parameter.grad.data 
-            # print("count =", count, "head of parameter = ", gradient_parameter[0])
-            # print("count =", count, "head of direction = ", direction[count][0])
-            temp = gradient_parameter * direction[count]
-            # print("count =", count, "elementwise product of gradient and direction = ", temp[0])
-            innerproduct += temp.sum()
-            # print("count =", count, "inner product of gradient and direction (cumulated) = ", innerproduct )
-            size = list(parameter.size())
-            # print("torch.size at count ", count, "=", size )
-            dimension += np.prod(size)
-            
-
-            # print("parameter #", count," head, after modified:", parameter.data[0])
-            count += 1
-
-        gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla( -log f(r))
-        # print("gradient of r = ", gradient_r, "parameter dimension d = ", dimension)
-        return gradient_r
-
 
 
 
@@ -409,7 +334,7 @@ for i in range(pars.nchains - 1):
 
 ''''''
 ''' pretrain: run SGHMC '''
-for t in range(2):
+for t in range(15):
 
     print("epochs = ",t)      # 要注释掉
     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
@@ -419,66 +344,68 @@ for t in range(2):
         print('Chain {} Acc: {:0.2f}'\
                 .format(i, accuracy[i].OneEpoch_acc))
 
-''' one step snooker '''
+''' a few steps of snooker '''
 ''' part of chains go through one step snooker'''
 
-for model in multichain_model:
-    model.train()
+for t in range(3):
 
-Boltzmann_pd = [0]*len(multichain_model)                # unnormalized Boltzmann pd for sampling anchor chain
+    for model in multichain_model:
+        model.train()
 
-crossoverRate = copy.deepcopy(pars.crossoverRate)
-for i, (images, labels) in enumerate(train_loader):
+    Boltzmann_pd = [0]*len(multichain_model)                # unnormalized Boltzmann pd for sampling anchor chain
 
-    if i % 2 == 0:
-        pars.crossoverRate = 0
-    else:
-        pars.crossoverRate = crossoverRate
+    crossoverRate = copy.deepcopy(pars.crossoverRate)
+    for i, (images, labels) in enumerate(train_loader):
 
-    # first change the data type from 'tensor' to 'Variables'. 
-    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-    Loss   = []                                 # record loss for every model. 
-    for j in range(len(multichain_model)):
-        model = multichain_model[j]
-        model.zero_grad()
-        # then evaluate optimizer, calculate loss and back propagate. 
-        output = model(images)
-        temp   = criterion(output, labels) * pars.total
-        Loss   += [temp]
-        Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)
-        # print(len(loss))
+        if i % 2 == 0:
+            pars.crossoverRate = 0
+        else:
+            pars.crossoverRate = crossoverRate
 
-    Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
-    crossover_idx = Snooker_test.step(pars, multichain_model, Boltzmann_pd, train_loader)
-    print("crossover idx =", crossover_idx)
+        # first change the data type from 'tensor' to 'Variables'. 
+        images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+        labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+        Loss   = []                                 # record loss for every model. 
+        for j in range(len(multichain_model)):
+            model = multichain_model[j]
+            model.zero_grad()
+            # then evaluate optimizer, calculate loss and back propagate. 
+            output = model(images)
+            temp   = criterion(output, labels) * pars.total
+            Loss   += [temp]
+            Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)
+            # print(len(loss))
 
-    ''' index of chains to go through SGHMC '''
-    SGHMC_idx = list(range(pars.nchains))
-    for i in crossover_idx:
-        SGHMC_idx.remove(i)
+        Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
+        crossover_idx = Snooker_test.step(pars, multichain_model, Boltzmann_pd, train_loader)
+        print("crossover idx =", crossover_idx)
+
+        ''' index of chains to go through SGHMC '''
+        SGHMC_idx = list(range(pars.nchains))
+        for i in crossover_idx:
+            SGHMC_idx.remove(i)
 
 
-    ''' the other part go through SGHMC '''
-    for idx in SGHMC_idx:
-        eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
-        temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
-        model = multichain_model[idx]
-        loss = Loss[idx]
-    
-    # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-    # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
+        ''' the other part go through SGHMC '''
+        for idx in SGHMC_idx:
+            eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
+            temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
+            model = multichain_model[idx]
+            loss = Loss[idx]
+        
+        # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+        # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
 
-        optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-''' print accuracy '''
-for i in range(pars.nchains):
-    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-    print('Chain {} Acc: {:0.2f}'\
-            .format(i, accuracy[i].OneEpoch_acc))
+    ''' print accuracy '''
+    for i in range(pars.nchains):
+        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+        print('Chain {} Acc: {:0.2f}'\
+                .format(i, accuracy[i].OneEpoch_acc))
 
 # ''' run SGHMC '''
 # start = time.time()
