@@ -56,20 +56,28 @@ def training_emc(pars, modulelist, train_dataset, criterion):
 
     Boltzmann_pd = [0]*len(modulelist)                # unnormalized Boltzmann pd for sampling anchor chain
 
+    crossoverRate = copy.deepcopy(pars.crossoverRate)
+    for i, (images, labels) in enumerate(train_dataset):
+
+        if i % 2 == 0:
+            pars.crossoverRate = 0
+        else:
+            pars.crossoverRate = crossoverRate
+
 
     for i, (images, labels) in enumerate(train_dataset):
 
         # first change the data type from 'tensor' to 'Variables'. 
         images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
         labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-        loss         = []                                 # record loss for all model. 
+        Loss         = []                                 # record loss for all model. 
         for j in range(len(modulelist)):
             model = modulelist[j]
             model.zero_grad()
             # then evaluate optimizer, calculate loss and back propagate. 
             output = model(images)
             temp   = criterion(output, labels) * pars.total
-            loss   += [temp]                                               # minibatch loss for every model. 
+            Loss   += [temp]                                               # minibatch loss for every model. 
             Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # nnormalized Boltzmann pd for every model. 
         
         Snooker_test = snooker(train_dataset, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
@@ -86,6 +94,7 @@ def training_emc(pars, modulelist, train_dataset, criterion):
             eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
             temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
             model = modulelist[idx]
+            loss = Loss[idx]
         
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
