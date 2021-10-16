@@ -502,12 +502,12 @@ for t in range(3):
 
 ''' add a phase of SGHMC '''
 
-# for t in range(3):
+for t in range(3):
 
-#     print("epochs = ",t+16)      # 要注释掉
-#     training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
-#     ''' print accuracy '''
-#     for i in range(pars.nchains):
-#         accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-#         print('Chain {} Acc: {:0.2f}'\
-#                 .format(i, accuracy[i].OneEpoch_acc))
+    print("epochs = ",t+18)      # 要注释掉
+    training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+    ''' print accuracy '''
+    for i in range(pars.nchains):
+        accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+        print('Chain {} Acc: {:0.2f}'\
+                .format(i, accuracy[i].OneEpoch_acc))
