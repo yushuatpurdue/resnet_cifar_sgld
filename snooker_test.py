@@ -373,7 +373,8 @@ for t in range(3):
             output = model(images)
             temp   = criterion(output, labels) * pars.total
             Loss   += [temp]
-            Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)
+            if pars.crossoverRate != 0:
+                Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)
             # print(len(loss))
 
         Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
