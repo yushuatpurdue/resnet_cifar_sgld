@@ -356,7 +356,7 @@ for t in range(3):
 
     for i, (images, labels) in enumerate(train_loader):
 
-        if i % 3 == 0:
+        if i % 3 != 0:
             pars.crossoverRate = 0
         else:
             pars.crossoverRate = crossoverRate
