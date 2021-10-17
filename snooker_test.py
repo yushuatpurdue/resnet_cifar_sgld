@@ -346,7 +346,7 @@ for t in range(15):
 
 ''' a few steps of snooker '''
 ''' part of chains go through one step snooker'''
-
+crossoverRate = copy.deepcopy(pars.crossoverRate)
 for t in range(3):
 
     for model in multichain_model:
@@ -354,7 +354,6 @@ for t in range(3):
 
     Boltzmann_pd = [0]*len(multichain_model)                # unnormalized Boltzmann pd for sampling anchor chain
 
-    crossoverRate = copy.deepcopy(pars.crossoverRate)
     for i, (images, labels) in enumerate(train_loader):
 
         if i % 3 == 0:
