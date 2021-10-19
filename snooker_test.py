@@ -347,7 +347,8 @@ for t in range(15):
 ''' a few steps of snooker '''
 ''' part of chains go through one step snooker'''
 crossoverRate = copy.deepcopy(pars.crossoverRate)
-for t in range(3):
+for t in range(15):
+    print("epochs = ",t+15)
 
     for model in multichain_model:
         model.train()
@@ -503,7 +504,7 @@ for t in range(3):
 
 for t in range(3):
 
-    print("epochs = ",t+18)      # 要注释掉
+    print("epochs = ",t+30)      # 要注释掉
     training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
     ''' print accuracy '''
     for i in range(pars.nchains):
