@@ -357,7 +357,7 @@ for t in range(50):
 
     for i, (images, labels) in enumerate(train_loader):
 
-        if i % 10 != 0:
+        if i % 5 != 0:
             pars.crossoverRate = 0
         else:
             pars.crossoverRate = crossoverRate
