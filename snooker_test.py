@@ -221,7 +221,7 @@ class snooker:
                         r = self.r_SGLD(pars, r, model_cp, temperature, direction)
                         # print("r at batch ", j, "=", r)
                 ''' update parameter of crossover model using direction and r. '''
-                print("crossover chain = #", crossover_idx[i], "r = ", r)
+                # print("crossover chain = #", crossover_idx[i], "r = ", r)
                 count = 0
                 # for parameter in model_crossover.parameters():
                 #     print("before crossover, parameter 0 head =", parameter.data[0])
@@ -347,7 +347,7 @@ for t in range(15):
 ''' a few steps of snooker '''
 ''' part of chains go through one step snooker'''
 crossoverRate = copy.deepcopy(pars.crossoverRate)
-for t in range(15):
+for t in range(50):
     print("epochs = ",t+15)
 
     for model in multichain_model:
@@ -379,7 +379,7 @@ for t in range(15):
 
         Snooker_test = snooker(train_loader, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)
         crossover_idx = Snooker_test.step(pars, multichain_model, Boltzmann_pd, train_loader)
-        print("crossover idx =", crossover_idx)
+        # print("crossover idx =", crossover_idx)
 
         ''' index of chains to go through SGHMC '''
         SGHMC_idx = list(range(pars.nchains))
@@ -504,7 +504,7 @@ for t in range(15):
 
 for t in range(3):
 
-    print("epochs = ",t+30)      # 要注释掉
+    print("epochs = ",t+65)      # 要注释掉
     training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
     ''' print accuracy '''
     for i in range(pars.nchains):
