@@ -40,7 +40,7 @@ from optimizers.SGHMC import SGHMC
 from optimizers.snooker import snooker
 from train.training_parallel import training_parallel
 
-def training_emc(pars, modulelist, train_dataset, criterion):
+def training_emc(pars, modulelist, train_dataset, crossoverRate, criterion):
     '''
     one epoch emc optimizing
     Input: 
@@ -56,7 +56,7 @@ def training_emc(pars, modulelist, train_dataset, criterion):
 
     Boltzmann_pd = [0]*len(modulelist)                # unnormalized Boltzmann pd for sampling anchor chain
 
-    crossoverRate = copy.deepcopy(pars.crossoverRate)
+    # crossoverRate = copy.deepcopy(pars.crossoverRate)
     for i, (images, labels) in enumerate(train_dataset):
 
         if i % 2 == 0:
@@ -78,7 +78,8 @@ def training_emc(pars, modulelist, train_dataset, criterion):
             output = model(images)
             temp   = criterion(output, labels) * pars.total
             Loss   += [temp]                                               # minibatch loss for every model. 
-            Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # nnormalized Boltzmann pd for every model. 
+            if pars.crossoverRate != 0:
+                Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # nnormalized Boltzmann pd for every model. 
         
         Snooker_test = snooker(train_dataset, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
         crossover_idx = Snooker_test.step(pars, modulelist, Boltzmann_pd, train_dataset)
