@@ -12,7 +12,7 @@ import math
 import copy
 import sys
 import os
-import timeit
+import time
 import csv
 import argparse
 from torch.optim import optimizer
@@ -38,6 +38,7 @@ from LoadData import LoadData
 from optimizers.SGLD import SGLD
 from train.training_parallel import training_parallel
 from train.training_re import training_re
+from train.training_emc import training_emc
 
 '''
 define the main function
@@ -49,7 +50,7 @@ def main():
 
     ## mcmc properties:
     parser.add_argument('-nchains', default=2, type=int, help='Total number of chains')     ## how many chains are going to run. 
-    parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
+    parser.add_argument('-epochs', default=80, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
     parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
     parser.add_argument('-crossoverRate', default=0.3, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
     parser.add_argument('-T', default=0.005, type=float, help='Temperature for highest temperature chain')      ## lowest temperature of chains. 
@@ -135,6 +136,8 @@ def main():
     for i in range(pars.nchains - 1):
         accuracy = accuracy + [BayesEval()]
 
+    crossoverRate = copy.deepcopy(pars.crossoverRate)
+    start = time.time()
     for t in range(pars.epochs):
         if t < pars.burn * pars.epochs:
             pars.T /= pars.Tanneal
@@ -142,16 +145,25 @@ def main():
             pars.eta *= pars.etaanneal
 
         print("epochs = ",t)      # 要注释掉
-        SGHMC_idx = list(range(pars.nchains))
-        # training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
-        training_re(pars, multichain_model, train_loader, criterion)
 
+        # SGHMC_idx = list(range(pars.nchains))
+        # training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+
+        # training_re(pars, multichain_model, train_loader, criterion)
+
+        if t<50: 
+            training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+        else: 
+            training_emc(pars, multichain_model, train_loader, crossoverRate, criterion)
         
         ''' print accuracy '''
         for i in range(pars.nchains):
             accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
             print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
                     .format(i, accuracy[i].OneEpoch_acc, accuracy[i].OneEpoch_acc))
+
+        end = time.time()
+        print("total running time = ", end - start)
 
 
 main()

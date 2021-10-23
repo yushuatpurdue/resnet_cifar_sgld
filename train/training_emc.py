@@ -59,7 +59,7 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, criterion):
     # crossoverRate = copy.deepcopy(pars.crossoverRate)
     for i, (images, labels) in enumerate(train_dataset):
 
-        if i % 2 == 0:
+        if i % 10 == 0:
             pars.crossoverRate = 0
         else:
             pars.crossoverRate = crossoverRate
