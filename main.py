@@ -49,10 +49,10 @@ def main():
     parser = argparse.ArgumentParser()    
 
     ## mcmc properties:
-    parser.add_argument('-nchains', default=2, type=int, help='Total number of chains')     ## how many chains are going to run. 
+    parser.add_argument('-nchains', default=10, type=int, help='Total number of chains')     ## how many chains are going to run. 
     parser.add_argument('-epochs', default=80, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
     parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
-    parser.add_argument('-crossoverRate', default=0.3, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
+    parser.add_argument('-crossoverRate', default=0.1, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
     parser.add_argument('-T', default=0.005, type=float, help='Temperature for highest temperature chain')      ## lowest temperature of chains. 
     parser.add_argument('-Tgap', default=0.5, type=float, help='Temperature gap between chains')       ## the next chain has temperatures = T/Tgap. 
     parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
@@ -63,8 +63,8 @@ def main():
     parser.add_argument('-etaanneal', default=0.984, type=float, help='lr annealing factor')
     parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
     parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
-    parser.add_argument('-iterationR', default=30, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
-    parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
+    parser.add_argument('-iterationR', default=1, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+    parser.add_argument('-lrR', default=1e-4, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
     parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
 
     ## dataset properties: 
