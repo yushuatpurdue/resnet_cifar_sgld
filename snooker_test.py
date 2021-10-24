@@ -348,6 +348,7 @@ for t in range(15):
 ''' part of chains go through one step snooker'''
 crossoverRate = copy.deepcopy(pars.crossoverRate)
 for t in range(50):
+    start = time.time()
     print("epochs = ",t+15)
 
     for model in multichain_model:
@@ -401,6 +402,8 @@ for t in range(50):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+    end = time.time()
+    print("total running time = ", end - start)
 
     ''' print accuracy '''
     for i in range(pars.nchains):
