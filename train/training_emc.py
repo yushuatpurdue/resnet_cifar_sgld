@@ -64,9 +64,6 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, criterion):
         else:
             pars.crossoverRate = crossoverRate
 
-
-    for i, (images, labels) in enumerate(train_dataset):
-
         # first change the data type from 'tensor' to 'Variables'. 
         images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
         labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
@@ -90,7 +87,7 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, criterion):
             SGHMC_idx.remove(i)
 
 
-        ''' SGHMC '''
+        ''' the other part go through SGHMC '''
         for idx in SGHMC_idx:
             eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
             temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
