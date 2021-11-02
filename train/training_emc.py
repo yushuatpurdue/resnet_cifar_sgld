@@ -40,7 +40,7 @@ from optimizers.SGHMC import SGHMC
 from optimizers.snooker import snooker
 from train.training_parallel import training_parallel
 
-def training_emc(pars, modulelist, train_dataset, crossoverRate, criterion):
+def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, criterion):
     '''
     one epoch emc optimizing
     Input: 
@@ -59,7 +59,7 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, criterion):
     # crossoverRate = copy.deepcopy(pars.crossoverRate)
     for i, (images, labels) in enumerate(train_dataset):
 
-        if i % 30 != 0:
+        if i % crossoverGap != 0:
             pars.crossoverRate = 0
         else:
             pars.crossoverRate = crossoverRate

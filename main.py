@@ -144,6 +144,8 @@ def main():
         if t > 0.4 * pars.epochs:
             pars.eta *= pars.etaanneal
 
+        crossoverGap = min(30, t)
+
         print("epochs = ",t)      # 要注释掉
 
         # SGHMC_idx = list(range(pars.nchains))
@@ -151,11 +153,11 @@ def main():
 
         # training_re(pars, multichain_model, train_loader, criterion)
 
-        # if t<25 or t in range(200,225): 
-        if t<20 or t%10 != 0:
+        if t<25: 
+        # if t<20 or t%10 != 0:
             training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
         else: 
-            training_emc(pars, multichain_model, train_loader, crossoverRate, criterion)
+            training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
         
         ''' print accuracy '''
         for i in range(pars.nchains):
