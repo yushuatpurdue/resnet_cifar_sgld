@@ -152,7 +152,7 @@ def main():
         # training_re(pars, multichain_model, train_loader, criterion)
 
         # if t<25 or t in range(200,225): 
-        if t<20 or t%5 == 1:
+        if t<20 or t%5 != 0:
             training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
         else: 
             training_emc(pars, multichain_model, train_loader, crossoverRate, criterion)
