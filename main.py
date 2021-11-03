@@ -144,7 +144,7 @@ def main():
         if t > 0.4 * pars.epochs:
             pars.eta *= pars.etaanneal
 
-        crossoverGap = 150
+        crossoverGap = 30
         # if t <30:
         #     crossoverGap = 30
         # elif t>100:
@@ -159,8 +159,8 @@ def main():
 
         # training_re(pars, multichain_model, train_loader, criterion)
 
-        if t<50: 
-        # if t<20 or t%10 != 0:
+        # if t<50: 
+        if t<50 or t%5 != 0:
             training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
         else: 
             training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
