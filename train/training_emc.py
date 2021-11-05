@@ -13,6 +13,7 @@ import os
 import timeit
 import csv
 import argparse
+from numpy.core.numeric import NaN
 from tqdm import tqdm ## better progressbar
 from math import exp
 from sys import getsizeof
@@ -74,9 +75,11 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
             # then evaluate optimizer, calculate loss and back propagate. 
             output = model(images)
             temp   = criterion(output, labels) * pars.total
+            if temp == NaN:
+                print("model ",j, "loss = NaN")
             Loss   += [temp]                                               # minibatch loss for every model. 
             if pars.crossoverRate != 0:
-                Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # nnormalized Boltzmann pd for every model. 
+                Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # unnormalized Boltzmann pd for every model. 
         
         Snooker_test = snooker(train_dataset, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
         crossover_idx = Snooker_test.step(pars, modulelist, Boltzmann_pd, train_dataset)
