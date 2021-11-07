@@ -60,6 +60,7 @@ class snooker:
             crossoverInd = CrossoverInd[i]
             boltzmann_weight = copy.deepcopy(Boltzmann_pd)                    # make a copy of unnormalized boltzmann pd. 
             boltzmann_weight[crossoverInd] = 0                                # put the crossover entry's weight down to 0. 
+            boltzmann_weight = np.asarray(boltzmann_weight).astype('float64')
             boltzmann_weight = boltzmann_weight/np.sum(boltzmann_weight)      # normalize the weight. 
             for weight in boltzmann_weight:
                 if weight<0:
