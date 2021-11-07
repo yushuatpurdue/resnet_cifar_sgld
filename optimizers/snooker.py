@@ -62,13 +62,14 @@ class snooker:
             boltzmann_weight[crossoverInd] = 0                                # put the crossover entry's weight down to 0. 
             boltzmann_weight = np.asarray(boltzmann_weight).astype('float64')
             boltzmann_weight = boltzmann_weight/np.sum(boltzmann_weight)      # normalize the weight. 
-            for weight in boltzmann_weight:
-                if weight<0:
-                    print("weight<0 in", boltzmann_weight)
-                if weight>1:
-                    print("weight>1 in", boltzmann_weight)
-                if weight == NaN:
-                    print("NaN weight in", boltzmann_weight)
+            print("boltzmann_weight = ", boltzmann_weight)
+            # for weight in boltzmann_weight:
+            #     if weight<0:
+            #         print("weight<0 in", boltzmann_weight)
+            #     if weight>1:
+            #         print("weight>1 in", boltzmann_weight)
+            #     if weight == NaN:
+            #         print("NaN weight in", boltzmann_weight)
             sample_anchor_chain = np.random.multinomial(1, boltzmann_weight)
             anchor_chain = int(np.nonzero(sample_anchor_chain)[0])
             Anchor_ind[i] = anchor_chain
