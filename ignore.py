@@ -147,10 +147,17 @@ for parameter in model.parameters():
 # print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))
 
 # count = 0
+innerproduct = 0
+for parameter in model.parameters():
+            temp = parameter.data * parameter.data
+            innerproduct += temp.sum()
+            print(innerproduct)
+innerproduct = innerproduct.item()
+print(innerproduct)
 # for name, parameter in model.named_parameters():
 #     size =list(parameter.size()) 
 #     print(np.prod(size))     # returns sizes
-#     print(parameter.sum())
+    # print(parameter.sum())
 #     break
 #     # break
 #     print(name)
@@ -424,22 +431,22 @@ for net in multichain_model:
 # print(SGHMC_idx)
 
 ''''''
-for model in multichain_model:
-    model.train()
+# for model in multichain_model:
+#     model.train()
 
-Boltzmann_pd = [0]*len(multichain_model)
-loss         = []
+# Boltzmann_pd = [0]*len(multichain_model)
+# loss         = []
 
-for i, (images, labels) in enumerate(train_loader):
+# for i, (images, labels) in enumerate(train_loader):
 
-    # first change the data type from 'tensor' to 'Variables'. 
-    images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
-    labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-    for j in range(len(multichain_model)):
-        model = multichain_model[j]
-        # then evaluate optimizer, calculate loss and back propagate. 
-        output = model(images)
-        loss   += [criterion(output, labels) * pars.total]
+#     # first change the data type from 'tensor' to 'Variables'. 
+#     images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+#     labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+#     for j in range(len(multichain_model)):
+#         model = multichain_model[j]
+#         # then evaluate optimizer, calculate loss and back propagate. 
+#         output = model(images)
+#         loss   += [criterion(output, labels) * pars.total]
 
-    print(loss)
-    break
+#     print(loss)
+#     break

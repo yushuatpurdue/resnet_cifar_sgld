@@ -13,6 +13,7 @@ import numpy as np
 from numpy.core.numeric import NaN
 from numpy.lib.function_base import gradient
 import random
+from numpy.lib.type_check import nan_to_num
 import torch
 import torch.nn as nn
 from torch.optim import Optimizer
@@ -145,6 +146,7 @@ class snooker:
             dimension += np.prod(size)
             
             count += 1
+        innerproduct = innerproduct.item
 
         gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla( -log f(r))
 
@@ -202,6 +204,39 @@ class snooker:
                         loss.backward()    # 这样就在parameter.grad 上累加 gradient了
                         r = self.r_SGLD(pars, r, model_cp, temperature, direction)
                         # print("r at batch ", j, "=", r)
+                print("r = ", r)
+                # if math.isnan(r) == True:
+                # try sampling r for another 3 times if r is nan:
+                for i in range(3):
+                    if math.isnan(r) == True:      # if r is nan then resample r. 
+                        r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+                        for t in range(pars.iterationR):                 # epoch
+                            # print("iteration # ", t, "for sampling r. ")
+                            for j, (images, labels) in enumerate(train_loader):      # batch
+                                
+                                ''' modify parameter: pi(xj + r*e) '''
+                                model_cp = copy.deepcopy(model_anchor)
+                                count = 0
+                                for parameter in model_cp.parameters():
+                                    parameter.data.add_(r * direction[count])
+                                    count += 1
+
+                                ''' batch update r.  '''
+                                # first change the data type from 'tensor' to 'Variables'. 
+                                images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+                                labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+                                model_cp.zero_grad()
+                                # then evaluate optimizer, calculate loss and back propagate. 
+                                output = model_cp(images)
+                                loss   = self.criterion(output, labels) * pars.total
+                                loss.backward()    # 这样就在parameter.grad 上累加 gradient了
+                                r = self.r_SGLD(pars, r, model_cp, temperature, direction)
+                        print("r = ", r)
+                    else: 
+                        break
+
+
+
                 ''' update parameter of crossover model using direction and r. '''
                 count = 0
                 # for parameter in model_crossover.parameters():

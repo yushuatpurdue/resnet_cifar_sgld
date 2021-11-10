@@ -143,8 +143,6 @@ def main():
             pars.T /= pars.Tanneal
         if t > 0.4 * pars.epochs:
             pars.eta *= pars.etaanneal
-        if t > 200:
-            pars.selectionT = 5e5
 
         # crossoverGap = 30
         if t <30:
