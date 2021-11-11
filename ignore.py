@@ -153,7 +153,7 @@ for parameter in model.parameters():
             innerproduct += temp.sum()
             print(innerproduct)
 innerproduct = innerproduct.item()
-print(innerproduct)
+print(innerproduct/0.005)
 # for name, parameter in model.named_parameters():
 #     size =list(parameter.size()) 
 #     print(np.prod(size))     # returns sizes
