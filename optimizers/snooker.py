@@ -149,6 +149,10 @@ class snooker:
         innerproduct = innerproduct.item()
 
         gradient_r = - (dimension - 1)/r + innerproduct/temperature         # gradient_r = nabla( -log f(r))
+        if gradient_r >0:
+            gradient_r = min(gradient_r, 1e7)
+        else:
+            gradient_r = max(gradient_r, -1e7)            # gradient clipping. 
         print("gradient_r = ", gradient_r)
 
         ''' adaptively decrease learning rate if needed. '''
