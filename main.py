@@ -147,8 +147,8 @@ def main():
         # crossoverGap = 30
         if t <30:
             crossoverGap = 30
-        elif t>150:
-            crossoverGap = 150
+        # elif t>200:
+        #     crossoverGap = 200
         else:
             crossoverGap = t
 
