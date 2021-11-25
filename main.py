@@ -159,7 +159,7 @@ def main():
 
         # training_re(pars, multichain_model, train_loader, criterion)
 
-        if t<600: 
+        if t<450: 
             if t<50 or t%10 != 0:
                 training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
             else: 
