@@ -55,6 +55,7 @@ def training_re(pars, model, train_dataset, criterion):
     
         
         # print("nnet = ", nnet) # 要注释掉
+    swap = 0
 
     for i, (images, labels) in enumerate(train_dataset):
 
@@ -89,9 +90,10 @@ def training_re(pars, model, train_dataset, criterion):
             loss.backward()
             optimizer.step()
             ''' print results '''
-            print('Chain {} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
-                        .format(idx, \
-                        loss.item(), temperature, eta))
+            if i == 1:
+                print('Chain {} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
+                            .format(idx, \
+                            loss.item(), temperature, eta))
 
         ''' swap '''
         temperature1 = pars.T
@@ -101,12 +103,12 @@ def training_re(pars, model, train_dataset, criterion):
         log_swap_rate = diff_inv_temperature*(diff_loglikelihood-diff_inv_temperature/pars.bias_F)
 
         if np.log(np.random.uniform(0, 1)) < log_swap_rate:
-            swap = True
+            swap += True
             net_temp = copy.deepcopy(model[0])
             model[0] = copy.deepcopy(model[1])
             model[1] = copy.deepcopy(net_temp)
         else:
-            swap = False
+            swap += False
 
 
 

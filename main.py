@@ -66,6 +66,7 @@ def main():
     parser.add_argument('-iterationR', default=1, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
     parser.add_argument('-lrR', default=1e-4, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
     parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
+    parser.add_argument('-method', default='emc', type=float, help='correction factor F')             ## method = emc or sghmc or re
 
     ## dataset properties: 
     parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
@@ -154,21 +155,26 @@ def main():
 
         print("epochs = ",t)      # 要注释掉
 
-        # SGHMC_idx = list(range(pars.nchains))
-        # training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+        if pars.method == 'sghmc':
+            SGHMC_idx = list(range(pars.nchains))
+            training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
 
-        # training_re(pars, multichain_model, train_loader, criterion)
+        elif pars.method == 're':
+            output = training_re(pars, multichain_model, train_loader, criterion)
+            print("total swap = ", output.swap)
+        
+        elif pars.method == 'emc':
 
-        if t<450: 
-            if t<50 or t%10 != 0:
-                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
-            else: 
-                training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
-        else:
-            if t%20 != 0:
-                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+            if t<450: 
+                if t<50 or t%10 != 0:
+                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+                else: 
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
             else:
-                training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
+                if t%20 != 0:
+                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+                else:
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
 
         
         ''' print accuracy '''
