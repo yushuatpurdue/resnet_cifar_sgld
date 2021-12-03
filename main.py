@@ -145,12 +145,12 @@ def main():
             pars.eta *= pars.etaanneal
 
         # crossoverGap = 30
-        if t <30:
-            crossoverGap = 30
-        # elif t>200:
-        #     crossoverGap = 200
-        else:
-            crossoverGap = t
+        # if t <30:
+        #     crossoverGap = 30
+        # # elif t>200:
+        # #     crossoverGap = 200
+        # else:
+        crossoverGap = t
 
         print("epochs = ",t)      # 要注释掉
 
