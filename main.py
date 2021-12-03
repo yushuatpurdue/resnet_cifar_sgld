@@ -161,7 +161,7 @@ def main():
 
         elif pars.method == 're':
             output = training_re(pars, multichain_model, train_loader, criterion)
-            print("total swap = ", output.swap)
+            print("total swap = ", output["swap"])
         
         elif pars.method == 'emc':
 
