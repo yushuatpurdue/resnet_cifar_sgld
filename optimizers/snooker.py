@@ -63,7 +63,7 @@ class snooker:
             boltzmann_weight[crossoverInd] = 0                                # put the crossover entry's weight down to 0. 
             boltzmann_weight = np.asarray(boltzmann_weight).astype('float64')
             boltzmann_weight = boltzmann_weight/np.sum(boltzmann_weight)      # normalize the weight. 
-            print("boltzmann_weight = ", boltzmann_weight)
+            # print("boltzmann_weight = ", boltzmann_weight)
             # for weight in boltzmann_weight:
             #     if weight<0:
             #         print("weight<0 in", boltzmann_weight)
@@ -153,7 +153,7 @@ class snooker:
             gradient_r = min(gradient_r, 1e6)
         elif gradient_r <0:
             gradient_r = max(gradient_r, -1e6)            # gradient clipping. 
-        print("gradient_r = ", gradient_r)
+        # print("gradient_r = ", gradient_r)
 
         ''' adaptively decrease learning rate if needed. '''
         if abs(r) < pars.lrR:
@@ -236,7 +236,7 @@ class snooker:
                                 loss   = self.criterion(output, labels) * pars.total
                                 loss.backward()    # 这样就在parameter.grad 上累加 gradient了
                                 r = self.r_SGLD(pars, r, model_cp, temperature, direction)
-                        print("r = ", r)
+                        # print("r = ", r)
                     else: 
                         break
 
