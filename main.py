@@ -53,7 +53,7 @@ def main():
     parser.add_argument('-epochs', default=700, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
     parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
     parser.add_argument('-crossoverRate', default=0.1, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
-    parser.add_argument('-T', default=0.001, type=float, help='Temperature for highest temperature chain')      ## lowest temperature of chains. 
+    parser.add_argument('-T', default=0.01, type=float, help='Temperature for highest temperature chain')      ## lowest temperature of chains. 
     parser.add_argument('-Tgap', default=0.5, type=float, help='Temperature gap between chains')       ## the next chain has temperatures = T/Tgap. 
     parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
     parser.add_argument('-etagap', default=0.66, type=float, help='gap between different chains etas. ')    ## eta of the second lowest temperature chain = eta/etagap for lowest temperature chain
@@ -165,7 +165,7 @@ def main():
             else: 
                 training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
         else:
-            if t != 699:
+            if t%20 != 0:
                 training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
             else:
                 training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)

@@ -61,7 +61,7 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
         net.train()      # first set net to train mode. 
         # print("net", nnet, "parameter head", list(net.parameters())[0][0])
         eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
-        temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
+        temperature = pars.T + (pars.Tgap * idx)    # different chains occupy different temperature
         
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
