@@ -153,7 +153,7 @@ def main():
         # # elif t>200:
         # #     crossoverGap = 200
         # else:
-        crossoverGap = 30
+        crossoverGap = t
 
         print("epochs = ",t)      # 要注释掉
 
@@ -167,7 +167,7 @@ def main():
         
         elif pars.method == 'emc':
 
-            if t<400: 
+            if t<700: 
                 if t<50 or t%10 != 0:
                     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
                 else: 
