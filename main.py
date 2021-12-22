@@ -63,7 +63,7 @@ def main():
     parser.add_argument('-etaanneal', default=0.984, type=float, help='lr annealing factor')
     parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
     parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
-    parser.add_argument('-iterationR', default=1, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+    parser.add_argument('-iterationR', default=2, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
     parser.add_argument('-lrR', default=1e-4, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
     parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
     parser.add_argument('-method', default='emc', help='correction factor F')             ## method = emc or sghmc or re
