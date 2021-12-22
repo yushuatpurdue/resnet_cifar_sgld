@@ -54,9 +54,9 @@ def main():
     parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
     parser.add_argument('-crossoverRate', default=0.1, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
     parser.add_argument('-T', default=0.01, type=float, help='Temperature for highest temperature chain')      ## lowest temperature of chains. 
-    parser.add_argument('-Tgap', default=1, type=float, help='Temperature gap between chains')       ## the next chain has temperatures = T/Tgap. 
+    parser.add_argument('-Tgap', default=0.45, type=float, help='Temperature gap between chains')       ## the next chain has temperatures = T/Tgap. 
     parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
-    parser.add_argument('-etagap', default=2e-6, type=float, help='gap between different chains etas. ')    ## eta of the second lowest temperature chain = eta/etagap for lowest temperature chain
+    parser.add_argument('-etagap', default=0.66, type=float, help='gap between different chains etas. ')    ## eta of the second lowest temperature chain = eta/etagap for lowest temperature chain
     parser.add_argument('-period', default=2, type=int, help='estimate adaptive variance every [period] epochs')
     parser.add_argument('-cycle', default=1, type=int, help='Number of cycles')
     parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations for sampling (sn * burn)')
@@ -142,10 +142,8 @@ def main():
     for t in range(pars.epochs):
         if t < pars.burn * pars.epochs:
             pars.T /= pars.Tanneal
-            pars.Tgap /= pars.Tanneal
         if t > 0.4 * pars.epochs:
             pars.eta *= pars.etaanneal
-            pars.etagap *= pars.etaanneal
 
         # crossoverGap = 30
         # if t <30:
