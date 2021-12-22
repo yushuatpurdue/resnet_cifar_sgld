@@ -78,7 +78,7 @@ def main():
 
     ## environmental properties: 
     # parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
-    parser.add_argument('-seed', default=500, type=int, help='Random Seed')
+    parser.add_argument('-seed', default=426, type=int, help='Random Seed')
 
     ## add the arguments. 
     pars = parser.parse_args()
