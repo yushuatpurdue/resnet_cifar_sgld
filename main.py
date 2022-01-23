@@ -140,7 +140,7 @@ def main():
                 model_add = copy.deepcopy(model)
                 multichain_model.extend([model_add])
 
-            epoch = 0
+            epoch = -1
             break             # break for loop
     
 
