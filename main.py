@@ -213,7 +213,7 @@ def main():
         ''' save models'''
         for i in range(pars.nchains):
             state = {
-                    'state_dict': model.module.state_dict(),
+                    'state_dict': multichain_model[i].module.state_dict(),
                     'epoch'     : t
             }
             savepath = './output/EMCmodel_' + str(i) + ".psh"
