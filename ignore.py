@@ -13,6 +13,7 @@ from sys import getsizeof
 import numpy as np
 import random
 import pickle
+from os.path import exists
 # import pytorch modules
 import torch
 from torch.autograd import Variable
@@ -88,6 +89,17 @@ if pars.data == 'cifar100':
     num_classes = 100
 elif pars.data == 'cifar10':
     num_classes = 10
+# for i in range(8):
+#     savepath = './output/model' + str(i) + ".psh"
+#     if exists(savepath):
+#         print("exists")
+#         checkpoint = torch.load(savepath)
+#         model = resnet.__dict__[pars.model](num_classes = num_classes)
+#         model.load_state_dict(checkpoint['state_dict'])
+#         model = nn.DataParallel(model)
+#     else:
+#         print(["model", i, "not exist"])
+#         break
 
 model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
@@ -97,11 +109,17 @@ model.cpu()
 # model.cuda()
 
 ## define model for each chain, and append them into a list. 
-multichain_model = nn.ModuleList([model])
-for i in range(pars.nchains-1):
+multichain_model = nn.ModuleList()
+for i in range(pars.nchains):
 # for i in range(1):
     model_add = copy.deepcopy(model)
     multichain_model.extend([model_add])
+
+    # state = {
+    #         'state_dict': model.module.state_dict()
+    # }
+    # savepath = './output/model' + str(i) + ".psh"
+    # torch.save(state,savepath)
 
 # print(len(multichain_model))
 
@@ -147,13 +165,13 @@ for parameter in model.parameters():
 # print(type(torch.optim.SGD(model.parameters(), lr=0.1).param_groups[0]["params"][0]))
 
 # count = 0
-innerproduct = 0
-for parameter in model.parameters():
-            temp = parameter.data * parameter.data
-            innerproduct += temp.sum()
-            print(innerproduct)
-innerproduct = innerproduct.item()
-print(innerproduct/0.005)
+# innerproduct = 0
+# for parameter in model.parameters():
+#             temp = parameter.data * parameter.data
+#             innerproduct += temp.sum()
+#             print(innerproduct)
+# innerproduct = innerproduct.item()
+# print(innerproduct/0.005)
 # for name, parameter in model.named_parameters():
 #     size =list(parameter.size()) 
 #     print(np.prod(size))     # returns sizes

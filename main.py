@@ -21,6 +21,8 @@ from math import exp
 from sys import getsizeof
 import numpy as np
 import random
+from os.path import exists
+
 ## import pytorch modules
 import torch
 from torch.autograd import Variable
@@ -74,7 +76,7 @@ def main():
     parser.add_argument('-total', default=50000, type=int, help='Total data points')
 
     ## neural network properties:
-    parser.add_argument('-model', default='resnet32', help='which resnet model to use. In local package "resnet.py." ')
+    parser.add_argument('-model', default='resnet20', help='which resnet model to use. In local package "resnet.py." ')
 
     ## environmental properties: 
     parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
@@ -113,17 +115,33 @@ def main():
         num_classes = 100
     elif pars.data == 'cifar10':
         num_classes = 10
-    
-    ## define model as an instance of resnet. 
-    model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-    model.cuda()
-    # model.cpu()
 
-    ## define model for each chain, and append them into a list. 
-    multichain_model = nn.ModuleList([model])
-    for i in range(pars.nchains-1):
-        model_add = copy.deepcopy(model)
-        multichain_model.extend([model_add])
+    multichain_model = nn.ModuleList()
+
+    for i in range(pars.nchains):
+        savepath = './output/EMCmodel_' + str(i) + ".psh"
+        if exists(savepath):                               # check if checkpoint of model_i exists 
+            checkpoint = torch.load(savepath)              # If exists then load checkpoint
+            ## Resume model_i from last checkpoint: 
+            model_add = resnet.__dict__[pars.model](num_classes = num_classes)
+            model_add.load_state_dict(checkpoint['state_dict'])
+            model_add = nn.DataParallel(model_add)
+            model_add.cuda()
+            multichain_model.extend([model_add])
+
+            ## Resume epoch from last checkpoint
+            epoch = checkpoint['epoch']
+        else:                                        # If one checkpoint missed
+            ## Then build multichain_model anew. 
+            model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+            model.cuda()
+            multichain_model = nn.ModuleList()
+            for i in range(pars.nchains-1):
+                model_add = copy.deepcopy(model)
+                multichain_model.extend([model_add])
+
+            epoch = 0
+            break             # break for loop
     
 
     ''' set data '''
@@ -132,14 +150,20 @@ def main():
     ''' training loop '''
     criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 
     # accuracy = [BayesEval()] * pars.nchains
-    
     accuracy = [BayesEval()]
     for i in range(pars.nchains - 1):
         accuracy = accuracy + [BayesEval()]
 
     crossoverRate = copy.deepcopy(pars.crossoverRate)
+    
+    ## initializing T & eta from checkpoint (if checkpoint exists)
+    if epoch < pars.burn * pars.epochs:
+        pars.T /= pars.Tanneal**epoch
+    if epoch > 0.4 * pars.epochs:
+        pars.eta *= pars.etaanneal**epoch
+
     start = time.time()
-    for t in range(pars.epochs):
+    for t in range(epoch+1, pars.epochs):
         if t < pars.burn * pars.epochs:
             pars.T /= pars.Tanneal
         if t > 0.4 * pars.epochs:
@@ -185,6 +209,15 @@ def main():
 
         end = time.time()
         print("total running time = ", end - start)
+
+        ''' save models'''
+        for i in range(pars.nchains):
+            state = {
+                    'state_dict': model.module.state_dict(),
+                    'epoch'     : t
+            }
+            savepath = './output/EMCmodel_' + str(i) + ".psh"
+            torch.save(state, savepath)
 
 
 main()
