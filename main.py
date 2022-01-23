@@ -136,7 +136,7 @@ def main():
             model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
             model.cuda()
             multichain_model = nn.ModuleList()
-            for i in range(pars.nchains-1):
+            for i in range(pars.nchains):
                 model_add = copy.deepcopy(model)
                 multichain_model.extend([model_add])
 
