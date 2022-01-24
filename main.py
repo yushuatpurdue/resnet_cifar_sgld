@@ -210,14 +210,14 @@ def main():
         end = time.time()
         print("total running time = ", end - start)
 
-        ''' save models'''
-        for i in range(pars.nchains):
-            state = {
-                    'state_dict': multichain_model[i].module.state_dict(),
-                    'epoch'     : t
-            }
-            savepath = './output/EMCmodel_' + str(i) + ".psh"
-            torch.save(state, savepath)
+    ''' save models'''
+    for i in range(pars.nchains):
+        state = {
+                'state_dict': multichain_model[i].module.state_dict(),
+                'epoch'     : t
+        }
+        savepath = './output/EMCmodel_' + str(i) + ".psh"
+        torch.save(state, savepath)
 
 
 main()
