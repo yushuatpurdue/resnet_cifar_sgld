@@ -165,9 +165,11 @@ def main():
 
     start = time.time()
     for t in range(epoch+1, pars.epochs):
-        if t < pars.burn * pars.epochs:
+        # if t < pars.burn * pars.epochs:
+        if t < pars.burn * 1000:
             pars.T /= pars.Tanneal
-        if t > 0.4 * pars.epochs:
+        # if t > 0.4 * pars.epochs:
+        if t > 0.4 * 1000:
             pars.eta *= pars.etaanneal
 
         # crossoverGap = 30
