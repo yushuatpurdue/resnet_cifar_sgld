@@ -158,9 +158,11 @@ def main():
     crossoverRate = copy.deepcopy(pars.crossoverRate)
     
     ## initializing T & eta from checkpoint (if checkpoint exists)
-    if epoch < pars.burn * pars.epochs:
+    # if epoch < pars.burn * pars.epochs:
+    if epoch < pars.burn * 1000:
         pars.T /= pars.Tanneal**epoch
-    if epoch > 0.4 * pars.epochs:
+    # if epoch > 0.4 * pars.epochs:
+    if epoch > 0.4 * 1000:
         pars.eta *= pars.etaanneal**epoch
 
     start = time.time()
