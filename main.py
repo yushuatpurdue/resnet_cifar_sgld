@@ -161,9 +161,12 @@ def main():
     # if epoch < pars.burn * pars.epochs:
     if epoch < pars.burn * 1000:
         pars.T /= pars.Tanneal**epoch
+    else:
+        pars.T /= pars.Tanneal**(pars.burn * 1000)
+
     # if epoch > 0.4 * pars.epochs:
     if epoch > 0.4 * 1000:
-        pars.eta *= pars.etaanneal**epoch
+        pars.eta *= pars.etaanneal**(epoch - 0.4 * 1000)
 
     start = time.time()
     for t in range(epoch+1, pars.epochs):
