@@ -76,7 +76,7 @@ def main():
     parser.add_argument('-total', default=50000, type=int, help='Total data points')
 
     ## neural network properties:
-    parser.add_argument('-model', default='resnet20', help='which resnet model to use. In local package "resnet.py." ')
+    parser.add_argument('-model', default='resnet56', help='which resnet model to use. In local package "resnet.py." ')
 
     ## environmental properties: 
     parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
