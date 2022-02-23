@@ -120,7 +120,7 @@ def main():
     multichain_model = nn.ModuleList()
 
     for i in range(pars.nchains):
-        savepath = './output/EMCmodel_' + pars.jobid + '_' + str(i) + ".psh"
+        savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
         if exists(savepath):                               # check if checkpoint of model_i exists 
             checkpoint = torch.load(savepath)              # If exists then load checkpoint
             ## Resume model_i from last checkpoint: 
@@ -224,7 +224,7 @@ def main():
                 'state_dict': multichain_model[i].module.state_dict(),
                 'epoch'     : t
         }
-        savepath = './output/EMCmodel_' + pars.jobid + '_' + str(i) + ".psh"
+        savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
         torch.save(state, savepath)
 
 
