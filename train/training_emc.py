@@ -68,7 +68,7 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
         # first change the data type from 'tensor' to 'Variables'. 
         images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
         labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-        Loss         = []                                 # record loss for all model. 
+        # Loss         = []                                 # record loss for all model. 
         for j in range(len(modulelist)):
             model = modulelist[j]
             # then evaluate optimizer, calculate loss and back propagate. 
@@ -76,7 +76,7 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
             temp   = criterion(output, labels) * pars.total
             # if temp == NaN:
             #     print("model ",j, "loss = NaN")
-            Loss   += [temp]                                               # minibatch loss for every model. 
+            # Loss   += [temp]                                               # minibatch loss for every model. 
             if pars.crossoverRate != 0:
                 Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # unnormalized Boltzmann pd for every model. 
             
@@ -96,7 +96,7 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
             eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
             temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
             model = modulelist[idx]
-            loss = Loss[idx]
+            loss = criterion(output, labels) * pars.total
         
         # # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
