@@ -208,8 +208,8 @@ class snooker:
                         model_cp.zero_grad()
                         loss.backward()    # 这样就在parameter.grad 上累加 gradient了
                         r = self.r_SGLD(pars, r, model_cp, temperature, direction)
-                        print("r at batch ", j, "=", r)
-                # print("r = ", r)
+                        # print("r at batch ", j, "=", r)
+                print("r = ", r)
                 # if math.isnan(r) == True:
                 # try sampling r for another 3 times if r is nan:
                 for i in range(3):
