@@ -183,7 +183,7 @@ def main():
         # # elif t>200:
         # #     crossoverGap = 200
         # else:
-        crossoverGap = t
+        crossoverGap = 100     #t
 
         print("epochs = ",t)      # 要注释掉
 
