@@ -73,13 +73,14 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
             model = modulelist[j]
             # then evaluate optimizer, calculate loss and back propagate. 
             output = model(images)
-        #     temp   = criterion(output, labels) * pars.total
+            model.zero_grad()
+            temp   = criterion(output, labels) * pars.total
         #     if temp == NaN:
         #         print("model ",j, "loss = NaN")
         #     Loss   += [temp]                                               # minibatch loss for every model. 
         #     if pars.crossoverRate != 0:
         #         Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # unnormalized Boltzmann pd for every model. 
-        #     model.zero_grad()
+            
         
         # Snooker_test = snooker(train_dataset, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
         # crossover_idx = Snooker_test.step(pars, modulelist, Boltzmann_pd, train_dataset)
@@ -97,13 +98,13 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
         #     model = modulelist[idx]
         #     loss = Loss[idx]
         
-        # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-        # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
+        # # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+        # # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
 
-            # optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
-            # optimizer.zero_grad()
-            # loss.backward()
-            # optimizer.step()
+        #     optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+        #     optimizer.zero_grad()
+        #     loss.backward()
+        #     optimizer.step()
     
 
 
