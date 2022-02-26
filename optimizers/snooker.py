@@ -202,10 +202,10 @@ class snooker:
                         # first change the data type from 'tensor' to 'Variables'. 
                         images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
                         labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-                        model_cp.zero_grad()
                         # then evaluate optimizer, calculate loss and back propagate. 
                         output = model_cp(images)
                         loss   = self.criterion(output, labels) * pars.total
+                        model_cp.zero_grad()
                         loss.backward()    # 这样就在parameter.grad 上累加 gradient了
                         r = self.r_SGLD(pars, r, model_cp, temperature, direction)
                         # print("r at batch ", j, "=", r)
@@ -230,10 +230,10 @@ class snooker:
                                 # first change the data type from 'tensor' to 'Variables'. 
                                 images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
                                 labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
-                                model_cp.zero_grad()
                                 # then evaluate optimizer, calculate loss and back propagate. 
                                 output = model_cp(images)
                                 loss   = self.criterion(output, labels) * pars.total
+                                model_cp.zero_grad()
                                 loss.backward()    # 这样就在parameter.grad 上累加 gradient了
                                 r = self.r_SGLD(pars, r, model_cp, temperature, direction)
                         # print("r = ", r)
