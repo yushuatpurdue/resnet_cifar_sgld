@@ -71,8 +71,8 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
         Loss         = []                                 # record loss for all model. 
         for j in range(len(modulelist)):
             model = modulelist[j]
-        #     # then evaluate optimizer, calculate loss and back propagate. 
-        #     output = model(images)
+            # then evaluate optimizer, calculate loss and back propagate. 
+            output = model(images)
         #     temp   = criterion(output, labels) * pars.total
         #     if temp == NaN:
         #         print("model ",j, "loss = NaN")
