@@ -92,19 +92,19 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
 
         ''' the other part go through SGHMC '''
         for idx in SGHMC_idx:
-            print("idx = ", idx)
+            # print("idx = ", idx)
             eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
             temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
             model = modulelist[idx]
             loss = criterion(output, labels) * pars.total
         
-        # # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
-        # # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
+        # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+        # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
 
-        #     optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
-        #     optimizer.zero_grad()
-        #     loss.backward()
-        #     optimizer.step()
+            optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
     
 
 
