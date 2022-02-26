@@ -103,7 +103,7 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
 
             optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
             optimizer.zero_grad()
-            loss = criterion(output, labels) * pars.total
+            loss = criterion(model(images), labels) * pars.total
             loss.backward()
             optimizer.step()
     
