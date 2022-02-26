@@ -183,7 +183,7 @@ def main():
         # # elif t>200:
         # #     crossoverGap = 200
         # else:
-        crossoverGap = 100     #t
+        crossoverGap = t
 
         print("epochs = ",t)      # 要注释掉
 
@@ -198,15 +198,15 @@ def main():
         elif pars.method == 'emc':
 
             if t<1: 
-                # if t<50 or t%10 != 0:
-                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
-                # else: 
-                #     training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
+                if t<50 or t%10 != 0:
+                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+                else: 
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
             else:
-            #     if t%20 != 0:
-            #         training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
-            #     else:
-                training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
+                if t%20 != 0:
+                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+                else:
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
 
         
         ''' print accuracy '''
