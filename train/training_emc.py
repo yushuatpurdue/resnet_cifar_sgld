@@ -71,39 +71,39 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
         Loss         = []                                 # record loss for all model. 
         for j in range(len(modulelist)):
             model = modulelist[j]
-            model.zero_grad()
-            # then evaluate optimizer, calculate loss and back propagate. 
-            output = model(images)
-            temp   = criterion(output, labels) * pars.total
-            if temp == NaN:
-                print("model ",j, "loss = NaN")
-            Loss   += [temp]                                               # minibatch loss for every model. 
-            if pars.crossoverRate != 0:
-                Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # unnormalized Boltzmann pd for every model. 
+        #     # then evaluate optimizer, calculate loss and back propagate. 
+        #     output = model(images)
+        #     temp   = criterion(output, labels) * pars.total
+        #     if temp == NaN:
+        #         print("model ",j, "loss = NaN")
+        #     Loss   += [temp]                                               # minibatch loss for every model. 
+        #     if pars.crossoverRate != 0:
+        #         Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # unnormalized Boltzmann pd for every model. 
+        #     model.zero_grad()
         
-        Snooker_test = snooker(train_dataset, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
-        crossover_idx = Snooker_test.step(pars, modulelist, Boltzmann_pd, train_dataset)
+        # Snooker_test = snooker(train_dataset, criterion = nn.CrossEntropyLoss(), selection_t = pars.selectionT)   # selection_t = 100000 is a good choice for next to burn-in period. 
+        # crossover_idx = Snooker_test.step(pars, modulelist, Boltzmann_pd, train_dataset)
 
         ''' index of chains to go through SGHMC '''
-        SGHMC_idx = list(range(pars.nchains))
-        for i in crossover_idx:
-            SGHMC_idx.remove(i)
+        # SGHMC_idx = list(range(pars.nchains))
+        # for i in crossover_idx:
+        #     SGHMC_idx.remove(i)
 
 
         ''' the other part go through SGHMC '''
-        for idx in SGHMC_idx:
-            eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
-            temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
-            model = modulelist[idx]
-            loss = Loss[idx]
+        # for idx in SGHMC_idx:
+        #     eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
+        #     temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
+        #     model = modulelist[idx]
+        #     loss = Loss[idx]
         
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
 
-            optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+            # optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+            # optimizer.zero_grad()
+            # loss.backward()
+            # optimizer.step()
     
 
 
