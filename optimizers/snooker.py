@@ -206,7 +206,7 @@ class snooker:
                         output = model_cp(images)
                         loss   = self.criterion(output, labels) * pars.total
                         model_cp.zero_grad()
-                        loss.backward()    # 这样就在parameter.grad 上累加 gradient了
+                        loss.backward(retain_graph=True)    # 这样就在parameter.grad 上累加 gradient了
                         r = self.r_SGLD(pars, r, model_cp, temperature, direction)
                         # print("r at batch ", j, "=", r)
                 print("r = ", r)
@@ -234,7 +234,7 @@ class snooker:
                                 output = model_cp(images)
                                 loss   = self.criterion(output, labels) * pars.total
                                 model_cp.zero_grad()
-                                loss.backward()    # 这样就在parameter.grad 上累加 gradient了
+                                loss.backward(retain_graph=True)    # 这样就在parameter.grad 上累加 gradient了
                                 r = self.r_SGLD(pars, r, model_cp, temperature, direction)
                         # print("r = ", r)
                     else: 
