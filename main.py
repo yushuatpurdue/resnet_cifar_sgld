@@ -197,7 +197,7 @@ def main():
         
         elif pars.method == 'emc':
 
-            if t<1: 
+            if t<450: 
                 if t<50 or t%10 != 0:
                     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
                 else: 
