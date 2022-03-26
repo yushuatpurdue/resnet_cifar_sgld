@@ -192,9 +192,12 @@ def main():
             training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
 
         elif pars.method == 're':
-            output = training_re(pars, multichain_model, train_loader, criterion)
-            print("total swap = ", output["swap"])
-        
+            if t<50:
+                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+            else:
+                output = training_re(pars, multichain_model, train_loader, criterion)
+                print("total swap = ", output["swap"])
+                        
         elif pars.method == 'emc':
 
             if t<450: 
