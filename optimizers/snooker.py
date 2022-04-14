@@ -162,7 +162,7 @@ class snooker:
             lr = pars.lrR
 
         ''' update r. '''
-        r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()
+        r = r - gradient_r*lr + np.sqrt(2*lr)*np.random.normal()*np.sqrt(temperature)
 
         return r
 
