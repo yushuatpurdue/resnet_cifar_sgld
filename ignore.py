@@ -36,6 +36,7 @@ from BayesEval import BayesEval
 from train.training_parallel import training_parallel
 from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
+from CNN import CNN
 
 
 ## define an object "parser" to add attributes to it. 
@@ -61,12 +62,12 @@ parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGL
 parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
 
 ## dataset properties: 
-parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
+parser.add_argument('-data', default='cifar10', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
 parser.add_argument('-batch', default=256, type=int, help='Batch size')   ## batch size for both training and testing
 parser.add_argument('-total', default=50000, type=int, help='Total data points')
 
 ## neural network properties:
-parser.add_argument('-model', default='resnet20', help='which resnet model to use. In local package "resnet.py." ')
+parser.add_argument('-model', default='CNN', help='which resnet model to use. In local package "resnet.py." ')
 
 ## environmental properties: 
 # parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
@@ -101,12 +102,20 @@ elif pars.data == 'cifar10':
 #         print(["model", i, "not exist"])
 #         break
 
-model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-# print(model.__dict__)
+if "resnet" in pars.model:
 
+
+    model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+# print(model.__dict__)
+elif "CNN" in pars.model:
+    model = nn.DataParallel(CNN(num_classes=num_classes))
+else:
+    raise Exception("model specified is not available. ")
+# print(model.parameters())
 
 model.cpu()
 # model.cuda()
+
 
 ## define model for each chain, and append them into a list. 
 multichain_model = nn.ModuleList()
@@ -184,9 +193,9 @@ for parameter in model.parameters():
 #     count+=1
 # print(count)
 
-train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
+# train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
-criterion = nn.CrossEntropyLoss()
+# criterion = nn.CrossEntropyLoss()
 
 
 

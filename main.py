@@ -41,6 +41,7 @@ from optimizers.SGLD import SGLD
 from train.training_parallel import training_parallel
 from train.training_re import training_re
 from train.training_emc import training_emc
+from CNN import CNN
 
 '''
 define the main function
@@ -65,7 +66,7 @@ def main():
     parser.add_argument('-etaanneal', default=0.984, type=float, help='lr annealing factor')
     parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
     parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
-    parser.add_argument('-iterationR', default=1, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+    parser.add_argument('-iterationR', default=1, type=int, help='number of epochs for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
     parser.add_argument('-lrR', default=1e-4, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
     parser.add_argument('-bias_F', default=3e5, type=float, help='correction factor F')
     parser.add_argument('-method', default='emc', help='correction factor F')             ## method = emc or sghmc or re
@@ -119,30 +120,58 @@ def main():
 
     multichain_model = nn.ModuleList()
 
-    for i in range(pars.nchains):
-        savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
-        if exists(savepath):                               # check if checkpoint of model_i exists 
-            checkpoint = torch.load(savepath)              # If exists then load checkpoint
-            ## Resume model_i from last checkpoint: 
-            model_add = resnet.__dict__[pars.model](num_classes = num_classes)
-            model_add.load_state_dict(checkpoint['state_dict'])
-            model_add = nn.DataParallel(model_add)
-            model_add.cuda()
-            multichain_model.extend([model_add])
-
-            ## Resume epoch from last checkpoint
-            epoch = checkpoint['epoch']
-        else:                                        # If one checkpoint missed
-            ## Then build multichain_model anew. 
-            model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-            model.cuda()
-            multichain_model = nn.ModuleList()
-            for i in range(pars.nchains):
-                model_add = copy.deepcopy(model)
+    if "resnet" in pars.model:                                 # if using resnet as the training model
+        for i in range(pars.nchains):
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            if exists(savepath):                               # check if checkpoint of model_i exists 
+                checkpoint = torch.load(savepath)              # If exists then load checkpoint
+                ## Resume model_i from last checkpoint: 
+                model_add =resnet.__dict__[pars.model](num_classes = num_classes)
+                model_add.load_state_dict(checkpoint['state_dict'])
+                model_add = nn.DataParallel(model_add)
+                model_add.cuda()
                 multichain_model.extend([model_add])
 
-            epoch = -1
-            break             # break for loop
+                ## Resume epoch from last checkpoint
+                epoch = checkpoint['epoch']
+            else:                                        # If one checkpoint missed
+                ## Then build multichain_model anew. 
+                model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+                model.cuda()
+                multichain_model = nn.ModuleList()
+                for i in range(pars.nchains):
+                    model_add = copy.deepcopy(model)
+                    multichain_model.extend([model_add])
+
+                epoch = -1
+                break             # break for loop
+    elif "CNN" in pars.model:
+        for i in range(pars.nchains):
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            if exists(savepath):                               # check if checkpoint of model_i exists 
+                checkpoint = torch.load(savepath)              # If exists then load checkpoint
+                ## Resume model_i from last checkpoint: 
+                model_add =  CNN(num_classes=num_classes)
+                model_add.load_state_dict(checkpoint['state_dict'])
+                model_add = nn.DataParallel(model_add)
+                model_add.cuda()
+                multichain_model.extend([model_add])
+
+                ## Resume epoch from last checkpoint
+                epoch = checkpoint['epoch']
+            else:                                        # If one checkpoint missed
+                ## Then build multichain_model anew. 
+                model = nn.DataParallel(CNN(num_classes=num_classes))
+                model.cuda()
+                multichain_model = nn.ModuleList()
+                for i in range(pars.nchains):
+                    model_add = copy.deepcopy(model)
+                    multichain_model.extend([model_add])
+
+                epoch = -1
+                break             # break for loop
+    else:
+        raise Exception("model specified is not available. ")
     
 
     ''' set data '''
