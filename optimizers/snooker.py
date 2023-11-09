@@ -63,7 +63,7 @@ class snooker:
             boltzmann_weight[crossoverInd] = 0                                # put the crossover entry's weight down to 0. 
             boltzmann_weight = np.asarray(boltzmann_weight).astype('float64')
             boltzmann_weight = boltzmann_weight/np.sum(boltzmann_weight)      # normalize the weight. 
-            print("boltzmann_weight = ", boltzmann_weight)
+            # print("boltzmann_weight = ", boltzmann_weight)
             for weight in boltzmann_weight:
                 if weight<0:
                     print("weight<0 in", boltzmann_weight)
@@ -248,9 +248,9 @@ class snooker:
                 #     print("before crossover, parameter 0 head =", parameter.data[0])
                 #     break
                 for parameter in model_crossover.parameters():
-                    print("before crossover, parameter #", count, "head =", parameter.data[0])
+                    # print("before crossover, parameter #", count, "head =", parameter.data[0])
                     parameter.data.add_(r * direction[count])
-                    print("after crossover, parameter #", count, "head =", parameter.data[0])
+                    # print("after crossover, parameter #", count, "head =", parameter.data[0])
                     count += 1
 
         return crossover_idx
