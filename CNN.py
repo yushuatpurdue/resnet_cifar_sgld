@@ -53,12 +53,12 @@ class CNN(nn.Module):
 
     self.fc_layer = nn.Sequential(
             nn.Dropout(p=0.1),
-            # nn.Linear(4096, 1024),
-            # nn.ReLU(inplace=True),
+            nn.Linear(4096, 1024),
+            nn.ReLU(inplace=True),
             nn.Linear(1024, 512),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.1),
-            nn.Linear(512, 10)
+            nn.Linear(512, num_classes)
         )
   def forward(self, x):
     # x = self.pool(F.relu(self.conv1(x)))
