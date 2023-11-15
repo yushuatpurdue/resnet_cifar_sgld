@@ -186,7 +186,7 @@ class snooker:
                 # print(i, "th direction head =", direction[0][0], ", direction length = ", len(direction))
 
                 ''' SGLD to obtain r. '''
-                r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+                r = np.random.normal(scale= pars.rInitScale)                   # initialize r with N(0,10^2)
                 for t in range(pars.iterationR):                 # epoch
                     # print("iteration # ", t, "for sampling r. ")
                     for j, (images, labels) in enumerate(train_loader):      # batch
@@ -214,7 +214,7 @@ class snooker:
                 # try sampling r for another 3 times if r is nan:
                 for i in range(3):
                     if math.isnan(r) == True:      # if r is nan then resample r. 
-                        r = np.random.normal(scale=10)                   # initialize r with N(0,10^2)
+                        r = np.random.normal(scale=pars.rInitScale)                   # initialize r with N(0,10^2)
                         for t in range(pars.iterationR):                 # epoch
                             # print("iteration # ", t, "for sampling r. ")
                             for j, (images, labels) in enumerate(train_loader):      # batch
