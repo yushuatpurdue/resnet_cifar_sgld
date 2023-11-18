@@ -74,7 +74,7 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
             # then evaluate optimizer, calculate loss and back propagate. 
             output = model(images)
             temp   = criterion(output, labels) * pars.total
-            print("model ",j, "loss = ", temp)
+            # print("model ",j, "loss = ", temp)
             # Loss   += [temp]                                               # minibatch loss for every model. 
             if pars.crossoverRate != 0:
                 Boltzmann_pd[j] = np.exp(-temp.item()/pars.selectionT)         # unnormalized Boltzmann pd for every model. 
