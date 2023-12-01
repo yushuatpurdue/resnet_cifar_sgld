@@ -229,6 +229,14 @@ def main():
 
             end = time.time()
             print("total running time = ", end - start)
+            ''' save models'''
+        for i in range(pars.nchains):
+            state = {
+                    'state_dict': multichain_model[i].module.state_dict(),
+                    'epoch'     : t
+            }
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            torch.save(state, savepath)
             
 
     elif pars.method == 're':
@@ -274,6 +282,14 @@ def main():
 
         end = time.time()
         print("total running time = ", end - start)
+        ''' save models'''
+        for i in range(pars.nchains):
+            state = {
+                    'state_dict': multichain_model[i].module.state_dict(),
+                    'epoch'     : t
+            }
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            torch.save(state, savepath)
 
                             
     elif pars.method == 'emc':
@@ -328,14 +344,14 @@ def main():
             end = time.time()
             print("total running time = ", end - start)
 
-    ''' save models'''
-    for i in range(pars.nchains):
-        state = {
-                'state_dict': multichain_model[i].module.state_dict(),
-                'epoch'     : t
-        }
-        savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
-        torch.save(state, savepath)
+        ''' save models'''
+        for i in range(pars.nchains):
+            state = {
+                    'state_dict': multichain_model[i].module.state_dict(),
+                    'epoch'     : t
+            }
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            torch.save(state, savepath)
 
 
 main()
