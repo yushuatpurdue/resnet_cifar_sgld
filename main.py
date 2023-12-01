@@ -221,6 +221,15 @@ def main():
 
             SGHMC_idx = list(range(pars.nchains))
             training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+            ''' print accuracy '''
+            for i in range(pars.nchains):
+                accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                        .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+
+            end = time.time()
+            print("total running time = ", end - start)
+            
 
     elif pars.method == 're':
         ## initializing T & eta from checkpoint (if checkpoint exists)
@@ -252,11 +261,20 @@ def main():
 
             print("epochs = ",t)  
 
-        if t<50:
-            training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
-        else:
-            output = training_re(pars, multichain_model, train_loader, criterion)
-            print("total swap = ", output["swap"])
+            if t<50:
+                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+            else:
+                output = training_re(pars, multichain_model, train_loader, criterion)
+                print("total swap = ", output["swap"])
+            ''' print accuracy '''
+            for i in range(pars.nchains):
+                accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                        .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+
+        end = time.time()
+        print("total running time = ", end - start)
+
                             
     elif pars.method == 'emc':
                 ## initializing T & eta from checkpoint (if checkpoint exists)
@@ -301,14 +319,14 @@ def main():
         #         training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
 
         
-        ''' print accuracy '''
-        for i in range(pars.nchains):
-            accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-            print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
-                    .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            ''' print accuracy '''
+            for i in range(pars.nchains):
+                accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                        .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
 
-        end = time.time()
-        print("total running time = ", end - start)
+            end = time.time()
+            print("total running time = ", end - start)
 
     ''' save models'''
     for i in range(pars.nchains):
