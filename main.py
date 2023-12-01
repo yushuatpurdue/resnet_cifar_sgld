@@ -192,23 +192,23 @@ def main():
     
         ## initializing T & eta from checkpoint (if checkpoint exists)
         # if epoch < pars.burn * pars.epochs:
-        if epoch < 600*20:
-            pars.T /= pars.Tanneal**(epoch/20)
+        if epoch < 600:
+            pars.T /= pars.Tanneal**epoch
         else:
             pars.T /= pars.Tanneal**(600)
 
         # if epoch > 0.4 * pars.epochs:
-        if epoch > 400*20:
-            pars.eta *= pars.etaanneal**(epoch/20 - 400)
+        if epoch > 400:
+            pars.eta *= pars.etaanneal**(epoch - 400)
 
         start = time.time()
         for t in range(epoch+1, pars.epochs):
             # if t < pars.burn * pars.epochs:
-            if t < 600*20:
-                pars.T /= pars.Tanneal**(1/20)
+            if t < 600:
+                pars.T /= pars.Tanneal
             # if t > 0.4 * pars.epochs:
-            if t > 400*20:
-                pars.eta *= pars.etaanneal**(1/20)
+            if t > 400:
+                pars.eta *= pars.etaanneal
 
             # crossoverGap = 30
             # if t <30:
@@ -227,9 +227,9 @@ def main():
                 print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
                         .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
 
-            end = time.time()
-            print("total running time = ", end - start)
-            ''' save models'''
+        end = time.time()
+        print("total running time = ", end - start)
+        ''' save models'''
         for i in range(pars.nchains):
             state = {
                     'state_dict': multichain_model[i].module.state_dict(),
@@ -341,8 +341,8 @@ def main():
                 print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
                         .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
 
-            end = time.time()
-            print("total running time = ", end - start)
+        end = time.time()
+        print("total running time = ", end - start)
 
         ''' save models'''
         for i in range(pars.nchains):
