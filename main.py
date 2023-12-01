@@ -186,60 +186,119 @@ def main():
         accuracy = accuracy + [BayesEval()]
 
     crossoverRate = copy.deepcopy(pars.crossoverRate)
+
+    if pars.method == 'sghmc':
+
     
-    ## initializing T & eta from checkpoint (if checkpoint exists)
-    # if epoch < pars.burn * pars.epochs:
-    if epoch < pars.burn * 1000:
-        pars.T /= pars.Tanneal**epoch
-    else:
-        pars.T /= pars.Tanneal**(pars.burn * 1000)
+        ## initializing T & eta from checkpoint (if checkpoint exists)
+        # if epoch < pars.burn * pars.epochs:
+        if epoch < 600*20:
+            pars.T /= pars.Tanneal**(epoch/20)
+        else:
+            pars.T /= pars.Tanneal**(600)
 
-    # if epoch > 0.4 * pars.epochs:
-    if epoch > 0.4 * 1000:
-        pars.eta *= pars.etaanneal**(epoch - 0.4 * 1000)
+        # if epoch > 0.4 * pars.epochs:
+        if epoch > 400*20:
+            pars.eta *= pars.etaanneal**(epoch/20 - 400)
 
-    start = time.time()
-    for t in range(epoch+1, pars.epochs):
-        # if t < pars.burn * pars.epochs:
-        if t < pars.burn * 1000:
-            pars.T /= pars.Tanneal
-        # if t > 0.4 * pars.epochs:
-        if t > 0.4 * 1000:
-            pars.eta *= pars.etaanneal
+        start = time.time()
+        for t in range(epoch+1, pars.epochs):
+            # if t < pars.burn * pars.epochs:
+            if t < 600*20:
+                pars.T /= pars.Tanneal**(1/20)
+            # if t > 0.4 * pars.epochs:
+            if t > 400*20:
+                pars.eta *= pars.etaanneal**(1/20)
 
-        # crossoverGap = 30
-        # if t <30:
-        #     crossoverGap = 30
-        # # elif t>200:
-        # #     crossoverGap = 200
-        # else:
-        crossoverGap = t
+            # crossoverGap = 30
+            # if t <30:
+            #     crossoverGap = 30
+            # # elif t>200:
+            # #     crossoverGap = 200
+            # else:
 
-        print("epochs = ",t)      # 要注释掉
+            print("epochs = ",t)      
 
-        if pars.method == 'sghmc':
             SGHMC_idx = list(range(pars.nchains))
             training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
 
-        elif pars.method == 're':
-            if t<50:
-                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
-            else:
-                output = training_re(pars, multichain_model, train_loader, criterion)
-                print("total swap = ", output["swap"])
-                        
-        elif pars.method == 'emc':
+    elif pars.method == 're':
+        ## initializing T & eta from checkpoint (if checkpoint exists)
+        # if epoch < pars.burn * pars.epochs:
+        if epoch < pars.burn * 1000:
+            pars.T /= pars.Tanneal**epoch
+        else:
+            pars.T /= pars.Tanneal**(pars.burn * 1000)
 
-            # if t<500: 
-                if t<50 or t%10 != 0:
-                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
-                else: 
-                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
+        # if epoch > 0.4 * pars.epochs:
+        if epoch > 0.4 * 1000:
+            pars.eta *= pars.etaanneal**(epoch - 0.4 * 1000)
+
+        start = time.time()
+        for t in range(epoch+1, pars.epochs):
+            # if t < pars.burn * pars.epochs:
+            if t < pars.burn * 1000:
+                pars.T /= pars.Tanneal
+            # if t > 0.4 * pars.epochs:
+            if t > 0.4 * 1000:
+                pars.eta *= pars.etaanneal
+
+            # crossoverGap = 30
+            # if t <30:
+            #     crossoverGap = 30
+            # # elif t>200:
+            # #     crossoverGap = 200
             # else:
-            #     if t%20 != 0:
-            #         training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
-            #     else:
-            #         training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
+
+            print("epochs = ",t)  
+
+        if t<50:
+            training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+        else:
+            output = training_re(pars, multichain_model, train_loader, criterion)
+            print("total swap = ", output["swap"])
+                            
+    elif pars.method == 'emc':
+                ## initializing T & eta from checkpoint (if checkpoint exists)
+        # if epoch < pars.burn * pars.epochs:
+        if epoch < 600:
+            pars.T /= pars.Tanneal**epoch
+        else:
+            pars.T /= pars.Tanneal**(600)
+
+        # if epoch > 0.4 * pars.epochs:
+        if epoch > 400:
+            pars.eta *= pars.etaanneal**(epoch - 400)
+
+        start = time.time()
+        for t in range(epoch+1, pars.epochs):
+            # if t < pars.burn * pars.epochs:
+            if t < 600:
+                pars.T /= pars.Tanneal
+            # if t > 0.4 * pars.epochs:
+            if t > 400:
+                pars.eta *= pars.etaanneal
+
+            # crossoverGap = 30
+            # if t <30:
+            #     crossoverGap = 30
+            # # elif t>200:
+            # #     crossoverGap = 200
+            # else:
+            crossoverGap = t
+
+            print("epochs = ",t)  
+
+        # if t<500: 
+            if t<50 or t%10 != 0:
+                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+            else: 
+                training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
+        # else:
+        #     if t%20 != 0:
+        #         training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+        #     else:
+        #         training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
 
         
         ''' print accuracy '''
