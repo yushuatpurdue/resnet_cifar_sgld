@@ -327,24 +327,12 @@ def main():
                 if t<50 or t%10 != 0:
                     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
                 else: 
-                    attempt = 0
-                    while attempt <3:
-                        try:
-                            training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
-                        except:
-                            attempt+=1
-            
-                    
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
             else:
                 if t%20 != 0:
                     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
                 else:
-                    attempt = 0
-                    while attempt <3:
-                        try:
-                            training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
-                        except:
-                            attempt+=1
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
 
         
             ''' print accuracy '''
