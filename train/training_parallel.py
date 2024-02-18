@@ -79,6 +79,7 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
             # then evaluate optimizer, calculate loss and back propagate. 
             optimizer.zero_grad()
             output = net(images)
+            nn.utils.clip_grad_norm_(net.parameters(), 0.1)
             loss   = criterion(output, labels) * pars.total
             
             # print(loss.item())       # 要注释掉
