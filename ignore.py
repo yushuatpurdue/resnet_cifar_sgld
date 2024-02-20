@@ -257,7 +257,7 @@ for t in range(5):
     #  training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
      for idx in SGHMC_idx:
 
-        net = model[idx]
+        net = multichain_model[idx]
         net.to(device)
         print(next(net.parameters()).device)
 
