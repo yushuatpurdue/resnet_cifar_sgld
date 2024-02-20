@@ -226,7 +226,7 @@ for i in range(pars.nchains):
     if exists(savepath):                               # check if checkpoint of model_i exists 
         checkpoint = torch.load(savepath)              # If exists then load checkpoint
         ## Resume model_i from last checkpoint: 
-        model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim)
+        model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim, device = device)
         model_add.load_state_dict(checkpoint['state_dict'])
         model_add = nn.DataParallel(model_add)
         # model_add.cuda()
