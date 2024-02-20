@@ -342,7 +342,7 @@ def main():
 
             print("epochs = ",t)  
 
-            if t<50:
+            if t<20:
                 training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
             else:
                 output = training_re(pars, multichain_model, train_loader, criterion)
