@@ -171,13 +171,13 @@ def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
     x_test = x_data[index_test, :]
     y_test = y_data[index_test]
 
-    x_train_std = np.std(x_train, 0)
-    x_train_std[x_train_std == 0] = 1
-    x_train_mean = np.mean(x_train, 0)
+    # x_train_std = np.std(x_train, 0)
+    # x_train_std[x_train_std == 0] = 1
+    # x_train_mean = np.mean(x_train, 0)
 
-    x_train = (x_train - np.full(x_train.shape, x_train_mean)) / np.full(x_train.shape, x_train_std)
+    # x_train = (x_train - np.full(x_train.shape, x_train_mean)) / np.full(x_train.shape, x_train_std)
 
-    x_test = (x_test - np.full(x_test.shape, x_train_mean)) / np.full(x_test.shape, x_train_std)
+    # x_test = (x_test - np.full(x_test.shape, x_train_mean)) / np.full(x_test.shape, x_train_std)
 
     x_train = torch.FloatTensor(x_train).to(device)
     y_train = torch.FloatTensor(y_train).to(device)
