@@ -279,6 +279,8 @@ for t in range(5):
             # first change the data type from 'tensor' to 'Variables'. 
             images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
             labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+            images.to(device)
+            labels.to(device)
             print(images.get_device())
             print(labels.get_device())
 
