@@ -286,6 +286,8 @@ for t in range(5):
 
             # then evaluate optimizer, calculate loss and back propagate. 
             optimizer.zero_grad()
+            import pdb
+            pdb.set_trace()
             output = net(images)
             nn.utils.clip_grad_norm_(net.parameters(), 0.1)
             loss   = criterion(output, labels) * pars.total
