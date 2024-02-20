@@ -95,10 +95,10 @@ np.random.seed(pars.seed)              # set seed for numpy. !!It returns the ra
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-if pars.data == 'cifar100':
-    num_classes = 100
-elif pars.data == 'cifar10':
-    num_classes = 10
+# if pars.data == 'cifar100':
+#     num_classes = 100
+# elif pars.data == 'cifar10':
+#     num_classes = 10
 # for i in range(8):
 #     savepath = './output/model' + str(i) + ".psh"
 #     if exists(savepath):
@@ -210,12 +210,12 @@ for parameter in model.parameters():
 #     print("F")
 
 train_loader, test_loader = LoadUCI(data_name=pars.data, cross_validate_index=1, train_size=pars.batch, test_size=pars.batch)
-for i, (images, labels) in enumerate(test_loader):
-    print(images.get_device())
-    print(labels.get_device())
-for i, (images, labels) in enumerate(train_loader):
-    print(images.get_device())
-    print(labels.get_device())
+# for i, (images, labels) in enumerate(test_loader):
+#     print(images.get_device())
+#     print(labels.get_device())
+# for i, (images, labels) in enumerate(train_loader):
+#     print(images.get_device())
+#     print(labels.get_device())
 
 if pars.data == 'Boston':
         input_dim = 13
@@ -248,8 +248,59 @@ for i in range(pars.nchains):
         epoch = -1
         break   
 
-for model in multichain_model:
-    print(next(model.parameters()).device)
+# for model in multichain_model:
+#     print(next(model.parameters()).device)
+criterion = nn.MSELoss()
+
+for t in range(5):
+     SGHMC_idx = list(range(pars.nchains))
+    #  training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+     for idx in SGHMC_idx:
+
+        net = model[idx]
+        net.to(device)
+        print(next(net.parameters()).device)
+
+        ''' training net '''
+        net.train()      # first set net to train mode. 
+        # print("net", nnet, "parameter head", list(net.parameters())[0][0])
+        eta         = pars.eta / (pars.etagap ** idx)  # different chains occupy different eta
+        temperature = pars.T / (pars.Tgap ** idx)    # different chains occupy different temperature
+        
+        # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
+        # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
+
+        optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+        
+        # print("nnet = ", nnet) # 要注释掉
+
+        for i, (images, labels) in enumerate(train_loader):
+
+            # first change the data type from 'tensor' to 'Variables'. 
+            images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
+            labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+            print(images.get_device())
+            print(labels.get_device())
+
+            # then evaluate optimizer, calculate loss and back propagate. 
+            optimizer.zero_grad()
+            output = net(images)
+            nn.utils.clip_grad_norm_(net.parameters(), 0.1)
+            loss   = criterion(output, labels) * pars.total
+            
+            # print(loss.item())       # 要注释掉
+            # print("data = ", i)       # 要注释掉
+
+            loss.backward()
+            optimizer.step()
+
+        ''' evaluating performance '''
+        # accuracy[nnet].eval(net, test_dataset, cumulate = False)
+
+        ''' print results '''
+        print('Chain {} Loss: {:0.2f} T: {:.2E} eta: {:.2E}'\
+                    .format(idx, \
+                    loss.item(), temperature, eta))
 # count = 0
 # for i, (images, labels) in enumerate(train_loader):
 #     print(len(images))
