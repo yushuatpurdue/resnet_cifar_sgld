@@ -43,6 +43,7 @@ from train.training_re import training_re
 from train.training_emc import training_emc
 from network.CNN import CNN
 from network.NN import NN
+from testLoss import testLoss
 
 '''
 define the main function
@@ -77,6 +78,7 @@ def main():
     parser.add_argument('-data', default='Boston', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
     parser.add_argument('-batch', default=256, type=int, help='Batch size')   ## batch size for both training and testing
     parser.add_argument('-total', default=50000, type=int, help='Total data points')
+    parser.add_argument('--regression_flag', default=True, type=int, help='true for regression and false for classification')
 
     ## neural network properties:
     parser.add_argument('-model', default='NN', help='which neural networ model to use. Resnet in local package "resnet.py", CNN in "CNN.py" ')
@@ -131,6 +133,30 @@ def main():
         output_dim = 1
     elif pars.data == 'Concrete':
         input_dim = 8
+        output_dim = 1
+    elif pars.data == 'Energy':
+        input_dim = 8
+        output_dim = 1
+    elif pars.data == 'Wine':
+        input_dim = 11
+        output_dim = 8
+    elif pars.data == 'Yacht':
+        input_dim = 6
+        output_dim = 1
+    elif pars.data == 'kin8nm':
+        input_dim = 8
+        output_dim = 1
+    elif pars.data == 'CCPP':
+        input_dim = 4
+        output_dim = 1
+    elif pars.data == 'Naval':
+        input_dim = 16
+        output_dim = 1
+    elif pars.data == 'Protein':
+        input_dim = 9
+        output_dim = 1
+    elif pars.data == 'Year':
+        input_dim = 90
         output_dim = 1
 
 
@@ -202,7 +228,7 @@ def main():
                 epoch = checkpoint['epoch']
             else:                                        # If one checkpoint missed
                 ## Then build multichain_model anew. 
-                model = nn.DataParallel(CNN(num_classes=num_classes))
+                model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim))
                 model.cuda()
                 multichain_model = nn.ModuleList()
                 for i in range(pars.nchains):
@@ -216,12 +242,18 @@ def main():
     
 
 
+    ''' evaluation'''
+    if pars.regression_flag == False:
+        criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 
+        # accuracy = [BayesEval()] * pars.nchains
+        accuracy = [BayesEval()]
+        for i in range(pars.nchains - 1):
+            accuracy = accuracy + [BayesEval()]
+    elif pars.regression_flag == True:
+        criterion = nn.MSELoss()
+        test_loss = [] * pars.nchains
+
     ''' training loop '''
-    criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 
-    # accuracy = [BayesEval()] * pars.nchains
-    accuracy = [BayesEval()]
-    for i in range(pars.nchains - 1):
-        accuracy = accuracy + [BayesEval()]
 
     crossoverRate = copy.deepcopy(pars.crossoverRate)
 
@@ -260,10 +292,16 @@ def main():
             SGHMC_idx = list(range(pars.nchains))
             training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
             ''' print accuracy '''
-            for i in range(pars.nchains):
-                accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-                print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
-                        .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            if pars.regression_flag == False:
+                for i in range(pars.nchains):
+                    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                    print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                            .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            elif pars.regression_flag == True:
+                for i in range(pars.nchains):
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion)
+                    print('Chain {} testLoss: {:0.2f} '\
+                            .format(i, test_loss[i]))
 
         end = time.time()
         print("total running time = ", end - start)
@@ -313,10 +351,16 @@ def main():
                 output = training_re(pars, multichain_model, train_loader, criterion)
                 print("total swap = ", output["swap"])
             ''' print accuracy '''
-            for i in range(pars.nchains):
-                accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-                print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
-                        .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            if pars.regression_flag == False:
+                for i in range(pars.nchains):
+                    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                    print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                            .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            elif pars.regression_flag == True:
+                for i in range(pars.nchains):
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion)
+                    print('Chain {} testLoss: {:0.2f} '\
+                            .format(i, test_loss[i]))
 
         end = time.time()
         print("total running time = ", end - start)
@@ -374,10 +418,16 @@ def main():
 
         
             ''' print accuracy '''
-            for i in range(pars.nchains):
-                accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
-                print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
-                        .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            if pars.regression_flag == False:
+                for i in range(pars.nchains):
+                    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                    print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                            .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            elif pars.regression_flag == True:
+                for i in range(pars.nchains):
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion)
+                    print('Chain {} testLoss: {:0.2f} '\
+                            .format(i, test_loss[i]))
 
         end = time.time()
         print("total running time = ", end - start)

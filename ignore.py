@@ -11,6 +11,7 @@ from tqdm import tqdm  # better progressbar
 from math import exp
 from sys import getsizeof
 import numpy as np
+import pandas as pd
 import zipfile
 import random
 import pickle
@@ -203,11 +204,16 @@ for parameter in model.parameters():
 #     print("F")
 
 train_loader, test_loader = LoadUCI(data_name=pars.data, cross_validate_index=1, train_size=pars.batch, test_size=pars.batch)
-count = 0
-for i, (images, labels) in enumerate(train_loader):
-    print(len(images))
-    count+=len(images)
-print(count)
+print(test_loader.dataset.item())
+# count = 0
+# for i, (images, labels) in enumerate(train_loader):
+#     print(len(images))
+#     count+=len(images)
+# print(count)
+
+# temp = pd.read_csv('./data/UCI/kin8nm.csv')
+# temp = np.mat(temp)
+# print(temp[0:10,:])
 # for i, (images, labels) in enumerate(test_loader):
 #     count+=len(images)
 # print(count)

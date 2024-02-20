@@ -31,7 +31,7 @@ import torch.utils.data as data
 import torchvision.datasets as datasets
 
 ## import local
-from LoadData import LoadData
+# from LoadData import LoadData
 from optimizers.SGLD import SGLD
 
 

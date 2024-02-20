@@ -90,7 +90,7 @@ def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
         y_data = temp[:768, 9]
 
     elif data_name == 'Wine':
-        if not path.exists('./data/UCI/ENB2012_data.xlsx'):
+        if not path.exists('./data/UCI/winequality-red.csv'):
             urllib.request.urlretrieve('https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv', './data/UCI/winequality-red.csv')
         temp = pd.read_csv('./data/UCI/winequality-red.csv', sep=';')
         temp = np.mat(temp)
@@ -123,7 +123,7 @@ def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
         y_data = temp[:, 4]
 
     elif data_name == 'Naval':
-        if not path.exists('./data/UCI/Naval/Features.txt'):
+        if not path.exists('./data/UCI/UCI CBM Dataset/data.txt'):
             urllib.request.urlretrieve('https://archive.ics.uci.edu/static/public/316/condition+based+maintenance+of+naval+propulsion+plants.zip', './data/UCI/Naval.zip')
             with zipfile.ZipFile('./data/UCI/Naval.zip', 'r') as zip_ref:
                 zip_ref.extractall('./data/UCI/')
