@@ -46,35 +46,39 @@ from network.NN import NN
 parser = argparse.ArgumentParser()    
 
 ## mcmc properties:
-parser.add_argument('-nchains', default=5, type=int, help='Total number of chains')     ## how many chains are going to run. 
-parser.add_argument('-epochs', default=1000, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
+parser.add_argument('-nchains', default=20, type=int, help='Total number of chains')     ## how many chains are going to run. 
+parser.add_argument('-epochs', default=100, type=int, help='Sampling Epochs')       ## how many epochs (something like iterations) are going to run. 
 parser.add_argument('-selectionT', default=1e5, type=float, help='Selection temperature for snooker crossover')      ## used in calculating Boltzmann distribution in snooker crossover. 
-parser.add_argument('-crossoverRate', default=0.3, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
-parser.add_argument('-etagap', default=0.66, type=float, help='gap between different chains etas. ')    ## learning rate of the second high temperature chain = lrgap * learning rate for highest temperatur chain
-parser.add_argument('-T', default=0.05, type=float, help='Temperature for highest temperature chain')      ## highest temperature of chains. 
-parser.add_argument('-Tgap', default=0.5, type=float, help='Temperature gap between chains')       ## the rest of the chains have temperatures equispaced with this gap. 
+parser.add_argument('-crossoverRate', default=0.1, type=float, help='Rate of the chains for doing crossover')      ## how many chains in the population are going to go through snooker crossover. 
+parser.add_argument('-T', default=0.005, type=float, help='Temperature for highest temperature chain')      ## lowest temperature of chains. 
+parser.add_argument('-Tgap', default=0.65, type=float, help='Temperature gap between chains')       ## the next chain has temperatures = T/Tgap. 
 parser.add_argument('-eta', default=2e-6, type=float, help='squared Sampling learning rate')     ## learning_rate^2/mass for highest temperatur chain. see SGHMC paper page 6
+parser.add_argument('-etagap', default=0.8, type=float, help='gap between different chains etas. ')    ## eta of the second lowest temperature chain = eta/etagap for lowest temperature chain
 parser.add_argument('-period', default=2, type=int, help='estimate adaptive variance every [period] epochs')
 parser.add_argument('-cycle', default=1, type=int, help='Number of cycles')
 parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations for sampling (sn * burn)')
 parser.add_argument('-etaanneal', default=0.984, type=float, help='lr annealing factor')
 parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
 parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
-parser.add_argument('-iterationR', default=30, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
-parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
-parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
-parser.add_argument('-method', default='sghmc', help='correction factor F')
+parser.add_argument('-iterationR', default=1, type=int, help='number of epochs for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
+parser.add_argument('-lrR', default=1e-4, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate. 1e-4 is good for resnet. CNN need a smaller one. 
+parser.add_argument('-rInitScale', default=10, type=float, help='standard deviation for initializing r from a Normal distribution')      ## For resnet a value of 10 is good. For CNN need to have smaller value.   
+parser.add_argument('-bias_F', default=3e5, type=float, help='correction factor F')
+parser.add_argument('-method', default='sghmc', help='correction factor F')             ## method = emc or sghmc or re
+
 ## dataset properties: 
 parser.add_argument('-data', default='Boston', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
 parser.add_argument('-batch', default=256, type=int, help='Batch size')   ## batch size for both training and testing
 parser.add_argument('-total', default=50000, type=int, help='Total data points')
+parser.add_argument('--regression_flag', default=True, type=int, help='true for regression and false for classification')
 
 ## neural network properties:
-parser.add_argument('-model', default='NN', help='which resnet model to use. In local package "resnet.py." ')
+parser.add_argument('-model', default='NN', help='which neural networ model to use. Resnet in local package "resnet.py", CNN in "CNN.py" ')
+parser.add_argument('-layer', default=1, type=int, help='number of hidden layer for model = NN')
+parser.add_argument('-unit', default=[50], type=int, nargs='+', help='number of hidden unit in each layer of model = NN')
 
 ## environmental properties: 
-# parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
-parser.add_argument('-seed', default=50, type=int, help='Random Seed')
+parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
 parser.add_argument('-jobid', default='1', help='for running seperate jobs and save them seperately')
 
 ## add the arguments. 
