@@ -12,7 +12,7 @@ class NN(nn.Module):
     def __init__(self, num_hidden, hidden_dim, input_dim, output_dim, device):
         super(NN, self).__init__()
         self.num_hidden = num_hidden
-
+        self.device = device
         self.fc = nn.Linear(input_dim, hidden_dim[0], device=device)
         self.fc_list = []
 
@@ -23,6 +23,7 @@ class NN(nn.Module):
         self.add_module('fc' + str(num_hidden + 1), self.fc_list[-1])
 
     def forward(self, x):
+        x.to(self.device)
         x = torch.tanh(self.fc(x))
         for i in range(self.num_hidden - 1):
             x = torch.tanh(self.fc_list[i](x))
