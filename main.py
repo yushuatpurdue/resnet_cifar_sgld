@@ -101,12 +101,7 @@ def main():
 
     ''' set GPU and seed '''
 
-    '''
-    try:
-        torch.cuda.set_device(pars.gpu)
-    except: # in case the device has only one GPU
-        torch.cuda.set_device(0) 
-    '''
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
  
 
     torch.manual_seed(pars.seed)           # set seed for torch
@@ -222,7 +217,7 @@ def main():
                 model_add.load_state_dict(checkpoint['state_dict'])
                 model_add = nn.DataParallel(model_add)
                 # model_add.cuda()
-                model_add.to('cuda')
+                model_add.to(device)
                 multichain_model.extend([model_add])
 
                 ## Resume epoch from last checkpoint
@@ -231,7 +226,7 @@ def main():
                 ## Then build multichain_model anew. 
                 model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim))
                 # model.cuda()
-                model.to('cuda')
+                model.to(device)
                 multichain_model = nn.ModuleList()
                 for i in range(pars.nchains):
                     model_add = copy.deepcopy(model)
