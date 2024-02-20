@@ -5,11 +5,16 @@ They aim to apply the algorithm to the training of resnet under CIFAR dataset.
 In this file: LoadData function for data loading
 use 'from LoadData import LoadData' to import the LoadData function. 
 '''
+import numpy as np
+import pandas as pd
+import os
+from os import path
+import urllib.request
+import zipfile
 
+import torch
 from torch import Tensor
-
 import torchvision.transforms as transforms
-
 import torch.utils.data as data
 import torchvision.datasets as datasets
 
@@ -57,3 +62,136 @@ def LoadData(train_size, test_size, pars) -> Tensor:
 
 
     return train_loader, test_loader
+
+def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
+    if not path.exists('./data/'+"UCI"):
+        os.mkdir('./data/'+"UCI")
+    if data_name == "Boston":
+        if not path.exists('./data/UCI/housing.data'):
+            urllib.request.urlretrieve('https://archive.ics.uci.edu/ml/machine-learning-databases/housing/housing.data', './data/UCI/housing.data')
+        # temp = np.loadtxt('./data/Boston/housing.data')
+        temp = np.loadtxt('./data/UCI/housing.data')
+        x_data = temp[:, 0:-1]
+        y_data = temp[:, -1].reshape([temp.shape[0], 1])
+    elif data_name == 'Concrete':
+        if not path.exists('./data/UCI/Concrete_Data.xls'):
+            urllib.request.urlretrieve('https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls', './data/UCI/concrete.data')
+        temp = pd.read_excel('./data/UCI/Concrete_Data.xls')
+        temp = np.mat(temp)
+        x_data = temp[:, :8]
+        y_data = temp[:, 8]
+
+    elif data_name == 'Energy':
+        if not path.exists('./data/UCI/ENB2012_data.xlsx'):
+            urllib.request.urlretrieve('http://archive.ics.uci.edu/ml/machine-learning-databases/00242/ENB2012_data.xlsx', './data/UCI/ENB2012_data.xlsx')
+        temp = pd.read_excel('./data/UCI/ENB2012_data.xlsx')
+        temp = np.mat(temp)
+        x_data = temp[:768, :8]
+        y_data = temp[:768, 9]
+
+    elif data_name == 'Wine':
+        if not path.exists('./data/UCI/ENB2012_data.xlsx'):
+            urllib.request.urlretrieve('https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv', './data/UCI/winequality-red.csv')
+        temp = pd.read_csv('./data/UCI/winequality-red.csv', sep=';')
+        temp = np.mat(temp)
+        x_data = temp[:, 0:11]
+        y_data = temp[:, 11]
+
+    elif data_name == 'Yacht':
+        if not path.exists('./data/UCI/yacht_hydrodynamics.data'):
+            urllib.request.urlretrieve('http://archive.ics.uci.edu/ml/machine-learning-databases/00243/yacht_hydrodynamics.data', './data/UCI/yacht_hydrodynamics.data')
+        temp = np.loadtxt('./data/UCI/yacht_hydrodynamics.data')
+        x_data = temp[:, 0:6]
+        y_data = temp[:, 6].reshape([temp.shape[0], 1])
+    
+    elif data_name == 'kin8nm':
+        if not path.exists('./data/UCI/kin8nm.csv'):
+            urllib.request.urlretrieve('https://www.openml.org/data/get_csv/3626/dataset_2175_kin8nm.arff', './data/UCI/kin8nm.csv')
+        temp = pd.read_csv('./data/UCI/kin8nm.csv')
+
+        temp = np.mat(temp)
+        x_data = temp[:, 0:8]
+        y_data = temp[:, 8]
+    elif data_name == 'CCPP':
+        if not path.exists('./data/UCI/CCPP/Folds5x2_pp.xlsx'):
+            urllib.request.urlretrieve('https://archive.ics.uci.edu/ml/machine-learning-databases/00294/CCPP.zip', './data/UCI/CCPP.zip')
+            with zipfile.ZipFile('./data/UCI/CCPP.zip', 'r') as zip_ref:
+                zip_ref.extractall('./data/UCI/')
+        temp = pd.read_excel('./data/UCI/CCPP/Folds5x2_pp.xlsx')
+        temp = np.mat(temp)
+        x_data = temp[:, :4]
+        y_data = temp[:, 4]
+
+    elif data_name == 'Naval':
+        if not path.exists('./data/UCI/Naval/Features.txt'):
+            urllib.request.urlretrieve('https://archive.ics.uci.edu/static/public/316/condition+based+maintenance+of+naval+propulsion+plants.zip', './data/UCI/Naval.zip')
+            with zipfile.ZipFile('./data/UCI/Naval.zip', 'r') as zip_ref:
+                zip_ref.extractall('./data/UCI/')
+        temp = np.loadtxt('./data/UCI/UCI CBM Dataset/data.txt')
+        x_data = temp[:, 0:16]
+        y_data = temp[:, 16].reshape([temp.shape[0], 1])
+
+    elif data_name == 'Protein':
+        if not path.exists('./data/UCI/CASP.csv'):
+            urllib.request.urlretrieve('https://archive.ics.uci.edu/static/public/265/physicochemical+properties+of+protein+tertiary+structure.zip', './data/UCI/protein.zip')
+            with zipfile.ZipFile('./data/UCI/protein.zip', 'r') as zip_ref:
+                zip_ref.extractall('./data/UCI/')
+        temp = pd.read_csv(',.data/UCI/CASP.csv')
+        temp = np.matrix(temp)
+        x_data = temp[:, 1:10]
+        y_data = temp[:, 0]
+        
+    elif data_name == 'Year':
+        if not path.exists('./data/UCI/YearPredictionMSD.txt'):
+            urllib.request.urlretrieve('https://archive.ics.uci.edu/static/public/203/yearpredictionmsd.zip', './data/UCI/yearpredictionmsd.zip')
+            with zipfile.ZipFile('./data/UCI/yearpredictionmsd.zip', 'r') as zip_ref:
+                zip_ref.extractall('./data/UCI/')
+        temp = pd.read_table('./data/UCI/YearPredictionMSD.txt', header = None, sep = ',')
+
+        temp = np.matrix(temp)
+        x_data = temp[:, 1:]
+        y_data = temp[:, 0]
+
+
+    permutation = np.random.choice(range(x_data.shape[0]), x_data.shape[0], replace=False)
+    size_test = np.round(x_data.shape[0] * 0.1).astype(int)
+    divid_index = np.arange(x_data.shape[0])
+
+    lower_bound = cross_validate_index * size_test
+    upper_bound = (cross_validate_index + 1) * size_test
+    test_index = (divid_index >= lower_bound) * (divid_index < upper_bound)
+
+    index_train = permutation[[not _ for _ in test_index]]
+    index_test = permutation[test_index]
+
+    x_train = x_data[index_train, :]
+    y_train = y_data[index_train]
+
+    x_test = x_data[index_test, :]
+    y_test = y_data[index_test]
+
+    x_train_std = np.std(x_train, 0)
+    x_train_std[x_train_std == 0] = 1
+    x_train_mean = np.mean(x_train, 0)
+
+    x_train = (x_train - np.full(x_train.shape, x_train_mean)) / np.full(x_train.shape, x_train_std)
+
+    x_test = (x_test - np.full(x_test.shape, x_train_mean)) / np.full(x_test.shape, x_train_std)
+
+    inputs_train = torch.from_numpy(x_train).float()
+    targets_train = torch.from_numpy(y_train).float()
+    train_set = data.TensorDataset(inputs_train, targets_train)
+
+    inputs_test = torch.from_numpy(x_test).float()
+    targets_test = torch.from_numpy(y_test).float()
+    test_set = data.TensorDataset(inputs_test, targets_test)
+
+    train_loader = data.DataLoader(train_set, batch_size=train_size, shuffle=True, num_workers=0) # num_workers=0 is crucial for seed
+    test_loader = data.DataLoader(test_set, batch_size=test_size, shuffle=False, num_workers=0)
+
+    return train_loader, test_loader
+
+        # x_train = torch.FloatTensor(x_train).to(device)
+        # y_train = torch.FloatTensor(y_train).to(device)
+        # x_test = torch.FloatTensor(x_test).to(device)
+        # y_test = torch.FloatTensor(y_test).to(device)

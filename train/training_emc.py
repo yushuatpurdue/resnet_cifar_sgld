@@ -35,7 +35,6 @@ import torch.optim as optim
 ## import local
 
 from BayesEval import BayesEval
-import resnet            ## all resnet models. 
 from LoadData import LoadData
 from optimizers.SGHMC import SGHMC
 from optimizers.snooker import snooker

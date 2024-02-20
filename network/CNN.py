@@ -3,7 +3,7 @@ The files are created by Yushu Huang for the EMC-SGLD algorithm. YEAR 2021.
 They aim to apply the algorithm to the training of resnet under CIFAR dataset. 
 
 In this file: a CNN model is created as the model for training. 
-use 'from CNN import CNN' to import CNN model in this file. 
+use 'from network.CNN import CNN' to import CNN model in this file. 
 '''
 
 

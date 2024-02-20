@@ -35,13 +35,14 @@ import torch.utils.data as data
 import torchvision.datasets as datasets
 
 ## import local
-import resnet            ## all resnet models. 
-from LoadData import LoadData
+import network.resnet as resnet         ## all resnet models. 
+from LoadData import LoadData, LoadUCI
 from optimizers.SGLD import SGLD
 from train.training_parallel import training_parallel
 from train.training_re import training_re
 from train.training_emc import training_emc
-from CNN import CNN
+from network.CNN import CNN
+from network.NN import NN
 
 '''
 define the main function
@@ -73,12 +74,14 @@ def main():
     parser.add_argument('-method', default='emc', help='correction factor F')             ## method = emc or sghmc or re
 
     ## dataset properties: 
-    parser.add_argument('-data', default='cifar100', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
+    parser.add_argument('-data', default='Boston', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
     parser.add_argument('-batch', default=256, type=int, help='Batch size')   ## batch size for both training and testing
     parser.add_argument('-total', default=50000, type=int, help='Total data points')
 
     ## neural network properties:
-    parser.add_argument('-model', default='resnet20', help='which neural networ model to use. Resnet in local package "resnet.py", CNN in "CNN.py" ')
+    parser.add_argument('-model', default='NN', help='which neural networ model to use. Resnet in local package "resnet.py", CNN in "CNN.py" ')
+    parser.add_argument('-layer', default=1, type=int, help='number of hidden layer for model = NN')
+    parser.add_argument('-unit', default=[50], type=int, nargs='+', help='number of hidden unit in each layer of model = NN')
 
     ## environmental properties: 
     parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
@@ -111,6 +114,11 @@ def main():
     torch.backends.cudnn.deterministic=True # make reproducible.
 
 
+    ''' set data '''
+    if pars.data in ['cifar10', 'cifar100']:
+        train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
+    if pars.data in ['Boston','Concrete','Energy','Yacht','Wine','kin8nm','CCPP','Naval','Protein','Year']:
+        train_loader, test_loader = LoadUCI(data_name=pars.data, cross_validate_index=1, train_size=pars.batch, test_size=pars.batch)
 
     ''' set model '''
 
@@ -118,6 +126,13 @@ def main():
         num_classes = 100
     elif pars.data == 'cifar10':
         num_classes = 10
+    elif pars.data == 'Boston':
+        input_dim = 13
+        output_dim = 1
+    elif pars.data == 'Concrete':
+        input_dim = 8
+        output_dim = 1
+
 
     multichain_model = nn.ModuleList()
 
@@ -171,12 +186,35 @@ def main():
 
                 epoch = -1
                 break             # break for loop
+    elif "NN" in pars.model:
+        for i in range(pars.nchains):
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            if exists(savepath):                               # check if checkpoint of model_i exists 
+                checkpoint = torch.load(savepath)              # If exists then load checkpoint
+                ## Resume model_i from last checkpoint: 
+                model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim)
+                model_add.load_state_dict(checkpoint['state_dict'])
+                model_add = nn.DataParallel(model_add)
+                model_add.cuda()
+                multichain_model.extend([model_add])
+
+                ## Resume epoch from last checkpoint
+                epoch = checkpoint['epoch']
+            else:                                        # If one checkpoint missed
+                ## Then build multichain_model anew. 
+                model = nn.DataParallel(CNN(num_classes=num_classes))
+                model.cuda()
+                multichain_model = nn.ModuleList()
+                for i in range(pars.nchains):
+                    model_add = copy.deepcopy(model)
+                    multichain_model.extend([model_add])
+
+                epoch = -1
+                break             # break for loop
     else:
         raise Exception("model specified is not available. ")
     
 
-    ''' set data '''
-    train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
 
     ''' training loop '''
     criterion = nn.CrossEntropyLoss()            # loss function for training. CrossEntropyLoss generates the potential. 

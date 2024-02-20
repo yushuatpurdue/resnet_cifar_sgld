@@ -31,7 +31,6 @@ import torch.utils.data as data
 import torchvision.datasets as datasets
 
 ## import local
-import resnet            ## all resnet models. 
 from LoadData import LoadData
 from optimizers.SGLD import SGLD
 

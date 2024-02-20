@@ -11,6 +11,7 @@ from tqdm import tqdm  # better progressbar
 from math import exp
 from sys import getsizeof
 import numpy as np
+import zipfile
 import random
 import pickle
 from os.path import exists
@@ -29,14 +30,14 @@ from torch.optim import Optimizer
 import torchvision.models as models
 
 ## import local
-import resnet  # all resnet models.
-from LoadData import LoadData
+import network.resnet as resnet  # all resnet models.
+from LoadData import LoadData, LoadUCI
 from optimizers.SGLD import SGLD as optimizing_class
 from BayesEval import BayesEval
 from train.training_parallel import training_parallel
 from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
-from CNN import CNN
+from network.CNN import CNN
 
 
 ## define an object "parser" to add attributes to it. 
@@ -62,12 +63,12 @@ parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGL
 parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
 
 ## dataset properties: 
-parser.add_argument('-data', default='cifar10', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
+parser.add_argument('-data', default='Boston', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
 parser.add_argument('-batch', default=256, type=int, help='Batch size')   ## batch size for both training and testing
 parser.add_argument('-total', default=50000, type=int, help='Total data points')
 
 ## neural network properties:
-parser.add_argument('-model', default='CNN', help='which resnet model to use. In local package "resnet.py." ')
+parser.add_argument('-model', default='resnet20', help='which resnet model to use. In local package "resnet.py." ')
 
 ## environmental properties: 
 # parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
@@ -81,8 +82,9 @@ pars = parser.parse_args()
 np.random.seed(pars.seed)              # set seed for numpy. !!It returns the random numbers with exactly the same order.          
 # random.seed(pars.seed)                 # set seed in general. 
 # torch.backends.cudnn.deterministic=True # make reproducible.
-
-
+# boltzmann_weight =  [0.067, 0.064, 0.,    0.063, 0.064, 0.059, 0.057, 0.057, 0.059, 0.057 ,0.052 ,0.039,
+#  0.049, 0.044, 0.048, 0.046, 0.049, 0.041, 0.046, 0.038]
+# print(np.random.multinomial(1, boltzmann_weight))
 
 
 
@@ -102,27 +104,27 @@ elif pars.data == 'cifar10':
 #         print(["model", i, "not exist"])
 #         break
 
-if "resnet" in pars.model:
+# if "resnet" in pars.model:
 
 
-    model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+    # model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
 # print(model.__dict__)
-elif "CNN" in pars.model:
-    model = nn.DataParallel(CNN(num_classes=num_classes))
-else:
-    raise Exception("model specified is not available. ")
-# print(model.parameters())
+# elif "CNN" in pars.model:
+#     model = nn.DataParallel(CNN(num_classes=num_classes))
+# else:
+#     raise Exception("model specified is not available. ")
+# # print(model.parameters())
 
-model.cpu()
-# model.cuda()
+# model.cpu()
+# # model.cuda()
 
 
 ## define model for each chain, and append them into a list. 
-multichain_model = nn.ModuleList()
-for i in range(pars.nchains):
-# for i in range(1):
-    model_add = copy.deepcopy(model)
-    multichain_model.extend([model_add])
+# multichain_model = nn.ModuleList()
+# for i in range(pars.nchains):
+# # for i in range(1):
+#     model_add = copy.deepcopy(model)
+#     multichain_model.extend([model_add])
 
     # state = {
     #         'state_dict': model.module.state_dict()
@@ -176,9 +178,10 @@ for parameter in model.parameters():
 # count = 0
 # innerproduct = 0
 # for parameter in model.parameters():
-#             temp = parameter.data * parameter.data
-#             innerproduct += temp.sum()
-#             print(innerproduct)
+#     print(list((parameter.size())))
+            # temp = parameter.data * parameter.data
+            # innerproduct += temp.sum()
+            # print(innerproduct)
 # innerproduct = innerproduct.item()
 # print(innerproduct/0.005)
 # for name, parameter in model.named_parameters():
@@ -194,21 +197,32 @@ for parameter in model.parameters():
 # print(count)
 
 # train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
+# if pars.data in ['cifar10', 'cifar100']:
+#     print("T")
+# else:
+#     print("F")
 
+train_loader, test_loader = LoadUCI(data_name=pars.data, cross_validate_index=1, train_size=pars.batch, test_size=pars.batch)
+count = 0
+for i, (images, labels) in enumerate(train_loader):
+    print(len(images))
+    count+=len(images)
+print(count)
+# for i, (images, labels) in enumerate(test_loader):
+#     count+=len(images)
+# print(count)
 # criterion = nn.CrossEntropyLoss()
 
 
+# for t in range(1):
 
-'''
-for t in range(1):
+#     print("epochs = ",t)      # 要注释掉
+#     training_parallel(pars, multichain_model, range(len(multichain_model)),train_loader, criterion)
+# #     parameter0 = list(multichain_model[0].parameters())[0]
+# for parameters in multichain_model[0].parameters():
+#     parameters.grad.data.zero_()
+#     print(parameters.grad.data[0])
 
-    print("epochs = ",t)      # 要注释掉
-    training_parallel(pars, multichain_model, train_loader, test_loader, criterion)
-#     parameter0 = list(multichain_model[0].parameters())[0]
-for parameters in multichain_model[0].parameters():
-    parameters.grad.data.zero_()
-    print(parameters.grad.data[0])
-'''
     # print(parameter0[0].grad.data())          # 报错：AttributeError: 'NoneType' object has no attribute 'data'
     # parameter1 = list(multichain_model[4].parameters())[0]
     # # diff_parameter = parameter0 - parameter1

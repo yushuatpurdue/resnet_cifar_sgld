@@ -4,8 +4,8 @@ They aim to apply the algorithm to the training of resnet under CIFAR dataset.
 reference: https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py
 
 In this file: a class -- resnets are created as the model for training. 
-use 'import resnet' to import this file. 
-use, eg., 'resnet.resnet20' to call funtion 'resnet20' as the class of resnet model depth 20. 
+use 'import network.resnet' to import this file. 
+use, eg., 'network.resnet.resnet20' to call funtion 'resnet20' as the class of resnet model depth 20. 
 '''
 
 from __future__ import absolute_import     # import the most recent version of packages
