@@ -63,14 +63,14 @@ parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight dec
 parser.add_argument('-iterationR', default=30, type=int, help='number of iteration for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
 parser.add_argument('-lrR', default=5e-5, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate.  
 parser.add_argument('-bias_F', default=1.5e5, type=float, help='correction factor F')
-
+parser.add_argument('-method', default='sghmc', help='correction factor F')
 ## dataset properties: 
 parser.add_argument('-data', default='Boston', help='CIFAR10/ CIFAR100')  ## data to be used (adds an attribute '-data', and names it as 'data'
 parser.add_argument('-batch', default=256, type=int, help='Batch size')   ## batch size for both training and testing
 parser.add_argument('-total', default=50000, type=int, help='Total data points')
 
 ## neural network properties:
-parser.add_argument('-model', default='resnet20', help='which resnet model to use. In local package "resnet.py." ')
+parser.add_argument('-model', default='NN', help='which resnet model to use. In local package "resnet.py." ')
 
 ## environmental properties: 
 # parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
