@@ -75,6 +75,7 @@ parser.add_argument('-model', default='NN', help='which resnet model to use. In 
 ## environmental properties: 
 # parser.add_argument('-seed', default=random.randint(1, 1e6), type=int, help='Random Seed')
 parser.add_argument('-seed', default=50, type=int, help='Random Seed')
+parser.add_argument('-jobid', default='1', help='for running seperate jobs and save them seperately')
 
 ## add the arguments. 
 pars = parser.parse_args()
