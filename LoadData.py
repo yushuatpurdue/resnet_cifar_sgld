@@ -64,6 +64,7 @@ def LoadData(train_size, test_size, pars) -> Tensor:
     return train_loader, test_loader
 
 def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     if not path.exists('./data/'+"UCI"):
         os.mkdir('./data/'+"UCI")
     if data_name == "Boston":
@@ -178,13 +179,14 @@ def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
 
     x_test = (x_test - np.full(x_test.shape, x_train_mean)) / np.full(x_test.shape, x_train_std)
 
-    inputs_train = torch.from_numpy(x_train).float()
-    targets_train = torch.from_numpy(y_train).float()
-    train_set = data.TensorDataset(inputs_train, targets_train)
+    x_train = torch.FloatTensor(x_train).to(device)
+    y_train = torch.FloatTensor(y_train).to(device)
+    x_test = torch.FloatTensor(x_test).to(device)
+    y_test = torch.FloatTensor(y_test).to(device)
 
-    inputs_test = torch.from_numpy(x_test).float()
-    targets_test = torch.from_numpy(y_test).float()
-    test_set = data.TensorDataset(inputs_test, targets_test)
+    train_set = data.TensorDataset(x_train, y_train)
+
+    test_set = data.TensorDataset(x_train, y_train)
 
     train_loader = data.DataLoader(train_set, batch_size=train_size, shuffle=True, num_workers=0) # num_workers=0 is crucial for seed
     test_loader = data.DataLoader(test_set, batch_size=test_size, shuffle=False, num_workers=0)

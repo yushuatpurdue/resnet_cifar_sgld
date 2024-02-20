@@ -39,6 +39,7 @@ from train.training_parallel import training_parallel
 from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
 from network.CNN import CNN
+from network.NN import NN
 
 
 ## define an object "parser" to add attributes to it. 
@@ -87,7 +88,7 @@ np.random.seed(pars.seed)              # set seed for numpy. !!It returns the ra
 #  0.049, 0.044, 0.048, 0.046, 0.049, 0.041, 0.046, 0.038]
 # print(np.random.multinomial(1, boltzmann_weight))
 
-
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 if pars.data == 'cifar100':
     num_classes = 100
@@ -204,7 +205,46 @@ for parameter in model.parameters():
 #     print("F")
 
 train_loader, test_loader = LoadUCI(data_name=pars.data, cross_validate_index=1, train_size=pars.batch, test_size=pars.batch)
-print(test_loader.dataset.item())
+for i, (images, labels) in enumerate(test_loader):
+    print(images.get_device())
+    print(labels.get_device())
+for i, (images, labels) in enumerate(train_loader):
+    print(images.get_device())
+    print(labels.get_device())
+
+if pars.data == 'Boston':
+        input_dim = 13
+        output_dim = 1
+multichain_model = nn.ModuleList()
+for i in range(pars.nchains):
+    savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+    if exists(savepath):                               # check if checkpoint of model_i exists 
+        checkpoint = torch.load(savepath)              # If exists then load checkpoint
+        ## Resume model_i from last checkpoint: 
+        model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim)
+        model_add.load_state_dict(checkpoint['state_dict'])
+        model_add = nn.DataParallel(model_add)
+        # model_add.cuda()
+        model_add.to(device)
+        multichain_model.extend([model_add])
+
+        ## Resume epoch from last checkpoint
+        epoch = checkpoint['epoch']
+    else:                                        # If one checkpoint missed
+        ## Then build multichain_model anew. 
+        model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim))
+        # model.cuda()
+        model.to(device)
+        multichain_model = nn.ModuleList()
+        for i in range(pars.nchains):
+            model_add = copy.deepcopy(model)
+            multichain_model.extend([model_add])
+
+        epoch = -1
+        break   
+
+for model in multichain_model:
+    print(next(model.parameters()).device)
 # count = 0
 # for i, (images, labels) in enumerate(train_loader):
 #     print(len(images))

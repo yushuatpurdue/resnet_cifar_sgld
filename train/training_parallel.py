@@ -53,10 +53,12 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
     # eta         = pars.eta  # lr^2/M. lr = learning rate, M = mass. see paper Chen et al SGHMC. 
     # temperature = pars.T
     # accuracy    = [BayesEval()] * pars.nchains    # a list recording the accuracy of model. 
-
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     for idx in training_idx:
 
         net = model[idx]
+        net.to(device)
+
         ''' training net '''
         net.train()      # first set net to train mode. 
         # print("net", nnet, "parameter head", list(net.parameters())[0][0])
