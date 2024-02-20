@@ -237,7 +237,7 @@ for i in range(pars.nchains):
         epoch = checkpoint['epoch']
     else:                                        # If one checkpoint missed
         ## Then build multichain_model anew. 
-        model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim))
+        model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim, device = device))
         # model.cuda()
         model.to(device)
         multichain_model = nn.ModuleList()
