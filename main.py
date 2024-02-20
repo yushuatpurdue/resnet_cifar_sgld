@@ -248,7 +248,7 @@ def main():
             accuracy = accuracy + [BayesEval()]
     elif pars.regression_flag == True:
         criterion = nn.MSELoss()
-        test_loss = [] * pars.nchains
+        test_loss = [0] * pars.nchains
 
     ''' training loop '''
 
