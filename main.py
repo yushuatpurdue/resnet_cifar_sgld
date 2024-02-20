@@ -221,7 +221,8 @@ def main():
                 model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim)
                 model_add.load_state_dict(checkpoint['state_dict'])
                 model_add = nn.DataParallel(model_add)
-                model_add.cuda()
+                # model_add.cuda()
+                model_add.to('cuda')
                 multichain_model.extend([model_add])
 
                 ## Resume epoch from last checkpoint
@@ -229,7 +230,8 @@ def main():
             else:                                        # If one checkpoint missed
                 ## Then build multichain_model anew. 
                 model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim))
-                model.cuda()
+                # model.cuda()
+                model.to('cuda')
                 multichain_model = nn.ModuleList()
                 for i in range(pars.nchains):
                     model_add = copy.deepcopy(model)
