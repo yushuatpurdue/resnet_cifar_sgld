@@ -27,5 +27,7 @@ class NN(nn.Module):
         x = torch.tanh(self.fc(x))
         for i in range(self.num_hidden - 1):
             x = torch.tanh(self.fc_list[i](x))
+        import pdb
+        pdb.set_trace()
         x = self.fc_list[-1](x)
         return x
