@@ -42,7 +42,7 @@ from train.training_parallel import training_parallel
 from train.training_re import training_re
 from train.training_emc import training_emc
 from network.CNN import CNN
-from network.NN import NN
+from network.NN import NN, NeuralNetwork
 from testLoss import testLoss
 
 '''
@@ -173,7 +173,8 @@ def main():
                 epoch = checkpoint['epoch']
             else:                                        # If one checkpoint missed
                 ## Then build multichain_model anew. 
-                model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+                # model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
+                model =  nn.DataParallel(NeuralNetwork(input_dim=input_dim, hidden_dim=pars.unit, output_dim=output_dim))
                 model.cuda()
                 multichain_model = nn.ModuleList()
                 for i in range(pars.nchains):
@@ -213,7 +214,8 @@ def main():
             if exists(savepath):                               # check if checkpoint of model_i exists 
                 checkpoint = torch.load(savepath)              # If exists then load checkpoint
                 ## Resume model_i from last checkpoint: 
-                model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim)
+                # model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim)
+                model_add =  NeuralNetwork(input_dim=input_dim, hidden_dim=pars.unit, output_dim=output_dim)
                 model_add.load_state_dict(checkpoint['state_dict'])
                 model_add = nn.DataParallel(model_add)
                 # model_add.cuda()
