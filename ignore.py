@@ -39,7 +39,7 @@ from train.training_parallel import training_parallel
 from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
 from network.CNN import CNN
-from network.NN import NN
+from network.NN import NN, NeuralNetwork
 
 
 ## define an object "parser" to add attributes to it. 
@@ -226,7 +226,8 @@ for i in range(pars.nchains):
     if exists(savepath):                               # check if checkpoint of model_i exists 
         checkpoint = torch.load(savepath)              # If exists then load checkpoint
         ## Resume model_i from last checkpoint: 
-        model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim, device = device)
+        # model_add =  NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim, device = device)
+        model_add =  NeuralNetwork(input_dim=input_dim, hidden_dim=pars.unit, output_dim=output_dim)
         model_add.load_state_dict(checkpoint['state_dict'])
         model_add = nn.DataParallel(model_add)
         # model_add.cuda()
@@ -237,7 +238,8 @@ for i in range(pars.nchains):
         epoch = checkpoint['epoch']
     else:                                        # If one checkpoint missed
         ## Then build multichain_model anew. 
-        model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim, device = device))
+        # model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim, device = device))
+        model =  nn.DataParallel(NeuralNetwork(input_dim=input_dim, hidden_dim=pars.unit, output_dim=output_dim))
         # model.cuda()
         model.to(device)
         multichain_model = nn.ModuleList()
