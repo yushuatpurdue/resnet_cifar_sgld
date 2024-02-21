@@ -279,8 +279,8 @@ for t in range(5):
         for i, (images, labels) in enumerate(train_loader):
 
             # first change the data type from 'tensor' to 'Variables'. 
-            images = Variable(images).to(device) if torch.cuda.is_available() else Variable(images)
-            labels = Variable(labels).to(device) if torch.cuda.is_available() else Variable(labels)
+            images = Variable(images) if torch.cuda.is_available() else Variable(images)
+            labels = Variable(labels) if torch.cuda.is_available() else Variable(labels)
             images.to(device)
             labels.to(device)
             print(images.get_device())
