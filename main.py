@@ -173,8 +173,7 @@ def main():
                 epoch = checkpoint['epoch']
             else:                                        # If one checkpoint missed
                 ## Then build multichain_model anew. 
-                # model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
-                model =  nn.DataParallel(NeuralNetwork(input_dim=input_dim, hidden_dim=pars.unit, output_dim=output_dim))
+                model = nn.DataParallel(resnet.__dict__[pars.model](num_classes = num_classes))
                 model.cuda()
                 multichain_model = nn.ModuleList()
                 for i in range(pars.nchains):
@@ -226,8 +225,8 @@ def main():
                 epoch = checkpoint['epoch']
             else:                                        # If one checkpoint missed
                 ## Then build multichain_model anew. 
-                model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim))
-                # model.cuda()
+                # model = nn.DataParallel(NN(pars.layer, pars.unit, input_dim=input_dim, output_dim=output_dim))
+                model =  nn.DataParallel(NeuralNetwork(input_dim=input_dim, hidden_dim=pars.unit, output_dim=output_dim))
                 model.to(device)
                 multichain_model = nn.ModuleList()
                 for i in range(pars.nchains):
