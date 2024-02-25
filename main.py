@@ -249,7 +249,7 @@ def main():
             accuracy = accuracy + [BayesEval()]
     elif pars.regression_flag == True:
         criterion = nn.MSELoss()
-        test_loss = [0] * pars.nchains
+        test_loss_path = []
 
     ''' training loop '''
 
@@ -296,10 +296,13 @@ def main():
                     print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
                             .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
             elif pars.regression_flag == True:
+                test_loss = [0] * pars.nchains
                 for i in range(pars.nchains):
-                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion)
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion).item()
                     print('Chain {} testLoss: {:0.2f} '\
                             .format(i, test_loss[i]))
+                test_loss_path.append(test_loss[:])
+                # print('length of test_loss_path', len(test_loss_path))
 
         end = time.time()
         print("total running time = ", end - start)
@@ -311,7 +314,12 @@ def main():
             }
             savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
             torch.save(state, savepath)
-            
+        if pars.regression_flag == True:
+            outputPath = './result/' + pars.data +'_' + pars.method +'_'+ pars.jobid + '_' + ".csv"
+            with open(outputPath, 'w', newline = '') as file:
+                writer = csv.writer(file)
+                writer.writerow(range(pars.nchains))
+                writer.writerows(test_loss_path)
 
     elif pars.method == 're':
         ## initializing T & eta from checkpoint (if checkpoint exists)
@@ -355,10 +363,12 @@ def main():
                     print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
                             .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
             elif pars.regression_flag == True:
+                test_loss = [0] * pars.nchains
                 for i in range(pars.nchains):
-                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion)
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion).item()
                     print('Chain {} testLoss: {:0.2f} '\
                             .format(i, test_loss[i]))
+                test_loss_path.append(test_loss[:])
 
         end = time.time()
         print("total running time = ", end - start)
@@ -370,6 +380,12 @@ def main():
             }
             savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
             torch.save(state, savepath)
+        if pars.regression_flag == True:
+            outputPath = './result/' + pars.data +'_' + pars.method +'_'+ pars.jobid + '_' + ".csv"
+            with open(outputPath, 'w', newline = '') as file:
+                writer = csv.writer(file)
+                writer.writerow(range(pars.nchains))
+                writer.writerows(test_loss_path)
 
                             
     elif pars.method == 'emc':
@@ -399,7 +415,8 @@ def main():
             # # elif t>200:
             # #     crossoverGap = 200
             # else:
-            crossoverGap = t
+            crossoverGap = 10
+            # crossoverGap = t
 
             print("epochs = ",t)  
 
@@ -410,6 +427,7 @@ def main():
                 else: 
                     training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
             else:
+                # if t%20 != 0:
                 if t%2 != 0:
                     training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
                 else:
@@ -423,10 +441,12 @@ def main():
                     print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
                             .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
             elif pars.regression_flag == True:
+                test_loss = [0] * pars.nchains
                 for i in range(pars.nchains):
-                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion)
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion).item()
                     print('Chain {} testLoss: {:0.2f} '\
                             .format(i, test_loss[i]))
+                test_loss_path.append(test_loss[:])
 
         end = time.time()
         print("total running time = ", end - start)
@@ -439,6 +459,12 @@ def main():
             }
             savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
             torch.save(state, savepath)
+        if pars.regression_flag == True:
+            outputPath = './result/' + pars.data +'_' + pars.method +'_'+ pars.jobid + '_' + ".csv"
+            with open(outputPath, 'w', newline = '') as file:
+                writer = csv.writer(file)
+                writer.writerow(range(pars.nchains))
+                writer.writerows(test_loss_path)
 
 
 main()
