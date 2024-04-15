@@ -39,7 +39,7 @@ from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
 
 
-def training_parallel(pars, model, training_idx, train_dataset, criterion):
+def training_parallel(pars, model, training_idx, train_dataset, criterion, method):
     '''
     Input: 
         pars            defined in main() by argparser. 
@@ -67,8 +67,10 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
         
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
-
-        optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+        if method =='SGHMC':
+            optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+        elif method =='SGLD':
+            optimizer = SGLD(net.parameters(), lr=eta, temperature=temperature)
         
         # print("nnet = ", nnet) # 要注释掉
 
@@ -77,11 +79,15 @@ def training_parallel(pars, model, training_idx, train_dataset, criterion):
             # first change the data type from 'tensor' to 'Variables'. 
             images = Variable(images).cuda() if torch.cuda.is_available() else Variable(images)
             labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
+            images.to(device)
+            labels.to(device)
 
             # then evaluate optimizer, calculate loss and back propagate. 
             optimizer.zero_grad()
             output = net(images)
             nn.utils.clip_grad_norm_(net.parameters(), 0.1)
+            # import pdb
+            # pdb.set_trace()
             loss   = criterion(output, labels) * pars.total
             
             # print(loss.item())       # 要注释掉

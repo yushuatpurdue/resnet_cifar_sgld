@@ -39,7 +39,7 @@ from optimizers.SGLD import SGLD
 from optimizers.SGHMC import SGHMC
 
 
-def training_re(pars, model, train_dataset, criterion):
+def training_re(pars, model, train_dataset, criterion, mutation_method):
     '''
     Input: 
         pars            defined in main() by argparser. 
@@ -75,8 +75,11 @@ def training_re(pars, model, train_dataset, criterion):
             
             # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
             # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
-
-            optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+            if mutation_method == 'SGHMC':
+                optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+            elif mutation_method == 'SGLD':
+                optimizer = SGLD(net.parameters(), lr=eta, temperature=temperature)
+            # optimizer = SGHMC(net.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
 
             # then evaluate optimizer, calculate loss and back propagate. 
             optimizer.zero_grad()

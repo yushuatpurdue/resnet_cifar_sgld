@@ -37,10 +37,11 @@ import torch.optim as optim
 from BayesEval import BayesEval
 from LoadData import LoadData
 from optimizers.SGHMC import SGHMC
+from optimizers.SGLD import SGLD
 from optimizers.snooker import snooker
 from train.training_parallel import training_parallel
 
-def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, criterion):
+def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, criterion, mutation_method):
     '''
     one epoch emc optimizing
     Input: 
@@ -99,7 +100,10 @@ def training_emc(pars, modulelist, train_dataset, crossoverRate, crossoverGap, c
         # take a net from the ModuleList: multichain_model, and put it into the optimizer. 
         # optimizer = optim.SGD(net.parameters(), lr=eta, momentum=0.9)        # no ladder here. need to modify later. 
 
-            optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+            if mutation_method == 'SGHMC':
+                optimizer = SGHMC(model.parameters(), eta=eta, temperature=temperature, wdecay=pars.wdecay)
+            elif mutation_method == 'SGLD':
+                optimizer = SGLD(model.parameters(), lr=eta, temperature=temperature)
             optimizer.zero_grad()
             loss = criterion(model(images), labels) * pars.total
             loss.backward()

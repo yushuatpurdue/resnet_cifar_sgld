@@ -137,7 +137,7 @@ def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
             urllib.request.urlretrieve('https://archive.ics.uci.edu/static/public/265/physicochemical+properties+of+protein+tertiary+structure.zip', './data/UCI/protein.zip')
             with zipfile.ZipFile('./data/UCI/protein.zip', 'r') as zip_ref:
                 zip_ref.extractall('./data/UCI/')
-        temp = pd.read_csv(',.data/UCI/CASP.csv')
+        temp = pd.read_csv('./data/UCI/CASP.csv')
         temp = np.matrix(temp)
         x_data = temp[:, 1:10]
         y_data = temp[:, 0]
@@ -152,6 +152,97 @@ def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
         temp = np.matrix(temp)
         x_data = temp[:, 1:]
         y_data = temp[:, 0]
+
+    elif data_name == 'Parkinson':
+        # if not path.exists('./data/UCI/parkinsons_updrs.data'):
+        #     urllib.request.urlretrieve('http://archive.ics.uci.edu/ml/machine-learning-databases/00243/yacht_hydrodynamics.data', './data/UCI/yacht_hydrodynamics.data')
+        temp = pd.read_table('./data/UCI/parkinsons_updrs.data', sep=',')
+        temp = np.mat(temp)
+        x_data = temp[:, 6:]
+        y_data = temp[:, 5]
+        # x_data = temp[:, 0:21]
+        # y_data = temp[:, 21].reshape([temp.shape[0], 1])
+    elif data_name == 'Abalone':
+        if not path.exists('./data/UCI/abalone.data'):
+            urllib.request.urlretrieve('https://archive.ics.uci.edu/static/public/1/abalone.zip', './data/UCI/abalone.zip')
+            with zipfile.ZipFile('./data/UCI/abalone.zip', 'r') as zip_ref:
+                zip_ref.extractall('./data/UCI/')
+        # temp = pd.read_csv('./data/UCI/abalone.data', dtype={'Column1': str}, sep=',')
+        dattyp = [('Column1',object),('Column2',float),('Column3',float),('Column4',float),('Column5',float),('Column6',float),('Column7',float),('Column8',float),('Column9',int)]
+        temp = np.loadtxt('./data/UCI/abalone.data',delimiter = ',',dtype = dattyp, unpack=True)
+        temp = np.mat(temp)
+        temp = temp.transpose()
+        x_data = temp[:, 1:8]
+        y_data = temp[:, 8].reshape([temp.shape[0], 1])
+    elif data_name == 'RealEstate':
+        # if not path.exists('./data/UCI/Concrete_Data.xls'):
+        #     urllib.request.urlretrieve('https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Data.xls', './data/UCI/concrete.data')
+        temp = pd.read_excel('./data/UCI/Real estate valuation data set.xlsx')
+        temp = np.mat(temp)
+        x_data = temp[:, 1:7]
+        y_data = temp[:, 7]
+
+    elif data_name == 'Bike':
+        # if not path.exists('./data/UCI/SeoulBikeData.csv'):
+        #     urllib.request.urlretrieve('https://www.openml.org/data/get_csv/3626/dataset_2175_kin8nm.arff', './data/UCI/kin8nm.csv')
+        temp = pd.read_csv('./data/UCI/SeoulBikeData.csv', encoding='latin1')
+
+        temp = np.mat(temp)
+        x_data = temp[:, 2:11]
+        y_data = temp[:, 1]
+    elif data_name == 'Electric':
+        # if not path.exists('./data/UCI/Data_for_UCI_named.csv'):
+        #     urllib.request.urlretrieve('https://www.openml.org/data/get_csv/3626/dataset_2175_kin8nm.arff', './data/UCI/kin8nm.csv')
+        temp = pd.read_csv('./data/UCI/Data_for_UCI_named.csv')
+
+        temp = np.mat(temp)
+        x_data = temp[:, 0:12]
+        y_data = temp[:, 12]
+    elif data_name == 'Qsar':
+        # if not path.exists('./data/UCI/qsar_fish_toxicity.csv'):
+        #     urllib.request.urlretrieve('https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv', './data/UCI/winequality-red.csv')
+        temp = pd.read_csv('./data/UCI/qsar_fish_toxicity.csv', sep=';')
+        temp = np.mat(temp)
+        x_data = temp[:, 0:6]
+        y_data = temp[:, 6]
+    elif data_name == 'Soybean':
+        # if not path.exists('./data/UCI/data.csv'):
+        #     urllib.request.urlretrieve('https://www.openml.org/data/get_csv/3626/dataset_2175_kin8nm.arff', './data/UCI/kin8nm.csv')
+        temp = pd.read_csv('./data/UCI/data.csv')
+
+        temp = np.mat(temp)
+        x_data = temp[:, 2:10]
+        y_data = temp[:, 10]
+
+    elif data_name == 'Song':
+        # if not path.exists('./data/UCI/data.csv'):
+        #     urllib.request.urlretrieve('https://www.openml.org/data/get_csv/3626/dataset_2175_kin8nm.arff', './data/UCI/kin8nm.csv')
+        temp = pd.read_csv('./data/UCI/song_data.csv')
+
+        temp = np.mat(temp)
+        x_data = temp[:, 2:15]
+        y_data = temp[:, 1]
+
+    elif data_name == 'Walmart':
+        # if not path.exists('./data/UCI/data.csv'):
+        #     urllib.request.urlretrieve('https://www.openml.org/data/get_csv/3626/dataset_2175_kin8nm.arff', './data/UCI/kin8nm.csv')
+        temp = pd.read_csv('./data/UCI/Walmart.csv')
+
+        temp = np.mat(temp)
+        x_data = temp[:, 3:8]
+        y_data = temp[:, 2]
+
+    elif data_name == 'Student':
+        # if not path.exists('./data/UCI/data.csv'):
+        #     urllib.request.urlretrieve('https://www.openml.org/data/get_csv/3626/dataset_2175_kin8nm.arff', './data/UCI/kin8nm.csv')
+        temp = pd.read_csv('./data/UCI/Student_Performance.csv')
+
+        temp = np.mat(temp)
+        x_data = temp[:, [0,1,3,4]]
+        y_data = temp[:, 5]
+
+
+        
 
 
     permutation = np.random.choice(range(x_data.shape[0]), x_data.shape[0], replace=False)
@@ -178,6 +269,10 @@ def LoadUCI(data_name, cross_validate_index, train_size, test_size, seed = 1):
     # x_train = (x_train - np.full(x_train.shape, x_train_mean)) / np.full(x_train.shape, x_train_std)
 
     # x_test = (x_test - np.full(x_test.shape, x_train_mean)) / np.full(x_test.shape, x_train_std)
+    x_train = x_train.astype(np.float32)
+    y_train = y_train.astype(np.float32)
+    x_test = x_test.astype(np.float32)
+    y_test = y_test.astype(np.float32)
 
     x_train = torch.FloatTensor(x_train).to(device)
     y_train = torch.FloatTensor(y_train).to(device)

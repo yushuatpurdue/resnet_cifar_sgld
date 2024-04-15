@@ -187,6 +187,7 @@ class snooker:
 
                 ''' SGLD to obtain r. '''
                 r = np.random.normal(scale= pars.rInitScale)                   # initialize r with N(0,10^2)
+                # print('r initialized at ', r)
                 for t in range(pars.iterationR):                 # epoch
                     # print("iteration # ", t, "for sampling r. ")
                     for j, (images, labels) in enumerate(train_loader):      # batch
@@ -204,6 +205,8 @@ class snooker:
                         labels = Variable(labels).cuda() if torch.cuda.is_available() else Variable(labels)
                         # then evaluate optimizer, calculate loss and back propagate. 
                         output = model_cp(images)
+                        # import pdb
+                        # pdb.set_trace()
                         loss   = self.criterion(output, labels) * pars.total
                         model_cp.zero_grad()
                         loss.backward()    # 这样就在parameter.grad 上累加 gradient了
@@ -236,6 +239,7 @@ class snooker:
                                 model_cp.zero_grad()
                                 loss.backward()    # 这样就在parameter.grad 上累加 gradient了
                                 r = self.r_SGLD(pars, r, model_cp, temperature, direction)
+                                # print("r at batch ", j, "=", r)
                         # print("r = ", r)
                     else: 
                         break

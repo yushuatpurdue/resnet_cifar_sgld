@@ -67,7 +67,7 @@ def main():
     parser.add_argument('-burn', default=0.6, type=float, help='burn in iterations for sampling (sn * burn)')
     parser.add_argument('-etaanneal', default=0.984, type=float, help='lr annealing factor')
     parser.add_argument('-Tanneal', default=1.02, type=float, help='temperature annealing factor')
-    parser.add_argument('-wdecay', default=25, type=float, help='Sampling weight decay')
+    parser.add_argument('-wdecay', default=0, type=float, help='Sampling weight decay')
     parser.add_argument('-iterationR', default=1, type=int, help='number of epochs for SGLD in snooker scaler r')      ## how many iterations are going to run for SGLD sampling r in snooker. 
     parser.add_argument('-lrR', default=1e-4, type=float, help='learning rate of SGLD in snooker scaler r')      ## max learning rate for SGLD sampling r in snooker. If r is close to 0 then choose a smaller learning rate. 1e-4 is good for resnet. CNN need a smaller one. 
     parser.add_argument('-rInitScale', default=10, type=float, help='standard deviation for initializing r from a Normal distribution')      ## For resnet a value of 10 is good. For CNN need to have smaller value.   
@@ -114,7 +114,7 @@ def main():
     ''' set data '''
     if pars.data in ['cifar10', 'cifar100']:
         train_loader, test_loader = LoadData(pars.batch, pars.batch, pars)
-    if pars.data in ['Boston','Concrete','Energy','Yacht','Wine','kin8nm','CCPP','Naval','Protein','Year']:
+    if pars.data in ['Boston','Concrete','Energy','Yacht','Wine','kin8nm','CCPP','Naval','Protein','Year', 'Parkinson', 'Abalone','RealEstate', 'Bike', 'Electric', 'Qsar', 'Soybean', 'Song', 'Walmart', 'Student']:
         train_loader, test_loader = LoadUCI(data_name=pars.data, cross_validate_index=1, train_size=pars.batch, test_size=pars.batch)
 
     ''' set model '''
@@ -134,7 +134,7 @@ def main():
         output_dim = 1
     elif pars.data == 'Wine':
         input_dim = 11
-        output_dim = 8
+        output_dim = 1
     elif pars.data == 'Yacht':
         input_dim = 6
         output_dim = 1
@@ -153,6 +153,37 @@ def main():
     elif pars.data == 'Year':
         input_dim = 90
         output_dim = 1
+    elif pars.data == 'Parkinson':
+        input_dim = 16
+        output_dim = 1
+    elif pars.data == 'Abalone':
+        input_dim = 7
+        output_dim = 1
+    elif pars.data == 'RealEstate':
+        input_dim = 6
+        output_dim = 1
+    elif pars.data == 'Bike':
+        input_dim = 9
+        output_dim = 1
+    elif pars.data == 'Electric':
+        input_dim = 12
+        output_dim = 1
+    elif pars.data == 'Qsar':
+        input_dim = 6
+        output_dim = 1
+    elif pars.data == 'Soybean':
+        input_dim = 8
+        output_dim = 1
+    elif pars.data == 'Song':
+        input_dim = 13
+        output_dim = 1
+    elif pars.data == 'Walmart':
+        input_dim = 5
+        output_dim = 1
+    elif pars.data == 'Student':
+        input_dim = 4
+        output_dim = 1
+    
 
 
     multichain_model = nn.ModuleList()
@@ -260,7 +291,8 @@ def main():
     
         ## initializing T & eta from checkpoint (if checkpoint exists)
         # if epoch < pars.burn * pars.epochs:
-        if epoch < 600:
+        # if epoch < 600:   # resnet cifar
+        if epoch < 40:  # 1 layer NN UCi
             pars.T /= pars.Tanneal**epoch
         else:
             pars.T /= pars.Tanneal**(600)
@@ -288,7 +320,7 @@ def main():
             print("epochs = ",t)      
 
             SGHMC_idx = list(range(pars.nchains))
-            training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion)
+            training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion, method='SGHMC')
             ''' print accuracy '''
             if pars.regression_flag == False:
                 for i in range(pars.nchains):
@@ -321,7 +353,74 @@ def main():
                 writer.writerow(range(pars.nchains))
                 writer.writerows(test_loss_path)
 
-    elif pars.method == 're':
+    elif pars.method == 'sgld':
+
+    
+        ## initializing T & eta from checkpoint (if checkpoint exists)
+        # if epoch < pars.burn * pars.epochs:
+        # if epoch < 600:   # resnet cifar
+        if epoch < 40:  # 1 layer NN UCi
+            pars.T /= pars.Tanneal**epoch
+        else:
+            pars.T /= pars.Tanneal**(600)
+
+        # if epoch > 0.4 * pars.epochs:
+        if epoch > 400:
+            pars.eta *= pars.etaanneal**(epoch - 400)
+
+        start = time.time()
+        for t in range(epoch+1, pars.epochs):
+            # if t < pars.burn * pars.epochs:
+            if t < 600:
+                pars.T /= pars.Tanneal
+            # if t > 0.4 * pars.epochs:
+            if t > 400:
+                pars.eta *= pars.etaanneal
+
+            # crossoverGap = 30
+            # if t <30:
+            #     crossoverGap = 30
+            # # elif t>200:
+            # #     crossoverGap = 200
+            # else:
+
+            print("epochs = ",t)      
+
+            SGHMC_idx = list(range(pars.nchains))
+            training_parallel(pars, multichain_model, SGHMC_idx, train_loader, criterion, method='SGLD')
+            ''' print accuracy '''
+            if pars.regression_flag == False:
+                for i in range(pars.nchains):
+                    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                    print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                            .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            elif pars.regression_flag == True:
+                test_loss = [0] * pars.nchains
+                for i in range(pars.nchains):
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion).item()
+                    print('Chain {} testLoss: {:0.2f} '\
+                            .format(i, test_loss[i]))
+                test_loss_path.append(test_loss[:])
+                # print('length of test_loss_path', len(test_loss_path))
+
+        end = time.time()
+        print("total running time = ", end - start)
+        ''' save models'''
+        for i in range(pars.nchains):
+            state = {
+                    'state_dict': multichain_model[i].module.state_dict(),
+                    'epoch'     : t
+            }
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            torch.save(state, savepath)
+        if pars.regression_flag == True:
+            outputPath = './result/' + pars.data +'_' + pars.method +'_'+ pars.jobid + '_' + ".csv"
+            with open(outputPath, 'w', newline = '') as file:
+                writer = csv.writer(file)
+                writer.writerow(range(pars.nchains))
+                writer.writerows(test_loss_path)
+
+    elif pars.method == 'resghmc':
         ## initializing T & eta from checkpoint (if checkpoint exists)
         # if epoch < pars.burn * pars.epochs:
         if epoch < pars.burn * 1000:
@@ -351,10 +450,79 @@ def main():
 
             print("epochs = ",t)  
 
-            if t<20:
-                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+            # if t<500:  # resnet cifar
+            if t<30:
+                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion, method='SGHMC')
             else:
-                output = training_re(pars, multichain_model, train_loader, criterion)
+                output = training_re(pars, multichain_model, train_loader, criterion, mutation_method='SGHMC')
+                print("total swap = ", output["swap"])
+            ''' print accuracy '''
+            if pars.regression_flag == False:
+                for i in range(pars.nchains):
+                    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                    print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                            .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            elif pars.regression_flag == True:
+                test_loss = [0] * pars.nchains
+                for i in range(pars.nchains):
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion).item()
+                    print('Chain {} testLoss: {:0.2f} '\
+                            .format(i, test_loss[i]))
+                test_loss_path.append(test_loss[:])
+
+        end = time.time()
+        print("total running time = ", end - start)
+        ''' save models'''
+        for i in range(pars.nchains):
+            state = {
+                    'state_dict': multichain_model[i].module.state_dict(),
+                    'epoch'     : t
+            }
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            torch.save(state, savepath)
+        if pars.regression_flag == True:
+            outputPath = './result/' + pars.data +'_' + pars.method +'_'+ pars.jobid + '_' + ".csv"
+            with open(outputPath, 'w', newline = '') as file:
+                writer = csv.writer(file)
+                writer.writerow(range(pars.nchains))
+                writer.writerows(test_loss_path)
+
+
+    elif pars.method == 'resgld':
+        ## initializing T & eta from checkpoint (if checkpoint exists)
+        # if epoch < pars.burn * pars.epochs:
+        if epoch < pars.burn * 1000:
+            pars.T /= pars.Tanneal**epoch
+        else:
+            pars.T /= pars.Tanneal**(pars.burn * 1000)
+
+        # if epoch > 0.4 * pars.epochs:
+        if epoch > 0.4 * 1000:
+            pars.eta *= pars.etaanneal**(epoch - 0.4 * 1000)
+
+        start = time.time()
+        for t in range(epoch+1, pars.epochs):
+            # if t < pars.burn * pars.epochs:
+            if t < pars.burn * 1000:
+                pars.T /= pars.Tanneal
+            # if t > 0.4 * pars.epochs:
+            if t > 0.4 * 1000:
+                pars.eta *= pars.etaanneal
+
+            # crossoverGap = 30
+            # if t <30:
+            #     crossoverGap = 30
+            # # elif t>200:
+            # #     crossoverGap = 200
+            # else:
+
+            print("epochs = ",t)  
+
+            # if t<500:  # resnet cifar
+            if t<30:
+                training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion, method='SGLD')
+            else:
+                output = training_re(pars, multichain_model, train_loader, criterion, mutation_method='SGLD')
                 print("total swap = ", output["swap"])
             ''' print accuracy '''
             if pars.regression_flag == False:
@@ -388,7 +556,7 @@ def main():
                 writer.writerows(test_loss_path)
 
                             
-    elif pars.method == 'emc':
+    elif pars.method == 'esghmc':
                 ## initializing T & eta from checkpoint (if checkpoint exists)
         # if epoch < pars.burn * pars.epochs:
         if epoch < 600:
@@ -415,23 +583,100 @@ def main():
             # # elif t>200:
             # #     crossoverGap = 200
             # else:
-            crossoverGap = 10
-            # crossoverGap = t
+            crossoverGap = 10  # 1 layer NN UCI
+            # crossoverGap = t  # resnet cifar
 
             print("epochs = ",t)  
 
             if t<500: 
-                # if t<50 or t%10 != 0:
-                if t<15:
-                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+                # if t<50 or t%10 != 0:  # resnet cifar
+                # if t<50 or t%5 !=0:   # 1 layer NN UCI
+                if t<50:
+                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion, method='SGHMC')
                 else: 
-                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion, mutation_method='SGHMC')
             else:
-                # if t%20 != 0:
-                if t%2 != 0:
-                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion)
+                if t%20 != 0:
+                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion, method='SGHMC')
                 else:
-                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion)
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion, mutation_method='SGHMC')
+
+        
+            ''' print accuracy '''
+            if pars.regression_flag == False:
+                for i in range(pars.nchains):
+                    accuracy[i].eval(multichain_model[i], test_loader, cumulate = False)
+                    print('Chain {} Acc: {:0.2f} BestAcc: {:0.2f}'\
+                            .format(i, accuracy[i].OneEpoch_acc, accuracy[i].best_OneEpoch_acc))
+            elif pars.regression_flag == True:
+                test_loss = [0] * pars.nchains
+                for i in range(pars.nchains):
+                    test_loss[i] = testLoss(multichain_model[i], test_loader, criterion).item()
+                    print('Chain {} testLoss: {:0.2f} '\
+                            .format(i, test_loss[i]))
+                test_loss_path.append(test_loss[:])
+
+        end = time.time()
+        print("total running time = ", end - start)
+
+        ''' save models'''
+        for i in range(pars.nchains):
+            state = {
+                    'state_dict': multichain_model[i].module.state_dict(),
+                    'epoch'     : t
+            }
+            savepath = './output/' + pars.method +'_'+ pars.jobid + '_' + str(i) + ".psh"
+            torch.save(state, savepath)
+        if pars.regression_flag == True:
+            outputPath = './result/' + pars.data +'_' + pars.method +'_'+ pars.jobid + '_' + ".csv"
+            with open(outputPath, 'w', newline = '') as file:
+                writer = csv.writer(file)
+                writer.writerow(range(pars.nchains))
+                writer.writerows(test_loss_path)
+    elif pars.method == 'esgld':
+                ## initializing T & eta from checkpoint (if checkpoint exists)
+        # if epoch < pars.burn * pars.epochs:
+        if epoch < 600:
+            pars.T /= pars.Tanneal**epoch
+        else:
+            pars.T /= pars.Tanneal**(600)
+
+        # if epoch > 0.4 * pars.epochs:
+        if epoch > 400:
+            pars.eta *= pars.etaanneal**(epoch - 400)
+
+        start = time.time()
+        for t in range(epoch+1, pars.epochs):
+            # if t < pars.burn * pars.epochs:
+            if t < 600:
+                pars.T /= pars.Tanneal
+            # if t > 0.4 * pars.epochs:
+            if t > 400:
+                pars.eta *= pars.etaanneal
+
+            # crossoverGap = 30
+            # if t <30:
+            #     crossoverGap = 30
+            # # elif t>200:
+            # #     crossoverGap = 200
+            # else:
+            crossoverGap = 10  # 1 layer NN UCI
+            # crossoverGap = t  # resnet cifar
+
+            print("epochs = ",t)  
+
+            if t<500: 
+                # if t<50 or t%10 != 0:  # resnet cifar
+                # if t<50 or t%2 !=0:   # 1 layer NN UCI
+                if t<15:
+                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion, method='SGLD')
+                else: 
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion, mutation_method='SGLD')
+            else:
+                if t%20 != 0:
+                    training_parallel(pars, multichain_model, range(pars.nchains), train_loader, criterion, method='SGLD')
+                else:
+                    training_emc(pars, multichain_model, train_loader, crossoverRate, crossoverGap, criterion, mutation_method='SGLD')
 
         
             ''' print accuracy '''
